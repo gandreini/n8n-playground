@@ -1,14 +1,14 @@
 "use client"
 
-import { useN8nStore } from "@/lib/store"
+import { useStore } from "@/lib/store"
 import { AppLayout } from "@/components/n8n/app-layout"
 import { OverviewScreen } from "@/components/n8n/screens/overview"
 import { PersonalScreen } from "@/components/n8n/screens/personal"
-import { WorkflowEditorScreen } from "@/components/n8n/screens/workflow-editor"
+import { WorkflowEditor } from "@/components/n8n/screens/workflow-editor"
 import { SettingsScreen } from "@/components/n8n/screens/settings"
 
 export default function Home() {
-  const { currentScreen, currentWorkflow } = useN8nStore()
+  const { currentScreen } = useStore()
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -57,7 +57,7 @@ export default function Home() {
       case "settings":
         return <SettingsScreen />
       case "workflow-editor":
-        return <WorkflowEditorScreen />
+        return <WorkflowEditor />
       default:
         return <OverviewScreen />
     }

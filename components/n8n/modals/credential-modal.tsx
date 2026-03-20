@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ServiceIcon } from "../shared/service-icon"
-import { useN8nStore, type Credential } from "@/lib/store"
+import { useStore, type Credential } from "@/lib/store"
 
 interface CredentialModalProps {
   credential: Credential
@@ -16,7 +16,7 @@ interface CredentialModalProps {
 }
 
 export function CredentialModal({ credential, onClose }: CredentialModalProps) {
-  const { updateCredential, deleteCredential } = useN8nStore()
+  const { updateCredential, deleteCredential } = useStore()
   const [activeTab, setActiveTab] = useState("connection")
   const [formData, setFormData] = useState({
     name: credential.name,
