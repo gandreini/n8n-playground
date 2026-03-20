@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'n8n - Workflow Automation',
+  description: 'Build complex automations with a visual workflow editor',
   generator: 'v0.app',
   icons: {
     icon: [
