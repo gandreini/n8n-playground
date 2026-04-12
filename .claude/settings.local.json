@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__resize_page",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm dev:*)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__click",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/n8n-io/n8n/refs/heads/master/packages/frontend/%40n8n/design-system/src/css/_primitives.scss\")",
+      "Read(//tmp/**)",
+      "Bash(grep -v '^\\\\s*$')",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_screenshot"
+    ]
+  }
+}

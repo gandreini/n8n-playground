@@ -1,0 +1,16 @@
+# Local Claude settings — copy to claude.local.md and personalize
+
+## Who am I
+- Username: {your-username}
+- My prototype directory: app/prototypes/{your-username}/
+
+## Rules
+- Work exclusively in my directory unless explicitly asked otherwise
+- Do not modify other people's directories
+- Do not modify root-level files (layout.tsx, page.tsx, globals.css)
+- Prefer to work in my prototype directory
+
+## Workspace
+- Each prototype directory is a standalone project
+- I can import shared components from components/n8n/ and components/ui/
+- Each prototype has its own page.tsx and metadata.json

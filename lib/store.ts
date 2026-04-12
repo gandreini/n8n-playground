@@ -40,6 +40,7 @@ export interface Workflow {
   createdAt: Date
   tags?: string[]
   project?: string
+  linkedCount?: number
 }
 
 export interface Credential {
@@ -139,7 +140,8 @@ const mockWorkflows: Workflow[] = [
     status: 'published',
     lastUpdated: new Date(Date.now() - 15 * 60 * 60 * 1000),
     createdAt: new Date('2025-02-25'),
-    project: 'Personal'
+    project: 'Personal',
+    linkedCount: 3
   },
   {
     id: '2',
@@ -150,7 +152,8 @@ const mockWorkflows: Workflow[] = [
     lastUpdated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     createdAt: new Date('2025-10-17'),
     project: 'Personal',
-    tags: ['Production Workflows']
+    tags: ['Production Workflows'],
+    linkedCount: 5
   },
   {
     id: '3',
@@ -181,7 +184,8 @@ const mockWorkflows: Workflow[] = [
     lastUpdated: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     createdAt: new Date('2025-01-29'),
     project: 'Personal',
-    tags: ['Production Workflows']
+    tags: ['Production Workflows'],
+    linkedCount: 2
   },
   {
     id: '6',

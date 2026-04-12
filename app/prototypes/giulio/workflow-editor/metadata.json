@@ -1,0 +1,9 @@
+{
+  "title": "Workflow Editor",
+  "description": "Main n8n workflow editor UI prototype with visual node editor, sidebar navigation, and full app chrome",
+  "author": "giulio",
+  "date": "2025-03-20",
+  "externalUrl": null,
+  "featured": true,
+  "template": false
+}
