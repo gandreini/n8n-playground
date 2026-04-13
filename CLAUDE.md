@@ -98,17 +98,50 @@ Use these — don't recreate them:
 - Prefer Tailwind utility classes over custom CSS
 - Use n8n design tokens from `globals.css` (e.g., `var(--color--orange-300)`, `var(--color--neutral-800)`)
 
-## Self-verification
+## Self-verification (MANDATORY)
 
-Before reporting work as done, verify it yourself:
+**You MUST visually verify every UI change before reporting work as done.** Do not skip this step. Do not claim something works without seeing it.
 
-1. Run `pnpm lint` and fix any errors
-2. Use Playwright MCP or Chrome DevTools MCP to open the browser, navigate to the prototype, and take a screenshot
-3. Check the screenshot — does it look right? Any visual errors, broken layouts, missing content?
-4. If something looks wrong, fix it — don't ask the user to check
-5. Check the browser console for errors
+### Step 1: Make sure the dev server is running
+```bash
+pnpm dev
+```
 
-The principle: **anytime you would ask the user to look at something, look at it yourself first.**
+### Step 2: Open the page in the browser and take a screenshot
+Use whichever browser tool is available — Playwright MCP, Chrome DevTools MCP, or Claude-in-Chrome:
+
+**Chrome DevTools MCP:**
+```
+mcp__chrome-devtools__navigate_page → url: http://localhost:3000/your-page
+mcp__chrome-devtools__take_screenshot
+```
+
+**Playwright MCP:**
+```
+mcp__plugin_playwright_playwright__browser_navigate → url: http://localhost:3000/your-page
+mcp__plugin_playwright_playwright__browser_take_screenshot
+```
+
+**Claude-in-Chrome:**
+```
+mcp__claude-in-chrome__navigate → url: http://localhost:3000/your-page
+mcp__claude-in-chrome__read_page
+```
+
+### Step 3: Inspect the screenshot
+- Does the layout look correct? No overlapping elements, no broken alignment?
+- Are colors, fonts, and spacing matching the n8n design tokens?
+- Is the content rendering (no blank pages, no missing data)?
+- Are interactive elements visible (buttons, tabs, links)?
+
+### Step 4: Check for errors
+- Use the browser console tool to check for JavaScript errors
+- Run `pnpm lint` and fix any issues
+
+### Step 5: Fix issues before reporting
+If anything looks wrong, fix it and take another screenshot. Repeat until it looks right.
+
+**The principle: anytime you would ask the user to look at something, look at it yourself first. Never say "it should work" — verify that it does.**
 
 ## How to run
 

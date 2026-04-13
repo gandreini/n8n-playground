@@ -48,7 +48,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   const iconProps = {
     width: size,
     height: size,
-    className: cn('flex-shrink-0', className)
+    className: cn('n8n-service-icon flex-shrink-0', className)
   }
   
   // Google Calendar icon (colorful calendar)
@@ -108,7 +108,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'clock') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 
@@ -127,7 +127,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'switch') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 
@@ -146,7 +146,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'code') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 
@@ -165,7 +165,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'webhook') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 
@@ -184,7 +184,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'http') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 
@@ -203,7 +203,7 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   if (service === 'openai' || service === 'anthropic' || service === 'ai') {
     return (
       <div 
-        className={cn('flex items-center justify-center rounded-[var(--radius--xs)]', className)}
+        className={cn('n8n-service-icon flex items-center justify-center rounded-[var(--radius--xs)]', className)}
         style={{ 
           width: size, 
           height: size, 

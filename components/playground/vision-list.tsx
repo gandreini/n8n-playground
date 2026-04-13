@@ -30,7 +30,7 @@ export function VisionList({ prototypes, searchQuery }: VisionListProps) {
   }
 
   return (
-    <div className="space-y-0">
+    <div className="playground-vision-list space-y-0">
       {filtered.map((entry) => {
         const isExternal = !!entry.externalUrl
         const href = isExternal ? entry.externalUrl! : entry.path

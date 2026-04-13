@@ -39,7 +39,7 @@ export function AppLayout() {
   }
   
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="n8n-app-layout flex h-screen overflow-hidden">
       {currentScreen !== 'workflow-editor' && <Sidebar />}
       <main className="flex-1 overflow-hidden">
         {renderScreen()}

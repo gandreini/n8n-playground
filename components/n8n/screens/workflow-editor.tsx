@@ -352,7 +352,7 @@ export function WorkflowEditor() {
   if (!currentWorkflow) return null
   
   return (
-    <div className="h-screen flex">
+    <div className="n8n-workflow-editor h-screen flex">
       <Sidebar />
       
       <div className="flex-1 flex flex-col overflow-hidden">

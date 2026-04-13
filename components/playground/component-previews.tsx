@@ -38,10 +38,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Spinner } from "@/components/ui/spinner"
 
 // n8n
+import { N8nButton } from "@/components/n8n/shared/button"
+import { IconButton } from "@/components/n8n/shared/icon-button"
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo"
+import { StatCard } from "@/components/n8n/shared/stat-card"
+import { Tag } from "@/components/n8n/shared/tag"
+import { TabBar } from "@/components/n8n/shared/tab-bar"
+import { Pagination as N8nPagination } from "@/components/n8n/shared/pagination"
 import { WorkflowRow } from "@/components/n8n/shared/workflow-row"
 
-import { Bold, Italic, Underline, Info, ChevronDown, Terminal } from "lucide-react"
+import { Bold, Italic, Underline, Info, ChevronDown, Terminal, MoreVertical, Filter, Settings } from "lucide-react"
 
 const previews: Record<string, ReactNode> = {
   // --- shadcn/ui ---
@@ -339,6 +345,57 @@ const previews: Record<string, ReactNode> = {
   ),
 
   // --- n8n ---
+  "components/n8n/shared/credential-row.tsx": (
+    <div className="text-xs text-muted-foreground italic">Credential list row — used in Overview and Personal screens</div>
+  ),
+  "components/n8n/shared/execution-row.tsx": (
+    <div className="text-xs text-muted-foreground italic">Execution list row — used in Overview and Personal screens</div>
+  ),
+  "components/n8n/shared/execution-list-header.tsx": (
+    <div className="text-xs text-muted-foreground italic">Execution list column headers</div>
+  ),
+  "components/n8n/shared/icon-button.tsx": (
+    <div className="flex gap-2 items-center">
+      <IconButton icon={<MoreVertical className="w-4 h-4 text-[var(--color--neutral-400)]" />} label="More" />
+      <IconButton icon={<Filter className="w-4 h-4 text-[var(--color--neutral-500)]" />} label="Filter" />
+      <IconButton icon={<Settings className="w-4 h-4 text-[var(--color--neutral-500)]" />} label="Settings" />
+    </div>
+  ),
+  "components/n8n/shared/stat-card.tsx": (
+    <StatCard label="Prod. executions" value="2,259" trend="8.65%" trendDown />
+  ),
+  "components/n8n/shared/pagination.tsx": (
+    <N8nPagination total={308} className="px-0" />
+  ),
+  "components/n8n/shared/button.tsx": (
+    <div className="flex gap-2 items-center flex-wrap">
+      <N8nButton>Solid</N8nButton>
+      <N8nButton variant="subtle">Subtle</N8nButton>
+      <N8nButton variant="outline">Outline</N8nButton>
+      <N8nButton variant="ghost">Ghost</N8nButton>
+      <N8nButton variant="destructive">Destructive</N8nButton>
+      <N8nButton variant="success">Success</N8nButton>
+    </div>
+  ),
+  "components/n8n/shared/tab-bar.tsx": (
+    <TabBar
+      tabs={[
+        { id: "workflows", label: "Workflows" },
+        { id: "credentials", label: "Credentials" },
+        { id: "executions", label: "Executions" },
+      ]}
+      activeTab="workflows"
+      onTabChange={() => {}}
+      className="px-0"
+    />
+  ),
+  "components/n8n/shared/tag.tsx": (
+    <div className="flex gap-2">
+      <Tag text="marketing" />
+      <Tag text="Production Workflows" />
+      <Tag text="v2" />
+    </div>
+  ),
   "components/n8n/shared/n8n-logo.tsx": (
     <div className="flex items-center gap-2">
       <N8nLogo size={24} />

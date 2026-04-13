@@ -10,7 +10,7 @@ interface PrototypeShellProps {
 
 export function PrototypeShell({ children, hideSidebar = false }: PrototypeShellProps) {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="n8n-prototype-shell flex h-screen overflow-hidden">
       {!hideSidebar && <Sidebar />}
       <main className="flex-1 overflow-hidden">
         {children}

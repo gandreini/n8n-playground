@@ -19,7 +19,13 @@
       "Read(//tmp/**)",
       "Bash(grep -v '^\\\\s*$')",
       "mcp__figma__get_design_context",
-      "mcp__figma__get_screenshot"
+      "mcp__figma__get_screenshot",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(curl:*)",
+      "mcp__chrome-devtools__evaluate_script",
+      "mcp__chrome-devtools__list_console_messages",
+      "Skill(commit-message)",
+      "Bash(git add:*)"
     ]
   }
 }

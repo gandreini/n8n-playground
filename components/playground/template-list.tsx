@@ -31,7 +31,7 @@ export function TemplateList({ templates, searchQuery, isDev }: TemplateListProp
   }
 
   return (
-    <div className="space-y-0">
+    <div className="playground-template-list space-y-0">
       {filtered.map((template) => (
         <TemplateRow key={template.slug} template={template} isDev={isDev} />
       ))}
@@ -49,6 +49,7 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
     return ""
   })
   const [loading, setLoading] = useState(false)
+  const [created, setCreated] = useState<{ path: string } | null>(null)
 
   const templateSlug = template.slug.replace("_templates/", "")
 
@@ -72,9 +73,8 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
 
       if (res.ok) {
         const data = await res.json()
-        setOpen(false)
+        setCreated({ path: data.path })
         setName("")
-        window.location.href = data.path
       }
     } finally {
       setLoading(false)
@@ -100,8 +100,25 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>New prototype from {template.title}</DialogTitle>
+              <DialogTitle>{created ? "Prototype created!" : `New prototype from ${template.title}`}</DialogTitle>
             </DialogHeader>
+            {created ? (
+              <div className="space-y-4 pt-2">
+                <div className="flex items-start gap-3 p-4 rounded-[var(--radius--xs)] bg-[var(--color--green-50)] border border-[var(--color--green-200)]">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-[var(--color--neutral-800)]">Files created at <code className="text-xs bg-[var(--color--neutral-125)] px-1 py-0.5 rounded">{created.path}</code></p>
+                    <p className="text-xs text-[var(--color--neutral-500)]">Restart the dev server to see the new route, then navigate to your prototype.</p>
+                  </div>
+                </div>
+                <div className="p-3 rounded-[var(--radius--xs)] bg-[var(--color--neutral-50)] border border-[var(--color--neutral-150)] font-mono text-xs text-[var(--color--neutral-700)]">
+                  <p className="text-[var(--color--neutral-400)] mb-1"># Restart dev server, then open:</p>
+                  <p>http://localhost:3000{created.path}</p>
+                </div>
+                <Button onClick={() => { setCreated(null); setOpen(false) }} variant="outline" className="w-full">
+                  Done
+                </Button>
+              </div>
+            ) : (
             <div className="space-y-4 pt-2">
               <div className="space-y-2">
                 <Label htmlFor="template-username">Username</Label>
@@ -129,6 +146,7 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
                 {loading ? "Creating..." : "Create prototype"}
               </Button>
             </div>
+            )}
           </DialogContent>
         </Dialog>
       )}

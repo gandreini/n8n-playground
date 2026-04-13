@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Search, Plus, ExternalLink as ExternalLinkIcon } from "lucide-react"
+import { Search, Plus, ExternalLink as ExternalLinkIcon, CheckCircle2 } from "lucide-react"
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { N8nButton } from "@/components/n8n/shared/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PrototypeList } from "./prototype-list"
@@ -25,7 +26,7 @@ export function Homepage({ prototypes, templates, components, isDev }: HomepageP
   const [searchQuery, setSearchQuery] = useState("")
 
   return (
-    <div className="min-h-screen bg-[var(--color--neutral-white)]">
+    <div className="playground-homepage min-h-screen bg-[var(--color--neutral-white)]">
       <div className="max-w-3xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
@@ -97,6 +98,7 @@ function NewPrototypeDialog() {
   })
   const [template, setTemplate] = useState("blank")
   const [loading, setLoading] = useState(false)
+  const [created, setCreated] = useState<{ path: string } | null>(null)
 
   async function handleCreate() {
     if (!name.trim() || !username.trim()) return
@@ -118,10 +120,9 @@ function NewPrototypeDialog() {
 
       if (res.ok) {
         const data = await res.json()
-        setOpen(false)
+        setCreated({ path: data.path })
         setName("")
         setDescription("")
-        window.location.href = data.path
       }
     } finally {
       setLoading(false)
@@ -131,15 +132,32 @@ function NewPrototypeDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5">
-          <Plus className="w-4 h-4" />
+        <N8nButton size="small" icon={<Plus className="w-4 h-4" />}>
           New
-        </Button>
+        </N8nButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New prototype</DialogTitle>
+          <DialogTitle>{created ? "Prototype created!" : "New prototype"}</DialogTitle>
         </DialogHeader>
+        {created ? (
+          <div className="space-y-4 pt-2">
+            <div className="flex items-start gap-3 p-4 rounded-[var(--radius--xs)] bg-[var(--color--green-50)] border border-[var(--color--green-200)]">
+              <CheckCircle2 className="w-5 h-5 text-[var(--color--green-600)] shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-[var(--color--neutral-800)]">Files created at <code className="text-xs bg-[var(--color--neutral-125)] px-1 py-0.5 rounded">{created.path}</code></p>
+                <p className="text-xs text-[var(--color--neutral-500)]">Restart the dev server to see the new route, then navigate to your prototype.</p>
+              </div>
+            </div>
+            <div className="p-3 rounded-[var(--radius--xs)] bg-[var(--color--neutral-50)] border border-[var(--color--neutral-150)] font-mono text-xs text-[var(--color--neutral-700)]">
+              <p className="text-[var(--color--neutral-400)] mb-1"># Restart dev server, then open:</p>
+              <p>http://localhost:3000{created.path}</p>
+            </div>
+            <Button onClick={() => { setCreated(null); setOpen(false) }} variant="outline" className="w-full">
+              Done
+            </Button>
+          </div>
+        ) : (
         <div className="space-y-4 pt-2">
           <div className="space-y-2">
             <Label htmlFor="new-username">Username</Label>
@@ -188,6 +206,7 @@ function NewPrototypeDialog() {
             {loading ? "Creating..." : "Create prototype"}
           </Button>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   )
@@ -239,10 +258,9 @@ function LinkExternalDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <ExternalLinkIcon className="w-4 h-4" />
+        <N8nButton variant="subtle" size="small" icon={<ExternalLinkIcon className="w-4 h-4" />}>
           Link external
-        </Button>
+        </N8nButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

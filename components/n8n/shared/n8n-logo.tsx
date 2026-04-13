@@ -9,6 +9,7 @@ export function N8nLogo({ size = 24 }: N8nLogoProps) {
 
   return (
     <svg
+      className="n8n-logo"
       width={width}
       height={height}
       viewBox="0 0 48 24"

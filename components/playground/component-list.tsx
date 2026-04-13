@@ -32,7 +32,7 @@ export function ComponentList({ components, searchQuery }: ComponentListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="playground-component-list space-y-6">
       {n8nComponents.length > 0 && (
         <div>
           <h3 className="text-[var(--font-size--2xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-400)] uppercase tracking-wide mb-2">

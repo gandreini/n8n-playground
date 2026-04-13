@@ -65,7 +65,7 @@ export function PrototypeList({ prototypes, searchQuery }: PrototypeListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="playground-prototype-list space-y-6">
       {Object.entries(groups).map(([month, entries]) => (
         <div key={month}>
           <h3 className="text-[var(--font-size--2xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-400)] uppercase tracking-wide mb-2">

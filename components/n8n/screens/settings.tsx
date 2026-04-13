@@ -33,7 +33,7 @@ export function SettingsScreen() {
   })
 
   return (
-    <div className="flex h-full bg-background">
+    <div className="n8n-settings flex h-full bg-background">
       {/* Settings sidebar */}
       <div className="w-64 border-r border-border p-4">
         <h2 className="text-lg font-semibold text-foreground mb-4">Settings</h2>

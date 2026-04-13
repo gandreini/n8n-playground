@@ -188,7 +188,7 @@ export function NodeConfigPanel() {
   }
   
   return (
-    <div className="fixed inset-0 z-50 flex">
+    <div className="n8n-node-config-panel fixed inset-0 z-50 flex">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-[var(--color--black-alpha-300)]"

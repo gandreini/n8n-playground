@@ -246,7 +246,7 @@ export function NodesPanel() {
   ) || []
   
   return (
-    <div className="w-[350px] h-full bg-white border-l border-[var(--color--neutral-150)] flex flex-col transition-base">
+    <div className="n8n-nodes-panel w-[350px] h-full bg-white border-l border-[var(--color--neutral-150)] flex flex-col transition-base">
       {/* Header */}
       <div className="p-4 border-b border-[var(--color--neutral-150)]">
         <div className="flex items-center justify-between mb-4">
