@@ -8,13 +8,39 @@ Create a new prototype in the playground. Accepts an optional name as argument: 
 
 2. **Get the prototype name.** If provided as an argument, use it. Otherwise, ask: "What would you like to call this prototype?"
 
-3. **Get a brief description.** Ask: "One-line description of what you're prototyping?"
+3. **Check git branch.** Run `git branch --show-current`.
 
-4. **Choose a template.** Ask which template to use:
+   The expected branch for this prototype is `{username}/{prototype-name}`.
+
+   If on `main`:
+   > "You're on the main branch. It's best to create your prototype on its own branch — this keeps your work separate and makes deploying easier later."
+   > "I'd suggest creating a branch called `{username}/{prototype-name}`. Want me to do that?"
+
+   If the user agrees, switch to the branch:
+   - Check if it exists locally: `git branch --list {username}/{prototype-name}`
+   - If it exists locally: `git checkout {username}/{prototype-name}`
+   - If not local, check remote: `git ls-remote --heads origin {username}/{prototype-name}`
+   - If it exists on the remote: `git checkout -b {username}/{prototype-name} origin/{username}/{prototype-name}`
+   - If it doesn't exist anywhere: `git checkout -b {username}/{prototype-name}`
+   - If checkout fails due to uncommitted changes, offer to stash first: `git stash`, switch, then `git stash pop`
+   > "Switched to branch `{username}/{prototype-name}` — your prototype files will be created here."
+
+   If the user declines:
+   > "No problem — I'll create the prototype on `main`. You can always move to a branch later with `/deploy`."
+
+   If already on a matching feature branch:
+   > "You're on branch `{branch}` — I'll create the prototype here."
+
+   If on a different or unrelated branch:
+   > "You're on branch `{branch}`, which doesn't look related to this prototype. Want me to create a new branch `{username}/{prototype-name}`, or keep working here?"
+
+4. **Get a brief description.** Ask: "One-line description of what you're prototyping?"
+
+5. **Choose a template.** Ask which template to use:
    - **blank** — Minimal page with just a title
    - **n8n-app** — Page with n8n sidebar chrome (uses PrototypeShell)
 
-5. **Create the prototype directory** at `app/prototypes/{username}/{prototype-name}/` with:
+6. **Create the prototype directory** at `app/prototypes/{username}/{prototype-name}/` with:
 
    A `metadata.json` like this:
    ```json
@@ -59,7 +85,7 @@ Create a new prototype in the playground. Accepts an optional name as argument: 
    }
    ```
 
-6. **Report what was created:**
+7. **Report what was created:**
    - Directory path
    - Files created
    - URL to view it: `http://localhost:3000/prototypes/{username}/{prototype-name}`

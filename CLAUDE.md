@@ -68,14 +68,20 @@ Use these — don't recreate them:
 - **Shared**: `service-icon.tsx`, `n8n-logo.tsx`
 - **shadcn/ui**: Full library in `components/ui/` — button, dialog, tabs, input, label, etc.
 
-## How to create a prototype
+## How to create or select a prototype
 
-**Option 1: Use the `/create-prototype` command** (recommended)
+**Create a new prototype:**
 ```
 /create-prototype my-feature-name
 ```
 
-**Option 2: Manually**
+**Work on an existing prototype:**
+```
+/select-prototype
+```
+This lists your prototypes and helps you switch to the right branch.
+
+**Create manually:**
 1. Create `app/prototypes/{username}/{prototype-name}/`
 2. Create `metadata.json`:
    ```json
@@ -97,6 +103,20 @@ Use these — don't recreate them:
 - Use shared components from `components/ui/` and `components/n8n/`
 - Prefer Tailwind utility classes over custom CSS
 - Use n8n design tokens from `globals.css` (e.g., `var(--color--orange-300)`, `var(--color--neutral-800)`)
+
+## Git workflow
+
+- **Branch naming**: `{username}/{prototype-name}` (e.g., `giulio/workflow-editor`)
+- **Never commit prototype work directly to `main`** — always use a feature branch
+- Both `/create-prototype` and `/select-prototype` will suggest creating a branch if you're on `main`
+- The `/deploy` command also handles branching automatically as a safety net
+
+### Branch check logic (used by commands)
+When switching to a branch for a prototype:
+1. If the branch exists locally → `git checkout {username}/{prototype-name}`
+2. If it exists on the remote but not locally → `git checkout -b {username}/{prototype-name} origin/{username}/{prototype-name}`
+3. If it doesn't exist anywhere → `git checkout -b {username}/{prototype-name}`
+4. If checkout fails due to uncommitted changes → offer to `git stash`, switch, then `git stash pop`
 
 ## Self-verification (MANDATORY)
 
