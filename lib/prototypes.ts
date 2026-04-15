@@ -239,3 +239,92 @@ export async function createPrototype(params: {
     slug: `${username}/${slug}`,
   }
 }
+
+// --- Modification ---
+
+function resolvePrototypePath(slug: string): string {
+  const [username, protoName] = slug.split("/")
+  if (!username || !protoName || username.startsWith("_") || username.startsWith(".")) {
+    throw new Error(`Invalid prototype slug: ${slug}`)
+  }
+  const dirPath = path.join(process.cwd(), "app/prototypes", username, protoName)
+  if (!fs.existsSync(dirPath)) {
+    throw new Error(`Prototype not found: ${slug}`)
+  }
+  return dirPath
+}
+
+export async function setPrototypeFeatured(slug: string, featured: boolean): Promise<void> {
+  const dirPath = resolvePrototypePath(slug)
+  const metadataPath = path.join(dirPath, "metadata.json")
+  const raw = fs.readFileSync(metadataPath, "utf-8")
+  const metadata: PrototypeMetadata = JSON.parse(raw)
+  metadata.featured = featured
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2) + "\n")
+}
+
+export async function updatePrototypeDate(slug: string, date: string): Promise<void> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error(`Invalid date (expected YYYY-MM-DD): ${date}`)
+  }
+  const dirPath = resolvePrototypePath(slug)
+  const metadataPath = path.join(dirPath, "metadata.json")
+  const raw = fs.readFileSync(metadataPath, "utf-8")
+  const metadata: PrototypeMetadata = JSON.parse(raw)
+  metadata.date = date
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2) + "\n")
+}
+
+export async function branchPrototype(params: {
+  sourceSlug: string
+  name: string
+  username: string
+}): Promise<{ path: string; slug: string }> {
+  const { sourceSlug, name, username } = params
+
+  const sourceDir = resolvePrototypePath(sourceSlug)
+
+  const newSlug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+
+  if (!newSlug) {
+    throw new Error("Invalid prototype name")
+  }
+
+  const destDir = path.join(process.cwd(), "app/prototypes", username, newSlug)
+  if (fs.existsSync(destDir)) {
+    throw new Error(`Prototype already exists: ${username}/${newSlug}`)
+  }
+
+  fs.cpSync(sourceDir, destDir, { recursive: true })
+
+  // Rewrite metadata with the new title/author/date, keep description.
+  const metadataPath = path.join(destDir, "metadata.json")
+  let metadata: PrototypeMetadata
+  try {
+    metadata = JSON.parse(fs.readFileSync(metadataPath, "utf-8"))
+  } catch {
+    metadata = {
+      title: name,
+      description: "",
+      author: username,
+      date: new Date().toISOString().split("T")[0],
+      externalUrl: null,
+      featured: false,
+      template: false,
+    }
+  }
+  metadata.title = name
+  metadata.author = username
+  metadata.date = new Date().toISOString().split("T")[0]
+  metadata.featured = false
+  metadata.template = false
+  fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2) + "\n")
+
+  return {
+    path: `/prototypes/${username}/${newSlug}`,
+    slug: `${username}/${newSlug}`,
+  }
+}

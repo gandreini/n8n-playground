@@ -41,6 +41,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { N8nButton } from "@/components/n8n/shared/button"
 import { IconButton } from "@/components/n8n/shared/icon-button"
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo"
+import { PromptInput } from "@/components/n8n/shared/prompt-input"
 import { StatCard } from "@/components/n8n/shared/stat-card"
 import { Tag } from "@/components/n8n/shared/tag"
 import { TabBar } from "@/components/n8n/shared/tab-bar"
@@ -363,6 +364,11 @@ const previews: Record<string, ReactNode> = {
   ),
   "components/n8n/shared/stat-card.tsx": (
     <StatCard label="Prod. executions" value="2,259" trend="8.65%" trendDown />
+  ),
+  "components/n8n/shared/prompt-input.tsx": (
+    <div className="w-full max-w-md">
+      <PromptInput placeholder="Type a message..." />
+    </div>
   ),
   "components/n8n/shared/pagination.tsx": (
     <N8nPagination total={308} className="px-0" />
