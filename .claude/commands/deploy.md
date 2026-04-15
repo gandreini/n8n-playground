@@ -120,11 +120,40 @@ Once you have the URL, tell the user:
 If the URL can't be retrieved after 3 attempts:
 > "The preview is still building. Check your PR on GitHub — the Vercel bot will post the link there once it's ready."
 
+### 2.9 Verify Vercel deployment
+> "Let me make sure the deployment actually succeeded..."
+
+Check the deployment status:
+```bash
+gh api repos/{owner}/{repo}/deployments --jq '[.[] | select(.sha == "{head-sha}")] | first | .statuses_url' | xargs -I{} gh api {} --jq '.[0] | {state: .state, description: .description}'
+```
+
+If the deployment status isn't available yet, wait 30 seconds and retry. Try up to 5 times.
+
+If the deployment **succeeded**:
+> "Deployment is live and working!"
+
+If the deployment **failed**:
+> "The Vercel build failed — let me check the logs and fix it."
+
+1. Get the deployment ID from the description (it contains a `dpl_` ID) or from the Vercel CLI:
+   ```bash
+   npx vercel inspect {deployment-id} --logs --scope {vercel-scope} 2>&1 | tail -40
+   ```
+2. Read the error output and identify the root cause (missing dependency, type error, import issue, etc.)
+3. Fix the issue locally
+4. Run `pnpm build` to confirm the fix works
+5. Stage, commit, and push the fix
+6. Go back to the start of step 2.9 and verify the new deployment succeeds
+
+Keep looping until the deployment succeeds, or stop after 3 fix attempts and report the issue to the user.
+
 ---
 
 ## Important notes
 
 - Never push directly to `main`
 - Preview URLs are **public** — remind the user every time
+- **Always verify the Vercel deployment succeeds** — a passing CI check doesn't guarantee a successful Vercel build
 - If something goes wrong, explain what happened in plain language
-- If you can't fix a CI failure after 3 attempts, explain the issue and suggest next steps
+- If you can't fix a CI failure or Vercel build after 3 attempts, explain the issue and suggest next steps

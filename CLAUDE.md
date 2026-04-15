@@ -118,6 +118,21 @@ When switching to a branch for a prototype:
 3. If it doesn't exist anywhere → `git checkout -b {username}/{prototype-name}`
 4. If checkout fails due to uncommitted changes → offer to `git stash`, switch, then `git stash pop`
 
+## Vercel deployment verification
+
+This app is deployed on Vercel. **After every push to `main` or a feature branch, verify the Vercel deployment succeeded.**
+
+1. Check the deployment status via GitHub API:
+   ```bash
+   gh api repos/{owner}/{repo}/deployments --jq '[.[] | select(.sha == "{sha}")] | first | .statuses_url' | xargs -I{} gh api {} --jq '.[0] | {state: .state, description: .description}'
+   ```
+2. If the deployment **failed**, inspect the Vercel build logs:
+   ```bash
+   npx vercel inspect {deployment-id} --logs --scope n8n-vibes
+   ```
+3. Fix the issue (common causes: missing dependencies in `package.json`, import errors, type errors), run `pnpm build` locally to confirm, then push the fix.
+4. Don't report work as done until the Vercel deployment is green.
+
 ## Self-verification (MANDATORY)
 
 **You MUST visually verify every UI change before reporting work as done.** Do not skip this step. Do not claim something works without seeing it.
