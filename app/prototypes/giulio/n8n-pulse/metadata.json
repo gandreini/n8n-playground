@@ -1,9 +1,9 @@
 {
-  "title": "n8n-pulse",
-  "description": "Created from n8n App Shell template",
+  "title": "n8n Pulse",
+  "description": "Anett & Pulse — voice and chat AI interaction with configurable agent anatomy",
   "author": "giulio",
-  "date": "2026-04-13",
+  "date": "2026-04-01",
   "externalUrl": null,
-  "featured": false,
+  "featured": true,
   "template": false
 }

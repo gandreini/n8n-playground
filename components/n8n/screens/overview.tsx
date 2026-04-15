@@ -59,7 +59,7 @@ export function OverviewScreen() {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="flex gap-3">
+                <div className="flex border border-[var(--color--neutral-150)] rounded-[var(--radius--xs)] overflow-hidden">
                     <StatCard label="Prod. executions" value="2,259" trend="8.65%" trendDown />
                     <StatCard label="Failed prod. executions" value="30" trend="16.67%" trendDown />
                     <StatCard label="Failure rate" value="1.3%" trend="0.2pp" trendDown />

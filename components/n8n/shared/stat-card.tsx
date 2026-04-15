@@ -14,7 +14,7 @@ export function StatCard({ label, value, trend, trendDown, className }: StatCard
     return (
         <div
             className={cn(
-                "n8n-stat-card flex-1 min-w-0 p-4 bg-[var(--color--neutral-white)] border border-[var(--color--neutral-150)] rounded-[var(--radius--xs)]",
+                "n8n-stat-card flex-1 min-w-0 p-4 bg-[var(--color--neutral-white)] border-r border-r-[var(--color--neutral-150)] last:border-r-0",
                 className,
             )}
         >
