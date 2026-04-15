@@ -97,12 +97,34 @@ Poll CI status every 60 seconds using `gh pr checks`. If a check fails:
 Keep looping until all checks pass, or stop after 3 iterations with no progress.
 
 When all checks pass:
-> "All checks passed! Your prototype is being deployed to Vercel. You should see a preview link in the PR shortly."
+> "All checks passed! Let me grab your preview link..."
+
+### 2.8 Get Vercel preview URL
+> "Every branch you push gets its own live preview on Vercel — this is a real URL anyone can visit."
+
+Get the preview URL from the PR's deployment status:
+```bash
+gh api repos/{owner}/{repo}/pulls/{pr-number} --jq '.head.sha' | xargs -I{} gh api repos/{owner}/{repo}/deployments --jq '[.[] | select(.sha == "{}") | select(.environment == "Preview")] | first | .statuses_url' | xargs -I{} gh api {} --jq '.[0].target_url'
+```
+
+If the URL isn't available yet (deployment still in progress), wait 30 seconds and try again. Try up to 3 times.
+
+Once you have the URL, tell the user:
+> "Your prototype is live! Here's your preview link:"
+> `{preview-url}`
+>
+> "⚠️ **Heads up — this link is public.** Anyone with the URL can see your prototype, so keep that in mind if it contains anything sensitive or unfinished."
+>
+> "Share this link with your team for feedback. It'll update automatically every time you push to this branch."
+
+If the URL can't be retrieved after 3 attempts:
+> "The preview is still building. Check your PR on GitHub — the Vercel bot will post the link there once it's ready."
 
 ---
 
 ## Important notes
 
 - Never push directly to `main`
+- Preview URLs are **public** — remind the user every time
 - If something goes wrong, explain what happened in plain language
 - If you can't fix a CI failure after 3 attempts, explain the issue and suggest next steps
