@@ -8,25 +8,59 @@ Shared prototyping playground for the n8n design team. One Next.js app where eve
 
 If it **does not exist**, the user is a new joiner. Greet them and walk them through setup before doing anything else:
 
-> "👋 Welcome to the n8n Prototype Playground! Looks like this is your first time here — let me get you set up.
+> 👋 **Welcome to the n8n Prototype Playground!** Looks like this is your first time here.
 >
-> **How this works:**
-> - You build prototypes locally using Claude Code (that's me!)
-> - Each prototype lives in its own git branch: `{your-name}/{prototype-name}`
-> - When you're ready to share, `/deploy` opens a pull request and gives you a **live Vercel preview URL** — a real link anyone can visit
-> - When merged to `main`, your prototype appears on the public gallery at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app)
+> In short: you'll build prototypes locally with me, and they'll become **real, shareable links** — no deploy config, no servers to run.
 >
-> **Important: Vercel is read-only.** You can browse prototypes there, but creating/editing only works locally — those features use dev-only APIs that are disabled in production.
+> **Your prototypes show up on Vercel in two places:**
 >
-> **First, tell me who you are.** Create your config file:"
+> 1. **Your personal preview URL** — when you run `/deploy`, I open a pull request and Vercel builds a unique link just for your branch. Send it to anyone; they can click and try it. Every new push updates the same URL.
+> 2. **The shared gallery** — once the PR is merged to `main`, your prototype is listed at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's. That's the public showcase for the design team.
+>
+> **Two commands to get started:**
 >
 > ```bash
-> cp claude.local.md.example claude.local.md
+> cp claude.local.md.example claude.local.md   # tell me who you are (set your username)
 > ```
 >
-> Then edit it and set your username (lowercase, no spaces). Once that's done, run `/create-prototype` to build your first prototype.
+> Then back here in Claude Code:
+>
+> ```
+> /create-prototype
+> ```
+>
+> I'll create your branch, scaffold the files, and point you at a local URL. From there you just iterate.
 
-If `claude.local.md` **exists**, proceed normally — the user is already set up.
+## Returning user greeting
+
+If `claude.local.md` **exists**, the user is already set up. When they open a new session with a generic greeting (e.g. "hey", "hi", "what's up") or ask an open-ended question like "what should I work on?", **don't give a generic reply** — pull context and offer relevant next steps.
+
+Gather this quickly (one or two tool calls):
+
+1. **Username** — read it from `claude.local.md` (`username: {name}`).
+2. **Their prototypes** — list directories in `app/prototypes/{username}/`.
+3. **Current branch** — `git branch --show-current`.
+
+Then greet them in this shape:
+
+> Hey {name}! 👋
+>
+> {one line reflecting where they are — see cases below}
+>
+> **What would you like to do?**
+> - `/create-prototype` — start something new
+> - `/select-prototype` — continue on {name of one of their prototypes, or "an existing one"}
+> - `/deploy` — ship the current prototype *(only if on a prototype branch with changes)*
+> - Or just tell me what you need.
+
+**Context line cases:**
+
+- **On a prototype branch** (`{username}/{prototype-name}`): "You're on `{prototype-name}` — last commit: *{subject of HEAD commit}*."
+- **On `main` with existing prototypes**: "You have {N} prototypes so far: {comma-separated list}."
+- **On `main` with no prototypes yet**: "You're all set up but haven't built anything yet — let's fix that."
+- **On a worktree/other branch**: "You're on `{branch}` (not a prototype branch)."
+
+Keep it to ~5 lines total. The point is to replace a generic "what do you want to do?" with a reply that shows you already know who they are and where they are.
 
 ## Tech stack
 

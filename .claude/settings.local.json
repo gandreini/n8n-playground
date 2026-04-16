@@ -25,7 +25,16 @@
       "mcp__chrome-devtools__evaluate_script",
       "mcp__chrome-devtools__list_console_messages",
       "Skill(commit-message)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git rev-list:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(git fsck:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(chmod +x .claude/hooks/session-start.sh)",
+      "Bash(bash .claude/hooks/session-start.sh)",
+      "Bash(printf '# Claude Local Config\\\\n\\\\nusername: giulio\\\\nprototype-directory: app/prototypes/giulio/\\\\n')"
     ]
   }
 }
