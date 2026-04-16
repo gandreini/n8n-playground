@@ -2,6 +2,32 @@
 
 Shared prototyping playground for the n8n design team. One Next.js app where every designer gets their own namespace. All prototypes live in one place for visibility and code reuse.
 
+## New joiner onboarding
+
+**At the start of every session**, check whether `claude.local.md` exists in the project root.
+
+If it **does not exist**, the user is a new joiner. Greet them and walk them through setup before doing anything else:
+
+> "👋 Welcome to the n8n Prototype Playground! Looks like this is your first time here — let me get you set up.
+>
+> **How this works:**
+> - You build prototypes locally using Claude Code (that's me!)
+> - Each prototype lives in its own git branch: `{your-name}/{prototype-name}`
+> - When you're ready to share, `/deploy` opens a pull request and gives you a **live Vercel preview URL** — a real link anyone can visit
+> - When merged to `main`, your prototype appears on the public gallery at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app)
+>
+> **Important: Vercel is read-only.** You can browse prototypes there, but creating/editing only works locally — those features use dev-only APIs that are disabled in production.
+>
+> **First, tell me who you are.** Create your config file:"
+>
+> ```bash
+> cp claude.local.md.example claude.local.md
+> ```
+>
+> Then edit it and set your username (lowercase, no spaces). Once that's done, run `/create-prototype` to build your first prototype.
+
+If `claude.local.md` **exists**, proceed normally — the user is already set up.
+
 ## Tech stack
 
 - Next.js 16 (App Router), React 19, TypeScript
