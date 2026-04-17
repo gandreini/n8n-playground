@@ -26,6 +26,66 @@ if [ ! -f "$LOCAL_MD" ]; then
   fi
 fi
 
+# ===== PREFLIGHT: required CLI tools =====
+# These are needed for normal playground workflows:
+#   pnpm → runs the app, `pnpm dev` / `pnpm build` / `pnpm lint`
+#   node → pnpm prerequisite
+#   git  → version control
+#   gh   → opens PRs during `/deploy`
+MISSING_TOOLS=""
+for tool in pnpm node git gh; do
+  command -v "$tool" >/dev/null 2>&1 || MISSING_TOOLS+="$tool "
+done
+MISSING_TOOLS=$(echo "${MISSING_TOOLS}" | xargs)
+
+PREFLIGHT=""
+if [ -n "$MISSING_TOOLS" ]; then
+  INSTALL_HINTS=""
+  for t in $MISSING_TOOLS; do
+    case "$t" in
+      pnpm) hint='> - **pnpm** — `npm install -g pnpm`' ;;
+      node) hint='> - **node** (v20+) — [nodejs.org](https://nodejs.org/) or `brew install node`' ;;
+      git)  hint='> - **git** — [git-scm.com](https://git-scm.com/) or `brew install git`' ;;
+      gh)   hint='> - **gh** (GitHub CLI) — `brew install gh` or [cli.github.com](https://cli.github.com/). Needed by `/deploy` to open PRs.' ;;
+      *)    hint="" ;;
+    esac
+    INSTALL_HINTS+="$hint"$'\n'
+  done
+
+  PREFLIGHT="
+
+⚠️ PREFLIGHT FAILURE — these required CLI tools are missing on the user's machine: ${MISSING_TOOLS}
+
+BEFORE anything else (even asking for a username, even greeting), your FIRST response must warn the user:
+
+> ⚠️ Before we start, you're missing some required tools:
+>
+${INSTALL_HINTS}>
+> Install them, then say \"ready\" and we'll continue.
+
+Do not proceed with any other work — not onboarding, not prototype creation — until the user confirms the missing tools are installed. When they do, re-check silently (they may have also installed more) and only then continue."
+fi
+
+# MCP verification — the bash script can't see which MCPs are connected
+# (those are runtime state), so we instruct Claude to check its own tool list.
+MCP_CHECK="
+
+SETUP VERIFICATION — Silently check your available tools list for at least ONE browser-automation MCP (needed for the mandatory self-verification rule in CLAUDE.md — screenshotting every UI change). Look for tool names starting with:
+- \`mcp__chrome-devtools__\`
+- \`mcp__plugin_playwright_playwright__\`
+- \`mcp__Claude_in_Chrome__\`
+
+If at least one is available → stay quiet, everything's fine.
+
+If NONE are available → at a natural point in your first reply (after any preflight warning, before inviting them to build), tell the user:
+
+> ⚠️ I don't have a browser-automation MCP connected. I need one to take screenshots of your prototypes (the self-verification rule in CLAUDE.md). Install one of:
+> - Playwright MCP
+> - Chrome DevTools MCP
+> - Claude-in-Chrome MCP
+>
+> Add it via \`/mcp\` in Claude Code, or through your plugin config. Once installed, restart Claude Code."
+
 # ----- NEW JOINER -----
 if [ ! -f "$LOCAL_MD" ]; then
   CTX="NEW_JOINER_DETECTED — the user has no \`claude.local.md\` yet. This is their first time in the n8n Prototype Playground.
@@ -66,7 +126,7 @@ Send this message:
 > 1. **A personal preview URL** — a unique link for your branch. Send it to anyone; they click and try it. Every new push updates the same URL.
 > 2. **A spot on the shared gallery** — once the PR is merged to \`main\`, your prototype appears at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's.
 >
-> **Ready to build?** Say \"yes\" (or run \`/create-prototype\`) and I'll scaffold your first one and start the dev server."
+> **Ready to build?** Say \"yes\" (or run \`/create-prototype\`) and I'll scaffold your first one and start the dev server.${PREFLIGHT}${MCP_CHECK}"
 
   emit "$CTX"
   exit 0
@@ -124,6 +184,6 @@ Branch-handling rules when the user picks an option:
   - Uncommitted changes blocking checkout → offer \`git stash\` → switch → \`git stash pop\`
 - **Continue on current branch** → no git action needed; just proceed.
 
-If the user types something concrete unrelated to the menu (e.g. \"fix the sidebar in n8n-pulse\"), still acknowledge the context briefly but then just help them."
+If the user types something concrete unrelated to the menu (e.g. \"fix the sidebar in n8n-pulse\"), still acknowledge the context briefly but then just help them.${PREFLIGHT}${MCP_CHECK}"
 
 emit "$CTX"
