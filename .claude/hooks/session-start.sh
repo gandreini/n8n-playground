@@ -59,14 +59,14 @@ Send this message:
 >
 > **How the playground works:**
 >
-> You build prototypes locally with me, and they become **real, shareable links** — no deploy config, no servers to run.
+> **While you build (the 90% case):** you run the app locally with \`pnpm dev\` and open [http://localhost:3000](http://localhost:3000). That's where you see your prototype. Every edit hot-reloads in the browser — fast feedback loop, no deploys needed. You iterate with me here until it's ready.
 >
-> Your prototypes show up on Vercel in two places:
+> **When you're ready to share:** run \`/deploy\`. I push your branch and Vercel gives you two things:
 >
-> 1. **Your personal preview URL** — when you run \`/deploy\`, I open a pull request and Vercel builds a unique link for your branch. Send it to anyone; they can click and try it. Every new push updates the same URL.
-> 2. **The shared gallery** — once the PR is merged to \`main\`, your prototype is listed at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's.
+> 1. **A personal preview URL** — a unique link for your branch. Send it to anyone; they click and try it. Every new push updates the same URL.
+> 2. **A spot on the shared gallery** — once the PR is merged to \`main\`, your prototype appears at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's.
 >
-> **Ready to build?** Say \"yes\" (or run \`/create-prototype\`) and I'll scaffold your first one."
+> **Ready to build?** Say \"yes\" (or run \`/create-prototype\`) and I'll scaffold your first one and start the dev server."
 
   emit "$CTX"
   exit 0

@@ -10,12 +10,12 @@ If it **does not exist**, the user is a new joiner. Greet them and walk them thr
 
 > 👋 **Welcome to the n8n Prototype Playground!** Looks like this is your first time here.
 >
-> In short: you'll build prototypes locally with me, and they'll become **real, shareable links** — no deploy config, no servers to run.
+> **While you build (the 90% case):** run the app locally with `pnpm dev` and open [http://localhost:3000](http://localhost:3000). That's your fast feedback loop — every edit hot-reloads in the browser. No deploys needed. You iterate with me here until it's ready.
 >
-> **Your prototypes show up on Vercel in two places:**
+> **When you're ready to share:** run `/deploy`. I push your branch and Vercel gives you two things:
 >
-> 1. **Your personal preview URL** — when you run `/deploy`, I open a pull request and Vercel builds a unique link just for your branch. Send it to anyone; they can click and try it. Every new push updates the same URL.
-> 2. **The shared gallery** — once the PR is merged to `main`, your prototype is listed at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's. That's the public showcase for the design team.
+> 1. **A personal preview URL** — a unique link for your branch. Send it to anyone; they click and try it. Every new push updates the same URL.
+> 2. **A spot on the shared gallery** — once the PR is merged to `main`, your prototype appears at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's. That's the public showcase for the design team.
 >
 > **Two commands to get started:**
 >
