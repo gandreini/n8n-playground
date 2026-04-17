@@ -1,7 +1,7 @@
 'use client'
 
 import { Sidebar } from './sidebar'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/shadcn/sonner'
 
 interface PrototypeShellProps {
   children: React.ReactNode

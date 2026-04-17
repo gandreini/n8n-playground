@@ -24,7 +24,7 @@ import {
   X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
 import { ServiceIcon } from '../shared/service-icon'
 
 const nodeCategories = [

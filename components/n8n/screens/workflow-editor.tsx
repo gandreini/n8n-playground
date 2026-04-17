@@ -19,7 +19,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/shadcn/button'
 import { Sidebar } from '../sidebar'
 import { NodesPanel } from '../panels/nodes-panel'
 import { NodeConfigPanel } from '../panels/node-config-panel'

@@ -129,7 +129,7 @@ This lists your prototypes and handles switching to the right branch.
 
 - **Next.js 16** (App Router) + **React 19** + **TypeScript**
 - **Tailwind CSS 4** with n8n design tokens
-- **shadcn/ui** — full Radix-based component library in `components/ui/`
+- **shadcn/ui** — full Radix-based component library in `components/shadcn/`
 - **Zustand** for state management
 - **pnpm** as package manager
 - **Vercel** for hosting

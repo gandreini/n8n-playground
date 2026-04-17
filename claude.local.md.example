@@ -12,5 +12,5 @@
 
 ## Workspace
 - Each prototype directory is a standalone project
-- I can import shared components from components/n8n/ and components/ui/
+- I can import shared components from components/n8n/ and components/shadcn/
 - Each prototype has its own page.tsx and metadata.json

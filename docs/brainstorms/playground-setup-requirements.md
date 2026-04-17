@@ -73,7 +73,7 @@ Four tabs: **Prototypes**, **Vision**, **Templates**, **Components**.
 - "Use this template" action (localhost only): duplicates template into user's namespace
 
 **Components tab:**
-- Auto-generated list from `components/n8n/` and `components/ui/` (recursive scan of all `.tsx` files)
+- Auto-generated list from `components/n8n/` and `components/shadcn/` (recursive scan of all `.tsx` files)
 - Shows component name and file path
 - No descriptions needed
 - Scan errors (missing dirs, permission issues) are skipped silently

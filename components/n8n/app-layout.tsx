@@ -6,7 +6,7 @@ import { OverviewScreen } from './screens/overview'
 import { PersonalScreen } from './screens/personal'
 import { WorkflowEditor } from './screens/workflow-editor'
 import { SettingsScreen } from './screens/settings'
-import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/shadcn/sonner'
 
 export function AppLayout() {
   const { currentScreen } = useStore()

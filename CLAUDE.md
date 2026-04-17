@@ -66,7 +66,7 @@ Keep it to ~5 lines total. The point is to replace a generic "what do you want t
 
 - Next.js 16 (App Router), React 19, TypeScript
 - Tailwind CSS 4 with n8n design tokens (in `app/globals.css`)
-- shadcn/ui (full Radix-based component library in `components/ui/`)
+- shadcn/ui (full Radix-based component library in `components/shadcn/`)
 - Zustand for state management
 - pnpm as package manager
 - Deployed on Vercel
@@ -126,7 +126,7 @@ Use these — don't recreate them:
 - **Screens**: `overview.tsx`, `personal.tsx`, `settings.tsx`, `workflow-editor.tsx`
 - **Modals**: `credential-modal.tsx`
 - **Shared**: `service-icon.tsx`, `n8n-logo.tsx`
-- **shadcn/ui**: Full library in `components/ui/` — button, dialog, tabs, input, label, etc.
+- **shadcn/ui**: Full library in `components/shadcn/` — button, dialog, tabs, input, label, etc.
 
 ## How to create or select a prototype
 
@@ -160,7 +160,7 @@ This lists your prototypes and helps you switch to the right branch.
 ## Conventions
 
 - Every prototype **must** have a `metadata.json`
-- Use shared components from `components/ui/` and `components/n8n/`
+- Use shared components from `components/shadcn/` and `components/n8n/`
 - Prefer Tailwind utility classes over custom CSS
 - Use n8n design tokens from `globals.css` (e.g., `var(--color--orange-300)`, `var(--color--neutral-800)`)
 

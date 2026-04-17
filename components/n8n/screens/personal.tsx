@@ -2,7 +2,7 @@
 
 import { useStore, Tab } from "@/lib/store";
 import { ChevronDown, Search, Filter, Circle } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/shadcn/input";
 import { WorkflowRow } from "../shared/workflow-row";
 import { CredentialRow } from "../shared/credential-row";
 import { ExecutionRow } from "../shared/execution-row";

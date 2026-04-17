@@ -8,19 +8,19 @@ import {
     CheckCircle2,
 } from "lucide-react";
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/shadcn/tabs";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/shadcn/dialog";
+import { Button } from "@/components/shadcn/button";
 import { N8nButton } from "@/components/n8n/shared/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/shadcn/input";
+import { Textarea } from "@/components/shadcn/textarea";
+import { Label } from "@/components/shadcn/label";
 import { PrototypeList } from "./prototype-list";
 import { VisionList } from "./vision-list";
 import { TemplateList } from "./template-list";

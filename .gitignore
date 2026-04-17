@@ -17,3 +17,8 @@ claude.local.md
 node_modules/
 .next/
 .DS_Store
+
+# Browser automation artifacts (Playwright MCP, screenshots)
+.playwright-mcp/
+phase*-baseline-*.png
+phase*-after-*.png

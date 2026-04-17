@@ -50,7 +50,7 @@ The n8n design team's shared prototype repo currently has a single prototype at 
 | `PrototypeEntry` type | Metadata + `slug`, `path`, `hasPage` |
 | `scanPrototypes()` | Reads `app/prototypes/*/*/metadata.json`, skips `_`-prefixed dirs, skips malformed JSON with `console.warn` |
 | `scanTemplates()` | Reads `app/prototypes/_templates/*/metadata.json` |
-| `scanComponents()` | Recursive `.tsx` scan of `components/n8n/` and `components/ui/`, returns `{ name, path, category }[]` |
+| `scanComponents()` | Recursive `.tsx` scan of `components/n8n/` and `components/shadcn/`, returns `{ name, path, category }[]` |
 | `createPrototype()` | Shared creation logic: mkdir, write metadata.json, copy template page.tsx (or skip for external). Used by API route AND slash command. |
 
 **Key detail:** All `fs` paths use `path.join(process.cwd(), ...)`. Server-side only.
@@ -77,7 +77,7 @@ The n8n design team's shared prototype repo currently has a single prototype at 
 - Homepage imports the same logo
 
 ### UI details
-- Tabs: shadcn `Tabs` component (`components/ui/tabs.tsx`)
+- Tabs: shadcn `Tabs` component (`components/shadcn/tabs.tsx`)
 - Create modal: shadcn `Dialog` + form fields (name, description, username, template select)
 - Link external modal: shadcn `Dialog` + form (name, description, username, URL)
 - Use template modal: shadcn `Dialog` + form (username, prototype name)
@@ -173,7 +173,7 @@ Personal file, not committed. Following Brian's pattern exactly:
 
 ## Workspace
 - Each prototype directory is a standalone project
-- I can import shared components from components/n8n/ and components/ui/
+- I can import shared components from components/n8n/ and components/shadcn/
 - Each prototype has its own page.tsx and metadata.json
 ```
 
@@ -256,5 +256,5 @@ The command should be written so a designer who has never used git can run `/dep
 | `components/n8n/sidebar.tsx` | Sidebar with N8nLogo (lines 21-29). Extract logo to shared. |
 | `lib/store.ts` | Zustand store. Used by existing prototype. Not modified. |
 | `app/globals.css` | n8n design tokens. Not modified. |
-| `components/ui/tabs.tsx` | shadcn Tabs — used for homepage tab bar |
-| `components/ui/dialog.tsx` | shadcn Dialog — used for create/link modals |
+| `components/shadcn/tabs.tsx` | shadcn Tabs — used for homepage tab bar |
+| `components/shadcn/dialog.tsx` | shadcn Dialog — used for create/link modals |
