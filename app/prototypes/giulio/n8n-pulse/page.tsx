@@ -5,6 +5,7 @@ import {
     ChevronDown,
     ChevronUp,
     PanelLeftClose,
+    PanelLeftOpen,
     PanelRightClose,
     Binoculars,
     FolderSync,
@@ -21,6 +22,7 @@ import {
     File,
     ArrowUpRight,
     Link2,
+    Plus,
 } from "lucide-react";
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo";
 import { PromptInput } from "@/components/n8n/shared/prompt-input";
@@ -56,7 +58,19 @@ const agentSections: AgentSection[] = [
             { name: "Airtable Design Team Base", icon: "app", appIcon: "🟨" },
         ],
     },
-    { title: "Tools", items: [] },
+    {
+        title: "Tools",
+        items: [
+            { name: "web_search", icon: "app", appIcon: "🔍" },
+            { name: "http_request", icon: "app", appIcon: "🌐" },
+            { name: "send_slack_message", icon: "app", appIcon: "🟣" },
+            { name: "query_database", icon: "app", appIcon: "🗄️" },
+            { name: "send_email", icon: "app", appIcon: "✉️" },
+            { name: "create_calendar_event", icon: "app", appIcon: "📅" },
+            { name: "run_code", icon: "app", appIcon: "⚙️" },
+            { name: "read_file", icon: "app", appIcon: "📄" },
+        ],
+    },
     {
         title: "Skills",
         items: [
@@ -79,9 +93,9 @@ const agentSections: AgentSection[] = [
 
 // ─── Sidebar ───
 
-function PulseSidebar() {
+function PulseSidebar({ onCollapse }: { onCollapse: () => void }) {
     return (
-        <aside className="n8n-pulse-sidebar w-[280px] h-full flex flex-col bg-white p-4">
+        <aside className="n8n-pulse-sidebar w-[280px] h-full flex flex-col bg-white p-4 shrink-0">
             <div className="flex flex-col flex-1 justify-between">
                 {/* Top */}
                 <div className="flex flex-col gap-6">
@@ -92,7 +106,14 @@ function PulseSidebar() {
                                 <span className="truncate">Design team</span>
                                 <ChevronDown className="w-4 h-4 shrink-0 text-[var(--color--neutral-500)]" />
                             </button>
-                            <PanelLeftClose className="w-4 h-4 text-[var(--color--neutral-500)] shrink-0 cursor-pointer" />
+                            <button
+                                type="button"
+                                onClick={onCollapse}
+                                aria-label="Collapse sidebar"
+                                className="shrink-0 text-[var(--color--neutral-500)] hover:text-[var(--color--neutral-800)] transition-snappy"
+                            >
+                                <PanelLeftClose className="w-4 h-4" />
+                            </button>
                         </div>
                         {/* n8n Pulse item */}
                         <div className="flex items-center gap-1 min-h-8 px-1 py-1 rounded-[var(--radius--3xs)] bg-[var(--color--neutral-125)]">
@@ -106,7 +127,7 @@ function PulseSidebar() {
                     </div>
 
                     {/* Pulse threads */}
-                    <SidebarSection title="Pulse threads">
+                    <SidebarSection title="Pulse threads" addable>
                         <SidebarItem
                             icon={<Binoculars className="w-4 h-4" />}
                             label="UXR automations"
@@ -118,7 +139,7 @@ function PulseSidebar() {
                     </SidebarSection>
 
                     {/* Resources */}
-                    <SidebarSection title="Resources">
+                    <SidebarSection title="Resources" addable>
                         <SidebarItem
                             icon={<Bot className="w-4 h-4" />}
                             label="Agents"
@@ -175,15 +196,28 @@ function PulseSidebar() {
 function SidebarSection({
     title,
     children,
+    addable,
 }: {
     title: string;
     children: React.ReactNode;
+    addable?: boolean;
 }) {
     return (
         <div className="flex flex-col gap-1">
-            <span className="text-[length:var(--font-size--2xs)] font-[var(--font-weight--medium)] text-[color:var(--color--neutral-400)]">
-                {title}
-            </span>
+            <div className="flex items-center justify-between pr-1">
+                <span className="text-[length:var(--font-size--2xs)] font-[var(--font-weight--medium)] text-[color:var(--color--neutral-400)]">
+                    {title}
+                </span>
+                {addable && (
+                    <button
+                        type="button"
+                        aria-label={`Add to ${title}`}
+                        className="w-4 h-4 flex items-center justify-center text-[var(--color--neutral-400)] hover:text-[var(--color--neutral-800)] transition-snappy"
+                    >
+                        <Plus className="w-3.5 h-3.5" />
+                    </button>
+                )}
+            </div>
             <div className="flex flex-col">{children}</div>
         </div>
     );
@@ -413,7 +447,7 @@ function AgentPanel() {
     const [expanded, setExpanded] = useState<Record<string, boolean>>({
         Memory: true,
         Knowledge: true,
-        Tools: false,
+        Tools: true,
         Skills: true,
         Connections: true,
         "Guardrails and permissions": false,
@@ -510,6 +544,7 @@ const PANEL_DEFAULT_WIDTH = 320;
 export default function N8nPulsePage() {
     const [mode, setMode] = useState<Mode>("write");
     const [showPanel, setShowPanel] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(true);
     const [panelWidth, setPanelWidth] = useState(PANEL_DEFAULT_WIDTH);
     const { messages, send, isStreaming, error } = usePulseChat();
 
@@ -540,7 +575,20 @@ export default function N8nPulsePage() {
     return (
         <div className="n8n-pulse flex h-screen overflow-hidden bg-[var(--color--neutral-100)]">
             {/* Left sidebar */}
-            <PulseSidebar />
+            {showSidebar ? (
+                <PulseSidebar onCollapse={() => setShowSidebar(false)} />
+            ) : (
+                <div className="h-full flex items-start p-4 shrink-0">
+                    <button
+                        type="button"
+                        onClick={() => setShowSidebar(true)}
+                        aria-label="Expand sidebar"
+                        className="w-8 h-8 flex items-center justify-center rounded-[var(--radius--3xs)] text-[var(--color--neutral-500)] hover:bg-[var(--color--neutral-125)] hover:text-[var(--color--neutral-800)] transition-snappy"
+                    >
+                        <PanelLeftOpen className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
 
             {/* Main content */}
             <div className="flex flex-1 h-full min-w-0">

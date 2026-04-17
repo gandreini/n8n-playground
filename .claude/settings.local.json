@@ -34,7 +34,14 @@
       "Bash(git ls-tree:*)",
       "Bash(chmod +x .claude/hooks/session-start.sh)",
       "Bash(bash .claude/hooks/session-start.sh)",
-      "Bash(printf '# Claude Local Config\\\\n\\\\nusername: giulio\\\\nprototype-directory: app/prototypes/giulio/\\\\n')"
+      "Bash(printf '# Claude Local Config\\\\n\\\\nusername: giulio\\\\nprototype-directory: app/prototypes/giulio/\\\\n')",
+      "Bash(pnpm install:*)",
+      "Bash(git --version)",
+      "Bash(gh --version)",
+      "Bash(gh auth:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(git stash:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
