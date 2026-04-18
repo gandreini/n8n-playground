@@ -87,7 +87,12 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-family);
+  /* Use our @theme font-sans (Inter via Google Fonts) to preserve the
+     previous `body.font-sans` render. Upstream's --font-family expects
+     InterVariable, which we don't host. */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ──────────────── UTILITY CLASSES ──────────────── */

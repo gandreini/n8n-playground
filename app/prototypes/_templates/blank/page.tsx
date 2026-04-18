@@ -1,8 +1,25 @@
+"use client"
+
 export default function BlankPrototype() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold text-foreground">New Prototype</h1>
-      <p className="text-muted-foreground mt-2">Start building here.</p>
+    <div className="wrap">
+      <h1>New Prototype</h1>
+      <p>Start building here.</p>
+
+      <style jsx>{`
+        .wrap {
+          padding: var(--spacing--xl);
+        }
+        h1 {
+          font-size: var(--font-size--2xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--text--shade-1);
+        }
+        p {
+          margin-top: var(--spacing--2xs);
+          color: var(--color--text);
+        }
+      `}</style>
     </div>
   )
 }
