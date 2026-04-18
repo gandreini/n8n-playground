@@ -1,0 +1,15 @@
+// n8n design system tokens
+// ---------------------------------------------------------------
+// Byte-identical mirrors of the upstream n8n design system:
+//   https://github.com/n8n-io/n8n/tree/master/packages/frontend/%40n8n/design-system/src/css
+//
+// To refresh, re-download the two .scss files from upstream and drop
+// them into styles/n8n-design-system/ verbatim. Do not edit them locally.
+//
+// This file is the *only* place those partials are loaded. It runs through
+// sass-loader (compiled to CSS before PostCSS/Tailwind see it) — that's why
+// these live in .scss, not .css. The Tailwind @import stays in globals.css
+// to keep the two pipelines separate.
+
+@use '../styles/n8n-design-system/primitives';
+@use '../styles/n8n-design-system/tokens';
