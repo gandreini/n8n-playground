@@ -24,14 +24,22 @@ export function TemplateList({ templates, searchQuery, isDev }: TemplateListProp
 
   if (filtered.length === 0) {
     return (
-      <p className="text-[var(--color--neutral-400)] text-sm py-8">
+      <p className="empty">
         No templates found.
+
+        <style jsx>{`
+          .empty {
+            color: var(--color--neutral-400);
+            font-size: var(--font-size--sm);
+            padding-block: var(--spacing--xl);
+          }
+        `}</style>
       </p>
     )
   }
 
   return (
-    <div className="playground-template-list space-y-0">
+    <div className="playground-template-list">
       {filtered.map((template) => (
         <TemplateRow key={template.slug} template={template} isDev={isDev} />
       ))}
@@ -82,19 +90,15 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
   }
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2.5 -mx-3 rounded-[var(--radius--xs)] hover:bg-[var(--color--neutral-50)] transition-colors">
-      <div className="flex-1">
-        <span className="text-sm text-[var(--color--neutral-800)]">
-          {template.title}
-        </span>
-        <span className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)] ml-3">
-          {template.description}
-        </span>
+    <div className="row">
+      <div className="meta">
+        <span className="title">{template.title}</span>
+        <span className="description">{template.description}</span>
       </div>
       {isDev && (
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="text-xs text-[var(--color--neutral-500)] hover:text-[var(--color--orange-500)]">
+            <Button variant="ghost" size="sm" className="use-template-btn text-xs">
               Use this template
             </Button>
           </DialogTrigger>
@@ -103,15 +107,19 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
               <DialogTitle>{created ? "Prototype created!" : `New prototype from ${template.title}`}</DialogTitle>
             </DialogHeader>
             {created ? (
-              <div className="space-y-4 pt-2">
-                <div className="flex items-start gap-3 p-4 rounded-[var(--radius--xs)] bg-[var(--color--green-50)] border border-[var(--color--green-200)]">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-[var(--color--neutral-800)]">Files created at <code className="text-xs bg-[var(--color--neutral-125)] px-1 py-0.5 rounded">{created.path}</code></p>
-                    <p className="text-xs text-[var(--color--neutral-500)]">Restart the dev server to see the new route, then navigate to your prototype.</p>
+              <div className="form">
+                <div className="success-box">
+                  <div>
+                    <p className="success-title">
+                      Files created at <code>{created.path}</code>
+                    </p>
+                    <p className="success-sub">
+                      Restart the dev server to see the new route, then navigate to your prototype.
+                    </p>
                   </div>
                 </div>
-                <div className="p-3 rounded-[var(--radius--xs)] bg-[var(--color--neutral-50)] border border-[var(--color--neutral-150)] font-mono text-xs text-[var(--color--neutral-700)]">
-                  <p className="text-[var(--color--neutral-400)] mb-1"># Restart dev server, then open:</p>
+                <div className="path-box">
+                  <p className="path-label"># Restart dev server, then open:</p>
                   <p>http://localhost:3000{created.path}</p>
                 </div>
                 <Button onClick={() => { setCreated(null); setOpen(false) }} variant="outline" className="w-full">
@@ -119,37 +127,119 @@ function TemplateRow({ template, isDev }: { template: PrototypeEntry; isDev: boo
                 </Button>
               </div>
             ) : (
-            <div className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="template-username">Username</Label>
-                <Input
-                  id="template-username"
-                  placeholder="your-username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
+              <div className="form">
+                <div className="field">
+                  <Label htmlFor="template-username">Username</Label>
+                  <Input
+                    id="template-username"
+                    placeholder="your-username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <Label htmlFor="template-name">Prototype name</Label>
+                  <Input
+                    id="template-name"
+                    placeholder="my-cool-prototype"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleUseTemplate}
+                  disabled={!name.trim() || !username.trim() || loading}
+                  className="w-full"
+                >
+                  {loading ? "Creating..." : "Create prototype"}
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="template-name">Prototype name</Label>
-                <Input
-                  id="template-name"
-                  placeholder="my-cool-prototype"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <Button
-                onClick={handleUseTemplate}
-                disabled={!name.trim() || !username.trim() || loading}
-                className="w-full"
-              >
-                {loading ? "Creating..." : "Create prototype"}
-              </Button>
-            </div>
             )}
           </DialogContent>
         </Dialog>
       )}
+
+      <style jsx>{`
+        .row {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--xs);
+          padding: 10px var(--spacing--xs);
+          margin-inline: calc(var(--spacing--xs) * -1);
+          border-radius: var(--radius--xs);
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .row:hover {
+          background-color: var(--color--neutral-50);
+        }
+        .meta {
+          flex: 1;
+        }
+        .title {
+          font-size: var(--font-size--sm);
+          color: var(--color--neutral-800);
+        }
+        .description {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+          margin-left: var(--spacing--xs);
+        }
+        .form {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--sm);
+          padding-top: var(--spacing--2xs);
+        }
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--2xs);
+        }
+        .success-box {
+          display: flex;
+          align-items: flex-start;
+          gap: var(--spacing--xs);
+          padding: var(--spacing--sm);
+          border-radius: var(--radius--xs);
+          background-color: var(--color--green-50);
+          border: 1px solid var(--color--green-200);
+        }
+        .success-title {
+          font-size: var(--font-size--sm);
+          font-weight: var(--font-weight--medium);
+          color: var(--color--neutral-800);
+          margin-bottom: var(--spacing--4xs);
+        }
+        .success-title code {
+          font-size: var(--font-size--2xs);
+          background-color: var(--color--neutral-125);
+          padding: 2px var(--spacing--4xs);
+          border-radius: var(--radius--3xs);
+        }
+        .success-sub {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-500);
+        }
+        .path-box {
+          padding: var(--spacing--xs);
+          border-radius: var(--radius--xs);
+          background-color: var(--color--neutral-50);
+          border: 1px solid var(--color--neutral-150);
+          font-family: var(--font-mono);
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-700);
+        }
+        .path-label {
+          color: var(--color--neutral-400);
+          margin-bottom: var(--spacing--4xs);
+        }
+        :global(.use-template-btn) {
+          color: var(--color--neutral-500);
+        }
+        :global(.use-template-btn:hover) {
+          color: var(--color--orange-500);
+        }
+      `}</style>
     </div>
   )
 }
