@@ -59,9 +59,24 @@ Create a new prototype in the playground. Accepts an optional name as argument: 
    ```tsx
    export default function BlankPrototype() {
      return (
-       <div className="p-8">
-         <h1 className="text-2xl font-semibold text-foreground">New Prototype</h1>
-         <p className="text-muted-foreground mt-2">Start building here.</p>
+       <div className="blank-prototype">
+         <h1 className="title">New Prototype</h1>
+         <p className="subtitle">Start building here.</p>
+
+         <style jsx>{`
+           .blank-prototype {
+             padding: var(--spacing--lg);
+           }
+           .title {
+             font-size: var(--font-size--xl);
+             font-weight: var(--font-weight--semibold);
+             color: var(--color--neutral-800);
+           }
+           .subtitle {
+             margin-top: var(--spacing--3xs);
+             color: var(--color--neutral-400);
+           }
+         `}</style>
        </div>
      )
    }
@@ -76,14 +91,31 @@ Create a new prototype in the playground. Accepts an optional name as argument: 
    export default function N8nAppPrototype() {
      return (
        <PrototypeShell>
-         <div className="p-8">
-           <h1 className="text-2xl font-semibold text-foreground">New Prototype</h1>
-           <p className="text-muted-foreground mt-2">This prototype includes n8n app chrome with sidebar.</p>
+         <div className="n8n-prototype">
+           <h1 className="title">New Prototype</h1>
+           <p className="subtitle">This prototype includes n8n app chrome with sidebar.</p>
+
+           <style jsx>{`
+             .n8n-prototype {
+               padding: var(--spacing--lg);
+             }
+             .title {
+               font-size: var(--font-size--xl);
+               font-weight: var(--font-weight--semibold);
+               color: var(--color--neutral-800);
+             }
+             .subtitle {
+               margin-top: var(--spacing--3xs);
+               color: var(--color--neutral-400);
+             }
+           `}</style>
          </div>
        </PrototypeShell>
      )
    }
    ```
+
+   **Styling convention:** every prototype uses **styled-jsx** (built into Next.js). Each component ends with a `<style jsx>{...}</style>` block; give elements semantic class names and reference n8n design tokens directly (`var(--color--orange-500)`, `var(--spacing--md)`). Do not write Tailwind utility classes — Tailwind is quarantined to the vendored `components/shadcn/` library.
 
 7. **Report what was created:**
    - Directory path

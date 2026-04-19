@@ -65,8 +65,10 @@ Keep it to ~5 lines total. The point is to replace a generic "what do you want t
 ## Tech stack
 
 - Next.js 16 (App Router), React 19, TypeScript
-- Tailwind CSS 4 with n8n design tokens (in `app/globals.css`)
-- shadcn/ui (full Radix-based component library in `components/shadcn/`)
+- **styled-jsx** for all our own component styling (built into Next.js, zero deps, same-file scoped CSS)
+- n8n design tokens as CSS custom properties in `app/globals.css` (e.g. `var(--color--orange-500)`, `var(--spacing--md)`)
+- shadcn/ui (full Radix-based component library in `components/shadcn/`) — **vendored, hands-off**
+- Tailwind CSS 4 **stays installed** but is quarantined to Shadcn only; do not write Tailwind utility classes in your own code
 - Zustand for state management
 - pnpm as package manager
 - Deployed on Vercel
@@ -95,7 +97,7 @@ app/
         └── n8n-app/
 
 components/
-├── n8n/                              # n8n-specific components
+├── n8n/                              # n8n-specific components (styled-jsx)
 │   ├── app-layout.tsx                # Full n8n app shell (used by workflow-editor)
 │   ├── prototype-shell.tsx           # Children-accepting layout wrapper
 │   ├── sidebar.tsx
@@ -103,8 +105,8 @@ components/
 │   ├── screens/
 │   ├── modals/
 │   └── shared/
-├── ui/                               # Full shadcn/ui library (~50 components)
-└── playground/                       # Homepage components
+├── shadcn/                           # Vendored shadcn/ui library — DO NOT EDIT
+└── playground/                       # Homepage components (styled-jsx)
 ```
 
 ## Rules
@@ -112,6 +114,7 @@ components/
 - **Stay in your own directory**: `app/prototypes/{your-username}/`
 - **Never modify other people's prototypes**
 - **Never modify root-level files** (layout.tsx, page.tsx, globals.css) or shared components without asking
+- **Never edit anything in `components/shadcn/`** — it's vendored so `npx shadcn add <component>` upgrades stay byte-identical
 - **Each prototype is standalone** — no cross-prototype imports
 - Read `claude.local.md` for your username and directory
 
@@ -161,8 +164,11 @@ This lists your prototypes and helps you switch to the right branch.
 
 - Every prototype **must** have a `metadata.json`
 - Use shared components from `components/shadcn/` and `components/n8n/`
-- Prefer Tailwind utility classes over custom CSS
-- Use n8n design tokens from `globals.css` (e.g., `var(--color--orange-300)`, `var(--color--neutral-800)`)
+- **Write styles with styled-jsx**, not Tailwind utility classes. Each component ends with a `<style jsx>{...}</style>` block; give elements semantic class names (`"panel-header"`, not `"flex items-center px-4"`).
+- **Use n8n design tokens** from `globals.css` directly in your CSS (e.g. `background: var(--color--neutral-100);`, `padding: var(--spacing--md);`, `color: var(--color--orange-500);`). Never hardcode hex values or magic numbers that have a token.
+- **For conditional styling**, prefer `data-*` attribute selectors (`<button data-active="true">` + `.btn[data-active='true'] { ... }`) over className concatenation.
+- **For child component styling** (lucide-react icons, shadcn primitives), pass `style={{ width: 16, height: 16, color: 'var(--color--neutral-500)' }}` or reach in via `:global(.child) { ... }` inside the styled-jsx block.
+- The `cn()` helper (`lib/utils.ts`) is still available when you genuinely need class concatenation, but prefer styled-jsx + data attributes first.
 
 ## Git workflow
 

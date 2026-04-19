@@ -126,7 +126,7 @@ Keep it rough and practical (Brian's style: "just some rough instructions"). Not
 
 **Sections:**
 1. **What this is** — One paragraph: shared prototype playground for the n8n design team. One Next.js app, every designer gets a namespace, all prototypes in one place for visibility and code reuse.
-2. **Tech stack** — Bullet list: Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Zustand, pnpm. No database — everything is files on disk.
+2. **Tech stack** — Bullet list: Next.js 16, React 19, styled-jsx (for our own code), n8n design tokens via CSS custom properties, shadcn/ui (vendored, Tailwind-backed), Zustand, pnpm. No database — everything is files on disk.
 3. **Project structure** — Show the directory tree with `app/prototypes/{username}/{prototype-name}/` convention. Explain `_templates/` and `metadata.json`.
 4. **Rules** — The critical ones that prevent people from breaking each other's work:
    - Stay in your own directory (`app/prototypes/{username}/`)
@@ -135,7 +135,7 @@ Keep it rough and practical (Brian's style: "just some rough instructions"). Not
    - Each prototype is standalone — no cross-prototype imports
 5. **Shared components** — List what's available: n8n components (app-layout, sidebar, prototype-shell, panels, screens, modals, shared) and full shadcn/ui library. Note: use `PrototypeShell` for prototypes that need n8n chrome (not `AppLayout`).
 6. **How to create a prototype** — Two paths: (1) use `/create-prototype` command, (2) manually create directory + metadata.json + page.tsx
-7. **Conventions** — Every prototype needs a `metadata.json`. Use shared components, don't recreate them. Prefer Tailwind utility classes. Use n8n design tokens from globals.css.
+7. **Conventions** — Every prototype needs a `metadata.json`. Use shared components, don't recreate them. Style with styled-jsx, not Tailwind utility classes. Use n8n design tokens from globals.css.
 8. **Self-verification** — Key philosophy: "Before reporting work as done, verify it yourself." Instructions to:
    - Run `pnpm lint` and fix errors
    - Use Playwright MCP or Chrome DevTools MCP to open the browser, take a screenshot, and visually verify the output

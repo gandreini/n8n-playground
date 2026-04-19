@@ -128,8 +128,10 @@ This lists your prototypes and handles switching to the right branch.
 ## Tech stack
 
 - **Next.js 16** (App Router) + **React 19** + **TypeScript**
-- **Tailwind CSS 4** with n8n design tokens
-- **shadcn/ui** — full Radix-based component library in `components/shadcn/`
+- **styled-jsx** for all our own component styling — scoped CSS co-located with each component
+- **n8n design tokens** as CSS custom properties in `app/globals.css`
+- **shadcn/ui** — vendored Radix-based component library in `components/shadcn/` (hands-off; `npx shadcn add ...` keeps working)
+- **Tailwind CSS 4** stays installed to power Shadcn, but our own code does not use Tailwind utility classes
 - **Zustand** for state management
 - **pnpm** as package manager
 - **Vercel** for hosting
@@ -144,9 +146,9 @@ app/prototypes/{username}/{prototype-name}/
 └── metadata.json   # Title, description, author, date
 
 components/
-├── n8n/            # Shared n8n chrome (sidebar, panels, modals)
-├── ui/             # shadcn/ui components
-└── playground/     # Homepage components
+├── n8n/            # Shared n8n chrome (sidebar, panels, modals) — styled-jsx
+├── shadcn/         # Vendored shadcn/ui components — do not edit
+└── playground/     # Homepage components — styled-jsx
 ```
 
 Detailed docs in [CLAUDE.md](CLAUDE.md) — this is what Claude Code reads for project context.
