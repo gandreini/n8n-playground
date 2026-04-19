@@ -1,56 +1,59 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { User, CreditCard, Users, Key, Shield, Bell, Globe, Palette, Terminal, ExternalLink } from "lucide-react"
-import { Button } from "@/components/shadcn/button"
-import { Input } from "@/components/shadcn/input"
-import { Label } from "@/components/shadcn/label"
-import { Switch } from "@/components/shadcn/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select"
+import { useState } from 'react'
+import { User, CreditCard, Users, Key, Shield, Terminal, ExternalLink } from 'lucide-react'
+import { Button } from '@/components/shadcn/button'
+import { Input } from '@/components/shadcn/input'
+import { Label } from '@/components/shadcn/label'
+import { Switch } from '@/components/shadcn/switch'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/shadcn/select'
 
 const settingsCategories = [
-  { id: "personal", label: "Personal Settings", icon: User },
-  { id: "usage", label: "Usage and plan", icon: CreditCard },
-  { id: "users", label: "Users", icon: Users },
-  { id: "api", label: "API", icon: Key },
-  { id: "sso", label: "SSO", icon: Shield },
-  { id: "ldap", label: "LDAP", icon: Shield },
-  { id: "audit", label: "Audit logs", icon: Terminal },
-  { id: "external", label: "External secrets", icon: ExternalLink },
+  { id: 'personal', label: 'Personal Settings', icon: User },
+  { id: 'usage', label: 'Usage and plan', icon: CreditCard },
+  { id: 'users', label: 'Users', icon: Users },
+  { id: 'api', label: 'API', icon: Key },
+  { id: 'sso', label: 'SSO', icon: Shield },
+  { id: 'ldap', label: 'LDAP', icon: Shield },
+  { id: 'audit', label: 'Audit logs', icon: Terminal },
+  { id: 'external', label: 'External secrets', icon: ExternalLink },
 ]
 
 export function SettingsScreen() {
-  const [activeCategory, setActiveCategory] = useState("personal")
+  const [activeCategory, setActiveCategory] = useState('personal')
   const [settings, setSettings] = useState({
-    firstName: "Giulio",
-    lastName: "Andreini",
-    email: "giulio@n8n.io",
-    theme: "system",
+    firstName: 'Giulio',
+    lastName: 'Andreini',
+    email: 'giulio@n8n.io',
+    theme: 'system',
     notifications: true,
     emailNotifications: false,
-    language: "en",
-    timezone: "Europe/Rome"
+    language: 'en',
+    timezone: 'Europe/Rome',
   })
 
   return (
-    <div className="n8n-settings flex h-full bg-background">
+    <div className="n8n-settings">
       {/* Settings sidebar */}
-      <div className="w-64 border-r border-border p-4">
-        <h2 className="text-lg font-semibold text-foreground mb-4">Settings</h2>
-        <nav className="space-y-1">
+      <div className="settings-sidebar">
+        <h2 className="sidebar-title">Settings</h2>
+        <nav className="category-nav">
           {settingsCategories.map((category) => {
             const Icon = category.icon
             return (
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                  activeCategory === category.id
-                    ? "bg-n8n-primary/10 text-n8n-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
+                data-active={activeCategory === category.id ? 'true' : undefined}
+                className="category-btn"
               >
-                <Icon className="h-4 w-4" />
+                <Icon style={{ width: 16, height: 16 }} />
                 {category.label}
               </button>
             )
@@ -59,68 +62,67 @@ export function SettingsScreen() {
       </div>
 
       {/* Settings content */}
-      <div className="flex-1 p-8 overflow-y-auto">
-        {activeCategory === "personal" && (
-          <div className="max-w-2xl space-y-8">
+      <div className="settings-content">
+        {activeCategory === 'personal' && (
+          <div className="panel">
             <div>
-              <h3 className="text-xl font-semibold text-foreground mb-6">Personal Settings</h3>
-              
+              <h3 className="panel-title">Personal Settings</h3>
+
               {/* Profile section */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-n8n-primary/20 flex items-center justify-center text-2xl font-semibold text-n8n-primary">
-                    GA
-                  </div>
+              <div className="stack lg">
+                <div className="avatar-row">
+                  <div className="avatar">GA</div>
                   <div>
                     <Button variant="outline" size="sm">
                       Change photo
                     </Button>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      JPG, GIF or PNG. Max size 800KB
-                    </p>
+                    <p className="hint">JPG, GIF or PNG. Max size 800KB</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                <div className="grid-2">
+                  <div className="field">
                     <Label>First name</Label>
-                    <Input 
+                    <Input
                       value={settings.firstName}
-                      onChange={(e) => setSettings({...settings, firstName: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, firstName: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="field">
                     <Label>Last name</Label>
-                    <Input 
+                    <Input
                       value={settings.lastName}
-                      onChange={(e) => setSettings({...settings, lastName: e.target.value})}
+                      onChange={(e) => setSettings({ ...settings, lastName: e.target.value })}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="field">
                   <Label>Email</Label>
-                  <Input 
+                  <Input
                     type="email"
                     value={settings.email}
-                    onChange={(e) => setSettings({...settings, email: e.target.value})}
+                    onChange={(e) => setSettings({ ...settings, email: e.target.value })}
                   />
                 </div>
               </div>
             </div>
 
             {/* Preferences section */}
-            <div className="pt-6 border-t border-border">
-              <h4 className="font-medium text-foreground mb-4">Preferences</h4>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
+            <div className="section">
+              <h4 className="section-title">Preferences</h4>
+
+              <div className="stack md">
+                <div className="row">
                   <div>
                     <Label>Theme</Label>
-                    <p className="text-xs text-muted-foreground">Select your preferred theme</p>
+                    <p className="hint">Select your preferred theme</p>
                   </div>
-                  <Select value={settings.theme} onValueChange={(value) => setSettings({...settings, theme: value})}>
-                    <SelectTrigger className="w-40">
+                  <Select
+                    value={settings.theme}
+                    onValueChange={(value) => setSettings({ ...settings, theme: value })}
+                  >
+                    <SelectTrigger style={{ width: 160 }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -131,13 +133,16 @@ export function SettingsScreen() {
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="row">
                   <div>
                     <Label>Language</Label>
-                    <p className="text-xs text-muted-foreground">Select your preferred language</p>
+                    <p className="hint">Select your preferred language</p>
                   </div>
-                  <Select value={settings.language} onValueChange={(value) => setSettings({...settings, language: value})}>
-                    <SelectTrigger className="w-40">
+                  <Select
+                    value={settings.language}
+                    onValueChange={(value) => setSettings({ ...settings, language: value })}
+                  >
+                    <SelectTrigger style={{ width: 160 }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -149,13 +154,16 @@ export function SettingsScreen() {
                   </Select>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="row">
                   <div>
                     <Label>Timezone</Label>
-                    <p className="text-xs text-muted-foreground">Set your local timezone</p>
+                    <p className="hint">Set your local timezone</p>
                   </div>
-                  <Select value={settings.timezone} onValueChange={(value) => setSettings({...settings, timezone: value})}>
-                    <SelectTrigger className="w-40">
+                  <Select
+                    value={settings.timezone}
+                    onValueChange={(value) => setSettings({ ...settings, timezone: value })}
+                  >
+                    <SelectTrigger style={{ width: 160 }}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -170,105 +178,317 @@ export function SettingsScreen() {
             </div>
 
             {/* Notifications section */}
-            <div className="pt-6 border-t border-border">
-              <h4 className="font-medium text-foreground mb-4">Notifications</h4>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
+            <div className="section">
+              <h4 className="section-title">Notifications</h4>
+
+              <div className="stack md">
+                <div className="row">
                   <div>
                     <Label>Push notifications</Label>
-                    <p className="text-xs text-muted-foreground">Receive push notifications in your browser</p>
+                    <p className="hint">Receive push notifications in your browser</p>
                   </div>
-                  <Switch 
+                  <Switch
                     checked={settings.notifications}
-                    onCheckedChange={(checked) => setSettings({...settings, notifications: checked})}
+                    onCheckedChange={(checked) =>
+                      setSettings({ ...settings, notifications: checked })
+                    }
                   />
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="row">
                   <div>
                     <Label>Email notifications</Label>
-                    <p className="text-xs text-muted-foreground">Receive email notifications for important events</p>
+                    <p className="hint">Receive email notifications for important events</p>
                   </div>
-                  <Switch 
+                  <Switch
                     checked={settings.emailNotifications}
-                    onCheckedChange={(checked) => setSettings({...settings, emailNotifications: checked})}
+                    onCheckedChange={(checked) =>
+                      setSettings({ ...settings, emailNotifications: checked })
+                    }
                   />
                 </div>
               </div>
             </div>
 
             {/* Save button */}
-            <div className="pt-6">
-              <Button className="bg-n8n-primary hover:bg-n8n-primary/90 text-white">
-                Save changes
-              </Button>
+            <div className="save-row">
+              <Button className="save-btn">Save changes</Button>
             </div>
           </div>
         )}
 
-        {activeCategory === "usage" && (
-          <div className="max-w-2xl space-y-6">
-            <h3 className="text-xl font-semibold text-foreground">Usage and Plan</h3>
-            
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
+        {activeCategory === 'usage' && (
+          <div className="panel">
+            <h3 className="panel-title">Usage and Plan</h3>
+
+            <div className="card">
+              <div className="card-head">
                 <div>
-                  <h4 className="font-medium text-foreground">Pro Plan</h4>
-                  <p className="text-sm text-muted-foreground">Your current plan</p>
+                  <h4 className="card-title">Pro Plan</h4>
+                  <p className="card-sub">Your current plan</p>
                 </div>
                 <Button variant="outline">Manage subscription</Button>
               </div>
-              
-              <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
+
+              <div className="usage-grid">
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">2,259</p>
-                  <p className="text-sm text-muted-foreground">Executions this month</p>
+                  <p className="usage-value">2,259</p>
+                  <p className="usage-label">Executions this month</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">308</p>
-                  <p className="text-sm text-muted-foreground">Active workflows</p>
+                  <p className="usage-value">308</p>
+                  <p className="usage-label">Active workflows</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">38h</p>
-                  <p className="text-sm text-muted-foreground">Time saved</p>
+                  <p className="usage-value">38h</p>
+                  <p className="usage-label">Time saved</p>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {activeCategory === "api" && (
-          <div className="max-w-2xl space-y-6">
-            <h3 className="text-xl font-semibold text-foreground">API Keys</h3>
-            <p className="text-muted-foreground">
+        {activeCategory === 'api' && (
+          <div className="panel">
+            <h3 className="panel-title">API Keys</h3>
+            <p className="panel-desc">
               Create and manage API keys to access your n8n instance programmatically.
             </p>
-            
-            <Button className="bg-n8n-primary hover:bg-n8n-primary/90 text-white">
-              Create API key
-            </Button>
 
-            <div className="border border-border rounded-lg p-8 text-center">
-              <Key className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No API keys created yet</p>
+            <Button className="save-btn">Create API key</Button>
+
+            <div className="empty-card">
+              <Key style={{ width: 48, height: 48, color: 'var(--muted-foreground)' }} />
+              <p className="empty-text">No API keys created yet</p>
             </div>
           </div>
         )}
 
-        {(activeCategory === "users" || activeCategory === "sso" || activeCategory === "ldap" || activeCategory === "audit" || activeCategory === "external") && (
-          <div className="max-w-2xl space-y-6">
-            <h3 className="text-xl font-semibold text-foreground capitalize">{activeCategory === "sso" ? "SSO" : activeCategory === "ldap" ? "LDAP" : activeCategory}</h3>
-            <div className="border border-border rounded-lg p-8 text-center">
-              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">This feature is available on Enterprise plans.</p>
-              <Button variant="outline" className="mt-4">
+        {(activeCategory === 'users' ||
+          activeCategory === 'sso' ||
+          activeCategory === 'ldap' ||
+          activeCategory === 'audit' ||
+          activeCategory === 'external') && (
+          <div className="panel">
+            <h3 className="panel-title capitalize">
+              {activeCategory === 'sso'
+                ? 'SSO'
+                : activeCategory === 'ldap'
+                  ? 'LDAP'
+                  : activeCategory}
+            </h3>
+            <div className="empty-card">
+              <Shield style={{ width: 48, height: 48, color: 'var(--muted-foreground)' }} />
+              <p className="empty-text">This feature is available on Enterprise plans.</p>
+              <Button variant="outline" className="upgrade-btn">
                 Upgrade to Enterprise
               </Button>
             </div>
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .n8n-settings {
+          display: flex;
+          height: 100%;
+          background-color: var(--background);
+        }
+
+        .settings-sidebar {
+          width: 256px;
+          border-right: 1px solid var(--border);
+          padding: var(--spacing--sm);
+        }
+        .sidebar-title {
+          font-size: var(--font-size--md);
+          font-weight: var(--font-weight--bold);
+          color: var(--foreground);
+          margin-bottom: var(--spacing--sm);
+        }
+        .category-nav {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--5xs);
+        }
+        .category-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          padding: var(--spacing--3xs) var(--spacing--2xs);
+          font-size: var(--font-size--sm);
+          border: 0;
+          background: transparent;
+          border-radius: var(--radius--xs);
+          color: var(--muted-foreground);
+          text-align: left;
+          cursor: pointer;
+          transition:
+            background-color var(--duration--snappy) var(--easing--ease-out),
+            color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .category-btn:hover {
+          background-color: var(--muted);
+          color: var(--foreground);
+        }
+        .category-btn[data-active='true'] {
+          background-color: color-mix(in srgb, var(--color--orange-500) 10%, transparent);
+          color: var(--color--orange-500);
+        }
+
+        .settings-content {
+          flex: 1;
+          padding: var(--spacing--xl);
+          overflow-y: auto;
+        }
+        .panel {
+          max-width: 672px;
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--xl);
+        }
+        .panel-title {
+          font-size: var(--font-size--xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--foreground);
+          margin-bottom: var(--spacing--lg);
+        }
+        .panel-desc {
+          color: var(--muted-foreground);
+        }
+
+        .stack {
+          display: flex;
+          flex-direction: column;
+        }
+        .stack.lg {
+          gap: var(--spacing--lg);
+        }
+        .stack.md {
+          gap: var(--spacing--sm);
+        }
+
+        .avatar-row {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--lg);
+        }
+        .avatar {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background-color: color-mix(in srgb, var(--color--orange-500) 20%, transparent);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: var(--font-size--xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--orange-500);
+        }
+        .hint {
+          font-size: var(--font-size--2xs);
+          color: var(--muted-foreground);
+          margin-top: var(--spacing--5xs);
+        }
+
+        .grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: var(--spacing--xs);
+        }
+        .field {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--4xs);
+        }
+
+        .section {
+          padding-top: var(--spacing--lg);
+          border-top: 1px solid var(--border);
+        }
+        .section-title {
+          font-weight: var(--font-weight--bold);
+          color: var(--foreground);
+          margin-bottom: var(--spacing--sm);
+        }
+
+        .row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: var(--spacing--sm);
+        }
+
+        .save-row {
+          padding-top: var(--spacing--lg);
+        }
+        .save-btn {
+          background-color: var(--color--orange-500) !important;
+          color: #fff !important;
+        }
+        .save-btn:hover {
+          background-color: var(--color--orange-600) !important;
+        }
+
+        .card {
+          border: 1px solid var(--border);
+          border-radius: var(--radius--xs);
+          background-color: var(--card);
+          padding: var(--spacing--lg);
+        }
+        .card-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: var(--spacing--sm);
+        }
+        .card-title {
+          font-weight: var(--font-weight--bold);
+          color: var(--foreground);
+        }
+        .card-sub {
+          font-size: var(--font-size--sm);
+          color: var(--muted-foreground);
+        }
+        .usage-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--spacing--sm);
+          padding-top: var(--spacing--sm);
+          border-top: 1px solid var(--border);
+        }
+        .usage-value {
+          font-size: var(--font-size--xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--foreground);
+        }
+        .usage-label {
+          font-size: var(--font-size--sm);
+          color: var(--muted-foreground);
+        }
+
+        .empty-card {
+          border: 1px solid var(--border);
+          border-radius: var(--radius--xs);
+          padding: var(--spacing--xl);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: var(--spacing--sm);
+          text-align: center;
+        }
+        .empty-text {
+          color: var(--muted-foreground);
+        }
+        .upgrade-btn {
+          margin-top: var(--spacing--xs);
+        }
+        .capitalize {
+          text-transform: capitalize;
+        }
+      `}</style>
     </div>
   )
 }
