@@ -13,42 +13,76 @@ interface PaginationProps {
 
 export function Pagination({ total, currentPage = 1, pageSize = 100, className }: PaginationProps) {
     return (
-        <div
-            className={cn(
-                "n8n-pagination flex items-center justify-end gap-4 px-4 py-3 text-[length:var(--font-size--sm)] text-[color:var(--color--neutral-500)]",
-                className,
-            )}
-        >
+        <div className={cn("n8n-pagination", className)}>
             <span>Total {total}</span>
-            <div className="flex items-center gap-1">
+            <div className="pages">
                 <IconButton
-                    icon={<ChevronLeft className="w-4 h-4" />}
+                    icon={<ChevronLeft style={{ width: 16, height: 16 }} />}
                     size="sm"
                     label="Previous page"
                 />
                 {[1, 2, 3, 4].map((page) => (
                     <button
                         key={page}
-                        className={cn(
-                            "w-7 h-7 rounded-[var(--radius--3xs)] text-[length:var(--font-size--sm)]",
-                            page === currentPage
-                                ? "border border-[var(--color--orange-300)] text-[color:var(--color--orange-300)]"
-                                : "hover:bg-[var(--color--neutral-100)]",
-                        )}
+                        data-active={page === currentPage ? "true" : undefined}
+                        className="page-btn"
                     >
                         {page}
                     </button>
                 ))}
                 <IconButton
-                    icon={<ChevronRight className="w-4 h-4" />}
+                    icon={<ChevronRight style={{ width: 16, height: 16 }} />}
                     size="sm"
                     label="Next page"
                 />
             </div>
-            <div className="flex items-center gap-1">
+            <div className="page-size">
                 <span>{pageSize}/page</span>
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown style={{ width: 16, height: 16 }} />
             </div>
+
+            <style jsx>{`
+                .n8n-pagination {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-end;
+                    gap: var(--spacing--sm);
+                    padding: var(--spacing--xs) var(--spacing--sm);
+                    font-size: var(--font-size--sm);
+                    color: var(--color--neutral-500);
+                }
+                .pages {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--4xs);
+                }
+                .page-btn {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: var(--radius--3xs);
+                    font-size: var(--font-size--sm);
+                    background: transparent;
+                    border: 1px solid transparent;
+                    color: inherit;
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .page-btn:hover {
+                    background-color: var(--color--neutral-100);
+                }
+                .page-btn[data-active="true"] {
+                    border-color: var(--color--orange-300);
+                    color: var(--color--orange-300);
+                }
+                .page-btn[data-active="true"]:hover {
+                    background-color: transparent;
+                }
+                .page-size {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--4xs);
+                }
+            `}</style>
         </div>
     );
 }

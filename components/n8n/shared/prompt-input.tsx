@@ -49,13 +49,8 @@ export function PromptInput({
     const canSubmit = value.trim().length > 0 && !disabled;
 
     return (
-        <div
-            className={cn(
-                "n8n-prompt-input bg-[var(--color--neutral-125)] border border-[var(--color--black-alpha-100)] rounded-2xl p-2 shadow-sm",
-                className,
-            )}
-        >
-            <div className="relative bg-white border border-[var(--color--black-alpha-100)] rounded-[var(--radius--xs)] shadow-sm min-h-[80px] p-2.5 pb-10">
+        <div className={cn("n8n-prompt-input", className)}>
+            <div className="inner">
                 <textarea
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
@@ -63,22 +58,76 @@ export function PromptInput({
                     placeholder={placeholder}
                     disabled={disabled}
                     rows={rows}
-                    className="w-full h-full resize-none text-[length:var(--font-size--xs)] text-[color:var(--color--neutral-800)] bg-transparent outline-none placeholder:text-[color:var(--color--neutral-400)] disabled:cursor-not-allowed"
+                    className="textarea"
                 />
                 <button
                     type="button"
                     onClick={handleSubmit}
                     disabled={!canSubmit}
-                    className={cn(
-                        "absolute bottom-1.5 right-1.5 w-7 h-7 rounded-[var(--radius--3xs)] flex items-center justify-center transition-snappy",
-                        canSubmit
-                            ? "bg-[var(--color--orange-400)] hover:bg-[var(--color--orange-500)]"
-                            : "bg-[var(--color--neutral-200)] cursor-not-allowed",
-                    )}
+                    data-can-submit={canSubmit ? "true" : undefined}
+                    className="submit"
                 >
-                    <ArrowUp className="w-4 h-4 text-white" />
+                    <ArrowUp style={{ width: 16, height: 16, color: "white" }} />
                 </button>
             </div>
+
+            <style jsx>{`
+                .n8n-prompt-input {
+                    background-color: var(--color--neutral-125);
+                    border: 1px solid var(--color--black-alpha-100);
+                    border-radius: 16px;
+                    padding: var(--spacing--2xs);
+                    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                }
+                .inner {
+                    position: relative;
+                    background-color: white;
+                    border: 1px solid var(--color--black-alpha-100);
+                    border-radius: var(--radius--xs);
+                    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                    min-height: 80px;
+                    padding: 10px 10px 40px;
+                }
+                .textarea {
+                    width: 100%;
+                    height: 100%;
+                    resize: none;
+                    font-size: var(--font-size--xs);
+                    color: var(--color--neutral-800);
+                    background: transparent;
+                    outline: none;
+                    border: 0;
+                    font-family: inherit;
+                }
+                .textarea::placeholder {
+                    color: var(--color--neutral-400);
+                }
+                .textarea:disabled {
+                    cursor: not-allowed;
+                }
+                .submit {
+                    position: absolute;
+                    bottom: 6px;
+                    right: 6px;
+                    width: 28px;
+                    height: 28px;
+                    border: 0;
+                    border-radius: var(--radius--3xs);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out);
+                    background-color: var(--color--neutral-200);
+                    cursor: not-allowed;
+                }
+                .submit[data-can-submit="true"] {
+                    background-color: var(--color--orange-400);
+                    cursor: pointer;
+                }
+                .submit[data-can-submit="true"]:hover {
+                    background-color: var(--color--orange-500);
+                }
+            `}</style>
         </div>
     );
 }

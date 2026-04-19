@@ -7,13 +7,21 @@ interface TagProps {
 
 export function Tag({ text, className }: TagProps) {
     return (
-        <span
-            className={cn(
-                "n8n-tag inline-flex items-center px-1 py-0.5 rounded-[var(--radius--3xs)] bg-[var(--color--neutral-125)] text-[length:var(--font-size--2xs)] text-[color:var(--color--text--tint-1)] leading-[14px]",
-                className,
-            )}
-        >
+        <span className={cn("n8n-tag", className)}>
             {text}
+
+            <style jsx>{`
+                .n8n-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    padding: 2px 4px;
+                    border-radius: var(--radius--3xs);
+                    background-color: var(--color--neutral-125);
+                    font-size: var(--font-size--2xs);
+                    color: var(--color--text--tint-1);
+                    line-height: 14px;
+                }
+            `}</style>
         </span>
     );
 }
