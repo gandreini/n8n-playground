@@ -73,7 +73,7 @@ Four tabs: **Prototypes**, **Vision**, **Templates**, **Components**.
 - "Use this template" action (localhost only): duplicates template into user's namespace
 
 **Components tab:**
-- Auto-generated list from `components/n8n/` and `components/ui/` (recursive scan of all `.tsx` files)
+- Auto-generated list from `components/n8n/` and `components/shadcn/` (recursive scan of all `.tsx` files)
 - Shows component name and file path
 - No descriptions needed
 - Scan errors (missing dirs, permission issues) are skipped silently
@@ -111,7 +111,7 @@ Two starter templates in `app/prototypes/_templates/`:
 **`CLAUDE.md`** (root) — Full project guide for Claude Code:
 - Project purpose, tech stack, structure
 - Namespace rules (stay in your directory, don't modify others' work)
-- Conventions (metadata.json required, use shared components, Tailwind classes, run lint, verify visually)
+- Conventions (metadata.json required, use shared components, styled-jsx with n8n design tokens, run lint, verify visually)
 - Available shared components
 - How to create a new prototype
 - How to run the project

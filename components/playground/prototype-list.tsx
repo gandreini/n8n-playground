@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
     ExternalLink,
@@ -13,24 +12,23 @@ import {
 } from "lucide-react";
 import { format, isThisMonth, isThisYear } from "date-fns";
 import type { PrototypeEntry } from "@/lib/prototypes";
-import { cn } from "@/lib/utils";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+} from "@/components/shadcn/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
+import { Calendar } from "@/components/shadcn/calendar";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/shadcn/dialog";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
 
 interface PrototypeListProps {
     prototypes: PrototypeEntry[];
@@ -95,20 +93,26 @@ export function PrototypeList({
 
     if (filtered.length === 0) {
         return (
-            <p className="text-[var(--color--neutral-400)] text-sm py-8">
+            <p className="empty">
                 No prototypes found.
+
+                <style jsx>{`
+                    .empty {
+                        color: var(--color--neutral-400);
+                        font-size: var(--font-size--sm);
+                        padding-block: var(--spacing--xl);
+                    }
+                `}</style>
             </p>
         );
     }
 
     return (
-        <div className="playground-prototype-list space-y-6">
+        <div className="playground-prototype-list">
             {Object.entries(groups).map(([month, entries]) => (
-                <div key={month}>
-                    <h3 className="text-[length:var(--font-size--2xs)] font-[number:var(--font-weight--medium)] text-[var(--color--neutral-400)] uppercase tracking-wide mb-2">
-                        {month}
-                    </h3>
-                    <div className="space-y-0">
+                <div key={month} className="group">
+                    <h3>{month}</h3>
+                    <div>
                         {entries.map((entry) => (
                             <PrototypeRow
                                 key={entry.slug}
@@ -119,6 +123,22 @@ export function PrototypeList({
                     </div>
                 </div>
             ))}
+
+            <style jsx>{`
+                .playground-prototype-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--lg);
+                }
+                h3 {
+                    font-size: var(--font-size--2xs);
+                    font-weight: var(--font-weight--medium);
+                    color: var(--color--neutral-400);
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    margin-bottom: var(--spacing--2xs);
+                }
+            `}</style>
         </div>
     );
 }
@@ -167,74 +187,37 @@ export function PrototypeRow({
         }
     }
 
-    const rowBody = (
-        <>
-            <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <div className="flex items-center gap-2">
-                    <span className="text-sm text-[var(--color--neutral-800)] group-hover:text-[var(--color--orange-500)] transition-colors truncate">
-                        {entry.title}
-                    </span>
-                    {isExternal && (
-                        <ExternalLink className="w-3.5 h-3.5 text-[var(--color--neutral-300)] shrink-0" />
+    return (
+        <div className="row">
+            <a
+                href={href}
+                target="_blank"
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                className="link"
+            >
+                <div className="meta">
+                    <div className="title-line">
+                        <span className="title">{entry.title}</span>
+                        {isExternal && <ExternalLink className="ext-icon" />}
+                    </div>
+                    {entry.description && (
+                        <span className="description">{entry.description}</span>
                     )}
                 </div>
-                {entry.description && (
-                    <span className="text-[length:var(--font-size--2xs)] text-[var(--color--neutral-400)] truncate">
-                        {entry.description}
-                    </span>
-                )}
-            </div>
-            <span className="text-[length:var(--font-size--2xs)] text-[var(--color--neutral-400)]">
-                {entry.author}
-            </span>
-            <span className="text-[length:var(--font-size--2xs)] text-[var(--color--neutral-300)] w-16 text-right">
-                {formattedDate}
-            </span>
-        </>
-    );
-
-    const linkClasses =
-        "flex-1 flex items-center gap-3 text-left min-w-0";
-
-    return (
-        <div className="group flex items-center gap-3 px-3 py-2 -mx-3 rounded-[var(--radius--xs)] hover:bg-[var(--color--neutral-50)] transition-colors">
-            {isExternal ? (
-                <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClasses}
-                >
-                    {rowBody}
-                </a>
-            ) : (
-                <Link href={href} target="_blank" className={linkClasses}>
-                    {rowBody}
-                </Link>
-            )}
+                <span className="author">{entry.author}</span>
+                <span className="date">{formattedDate}</span>
+            </a>
 
             {isDev && (
                 <button
                     onClick={handleToggleFeatured}
                     disabled={toggling}
-                    className={cn(
-                        "w-6 h-6 flex items-center justify-center rounded-[var(--radius--3xs)] transition-opacity",
-                        "hover:bg-[var(--color--neutral-125)]",
-                        featured
-                            ? "opacity-100"
-                            : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
-                    )}
+                    className="star-btn"
+                    data-featured={featured}
                     aria-label={featured ? "Remove from vision" : "Add to vision"}
                     aria-pressed={featured}
                 >
-                    <Star
-                        className={cn(
-                            "w-4 h-4",
-                            featured
-                                ? "fill-[var(--color--yellow-200)] text-[var(--color--yellow-600)]"
-                                : "text-[var(--color--neutral-400)]",
-                        )}
-                    />
+                    <Star className="star-icon" />
                 </button>
             )}
 
@@ -243,23 +226,19 @@ export function PrototypeRow({
                     <DropdownMenuTrigger asChild>
                         <button
                             onClick={(e) => e.stopPropagation()}
-                            className={cn(
-                                "w-6 h-6 flex items-center justify-center rounded-[var(--radius--3xs)]",
-                                "text-[var(--color--neutral-400)] hover:bg-[var(--color--neutral-125)] hover:text-[var(--color--neutral-800)]",
-                                "opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 transition-opacity",
-                            )}
+                            className="menu-btn"
                             aria-label="Prototype actions"
                         >
-                            <MoreHorizontal className="w-4 h-4" />
+                            <MoreHorizontal className="menu-icon" />
                         </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onSelect={() => setDateOpen(true)}>
-                            <CalendarDays className="w-4 h-4 mr-2" />
+                            <CalendarDays style={{ width: 16, height: 16, marginRight: 8 }} />
                             Change date
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => setBranchOpen(true)}>
-                            <GitBranch className="w-4 h-4 mr-2" />
+                            <GitBranch style={{ width: 16, height: 16, marginRight: 8 }} />
                             Branch prototype
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -280,6 +259,130 @@ export function PrototypeRow({
                     />
                 </>
             )}
+
+            <style jsx>{`
+                .row {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--xs);
+                    padding: var(--spacing--2xs) var(--spacing--xs);
+                    margin-inline: calc(var(--spacing--xs) * -1);
+                    border-radius: var(--radius--xs);
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .row:hover {
+                    background-color: var(--color--neutral-50);
+                }
+                .link {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--xs);
+                    text-align: left;
+                    min-width: 0;
+                    text-decoration: none;
+                    color: inherit;
+                }
+                .meta {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--5xs);
+                }
+                .title-line {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--2xs);
+                }
+                .title {
+                    font-size: var(--font-size--sm);
+                    color: var(--color--neutral-800);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    transition: color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .row:hover .title {
+                    color: var(--color--orange-500);
+                }
+                .title-line :global(.ext-icon) {
+                    width: 14px;
+                    height: 14px;
+                    color: var(--color--neutral-300);
+                    flex-shrink: 0;
+                }
+                .description {
+                    font-size: var(--font-size--2xs);
+                    color: var(--color--neutral-400);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .author {
+                    font-size: var(--font-size--2xs);
+                    color: var(--color--neutral-400);
+                }
+                .date {
+                    font-size: var(--font-size--2xs);
+                    color: var(--color--neutral-300);
+                    width: 64px;
+                    text-align: right;
+                }
+                .star-btn,
+                .menu-btn {
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: var(--radius--3xs);
+                    background: none;
+                    border: 0;
+                    cursor: pointer;
+                    transition: opacity var(--duration--snappy) var(--easing--ease-out),
+                        background-color var(--duration--snappy) var(--easing--ease-out),
+                        color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .star-btn:hover,
+                .menu-btn:hover {
+                    background-color: var(--color--neutral-125);
+                }
+                .star-btn {
+                    opacity: 0;
+                }
+                .star-btn[data-featured="true"] {
+                    opacity: 1;
+                }
+                .row:hover .star-btn,
+                .star-btn:focus-visible {
+                    opacity: 1;
+                }
+                .star-btn :global(.star-icon) {
+                    width: 16px;
+                    height: 16px;
+                    color: var(--color--neutral-400);
+                }
+                .star-btn[data-featured="true"] :global(.star-icon) {
+                    fill: var(--color--yellow-200);
+                    color: var(--color--yellow-600);
+                }
+                .menu-btn {
+                    color: var(--color--neutral-400);
+                    opacity: 0;
+                }
+                .row:hover .menu-btn,
+                .menu-btn[data-state="open"] {
+                    opacity: 1;
+                }
+                .menu-btn:hover {
+                    color: var(--color--neutral-800);
+                }
+                .menu-btn :global(.menu-icon) {
+                    width: 16px;
+                    height: 16px;
+                }
+            `}</style>
         </div>
     );
 }
@@ -331,13 +434,10 @@ function ChangeDateDialog({
                 <DialogHeader>
                     <DialogTitle>Change date</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 pt-2">
-                    <p className="text-sm text-[var(--color--neutral-500)]">
+                <div className="body">
+                    <p className="prompt">
                         Pick a new date for{" "}
-                        <span className="text-[var(--color--neutral-800)] font-medium">
-                            {entry.title}
-                        </span>
-                        .
+                        <span className="entry-name">{entry.title}</span>.
                     </p>
                     <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
                         <PopoverTrigger asChild>
@@ -345,7 +445,7 @@ function ChangeDateDialog({
                                 variant="outline"
                                 className="w-full justify-start text-left font-normal"
                             >
-                                <CalendarDays className="w-4 h-4 mr-2" />
+                                <CalendarDays style={{ width: 16, height: 16, marginRight: 8 }} />
                                 {selected
                                     ? format(selected, "PPP")
                                     : "Select a date"}
@@ -363,11 +463,7 @@ function ChangeDateDialog({
                             />
                         </PopoverContent>
                     </Popover>
-                    {error && (
-                        <p className="text-xs text-[var(--color--red-500)]">
-                            {error}
-                        </p>
-                    )}
+                    {error && <p className="error">{error}</p>}
                     <Button
                         onClick={handleSave}
                         disabled={!selected || loading}
@@ -376,6 +472,27 @@ function ChangeDateDialog({
                         {loading ? "Saving..." : "Save date"}
                     </Button>
                 </div>
+
+                <style jsx>{`
+                    .body {
+                        display: flex;
+                        flex-direction: column;
+                        gap: var(--spacing--sm);
+                        padding-top: var(--spacing--2xs);
+                    }
+                    .prompt {
+                        font-size: var(--font-size--sm);
+                        color: var(--color--neutral-500);
+                    }
+                    .entry-name {
+                        color: var(--color--neutral-800);
+                        font-weight: var(--font-weight--medium);
+                    }
+                    .error {
+                        font-size: var(--font-size--2xs);
+                        color: var(--color--red-500);
+                    }
+                `}</style>
             </DialogContent>
         </Dialog>
     );
@@ -451,17 +568,14 @@ function BranchDialog({
                     </DialogTitle>
                 </DialogHeader>
                 {created ? (
-                    <div className="space-y-4 pt-2">
-                        <div className="flex items-start gap-3 p-4 rounded-[var(--radius--xs)] bg-[var(--color--green-50)] border border-[var(--color--green-200)]">
-                            <CheckCircle2 className="w-5 h-5 text-[var(--color--green-600)] shrink-0 mt-0.5" />
-                            <div className="space-y-1">
-                                <p className="text-sm font-medium text-[var(--color--neutral-800)]">
-                                    Copied to{" "}
-                                    <code className="text-xs bg-[var(--color--neutral-125)] px-1 py-0.5 rounded">
-                                        {created.path}
-                                    </code>
+                    <div className="body">
+                        <div className="success-box">
+                            <CheckCircle2 className="success-icon" />
+                            <div>
+                                <p className="success-title">
+                                    Copied to <code>{created.path}</code>
                                 </p>
-                                <p className="text-xs text-[var(--color--neutral-500)]">
+                                <p className="success-sub">
                                     Restart the dev server to see the new route.
                                 </p>
                             </div>
@@ -476,17 +590,55 @@ function BranchDialog({
                         >
                             Done
                         </Button>
+
+                        <style jsx>{`
+                            .body {
+                                display: flex;
+                                flex-direction: column;
+                                gap: var(--spacing--sm);
+                                padding-top: var(--spacing--2xs);
+                            }
+                            .success-box {
+                                display: flex;
+                                align-items: flex-start;
+                                gap: var(--spacing--xs);
+                                padding: var(--spacing--sm);
+                                border-radius: var(--radius--xs);
+                                background-color: var(--color--green-50);
+                                border: 1px solid var(--color--green-200);
+                            }
+                            .success-box :global(.success-icon) {
+                                width: 20px;
+                                height: 20px;
+                                color: var(--color--green-600);
+                                flex-shrink: 0;
+                                margin-top: 2px;
+                            }
+                            .success-title {
+                                font-size: var(--font-size--sm);
+                                font-weight: var(--font-weight--medium);
+                                color: var(--color--neutral-800);
+                                margin-bottom: var(--spacing--4xs);
+                            }
+                            .success-title code {
+                                font-size: var(--font-size--2xs);
+                                background-color: var(--color--neutral-125);
+                                padding: 2px var(--spacing--4xs);
+                                border-radius: var(--radius--3xs);
+                            }
+                            .success-sub {
+                                font-size: var(--font-size--2xs);
+                                color: var(--color--neutral-500);
+                            }
+                        `}</style>
                     </div>
                 ) : (
-                    <div className="space-y-4 pt-2">
-                        <p className="text-sm text-[var(--color--neutral-500)]">
+                    <div className="body">
+                        <p className="prompt">
                             Start a new prototype by copying the content of{" "}
-                            <span className="text-[var(--color--neutral-800)] font-medium">
-                                {entry.title}
-                            </span>
-                            .
+                            <span className="entry-name">{entry.title}</span>.
                         </p>
-                        <div className="space-y-2">
+                        <div className="field">
                             <Label htmlFor="branch-username">Username</Label>
                             <Input
                                 id="branch-username"
@@ -495,7 +647,7 @@ function BranchDialog({
                                 onChange={(e) => setUsername(e.target.value)}
                             />
                         </div>
-                        <div className="space-y-2">
+                        <div className="field">
                             <Label htmlFor="branch-name">
                                 New prototype name
                             </Label>
@@ -506,11 +658,7 @@ function BranchDialog({
                                 onChange={(e) => setName(e.target.value)}
                             />
                         </div>
-                        {error && (
-                            <p className="text-xs text-[var(--color--red-500)]">
-                                {error}
-                            </p>
-                        )}
+                        {error && <p className="error">{error}</p>}
                         <Button
                             onClick={handleBranch}
                             disabled={
@@ -522,6 +670,32 @@ function BranchDialog({
                         >
                             {loading ? "Branching..." : "Create branch"}
                         </Button>
+
+                        <style jsx>{`
+                            .body {
+                                display: flex;
+                                flex-direction: column;
+                                gap: var(--spacing--sm);
+                                padding-top: var(--spacing--2xs);
+                            }
+                            .prompt {
+                                font-size: var(--font-size--sm);
+                                color: var(--color--neutral-500);
+                            }
+                            .entry-name {
+                                color: var(--color--neutral-800);
+                                font-weight: var(--font-weight--medium);
+                            }
+                            .field {
+                                display: flex;
+                                flex-direction: column;
+                                gap: var(--spacing--2xs);
+                            }
+                            .error {
+                                font-size: var(--font-size--2xs);
+                                color: var(--color--red-500);
+                            }
+                        `}</style>
                     </div>
                 )}
             </DialogContent>

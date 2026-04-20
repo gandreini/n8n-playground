@@ -13,18 +13,9 @@ import {
   Users,
   Zap,
   ChevronRight,
-  Sparkles,
-  Globe,
-  Database,
-  Mail,
-  MessageSquare,
-  FileText,
-  Calendar,
-  Shield,
   X
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Input } from '@/components/ui/input'
+import { Input } from '@/components/shadcn/input'
 import { ServiceIcon } from '../shared/service-icon'
 
 const nodeCategories = [
@@ -142,25 +133,73 @@ interface CategoryRowProps {
 function CategoryRow({ category, onClick }: CategoryRowProps) {
   const Icon = category.icon
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 p-3 hover:bg-[var(--color--neutral-50)] rounded-[var(--radius--xs)] transition-snappy text-left"
-    >
-      <div className="w-10 h-10 rounded-[var(--radius--xs)] bg-[var(--color--neutral-100)] flex items-center justify-center flex-shrink-0">
-        <Icon 
-          className="w-5 h-5" 
-          style={{ color: category.iconColor || 'var(--color--neutral-500)' }}
+    <button onClick={onClick} className="category-row">
+      <div className="icon-wrap">
+        <Icon
+          style={{
+            width: 20,
+            height: 20,
+            color: category.iconColor || 'var(--color--neutral-500)',
+          }}
         />
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[var(--font-size--sm)] font-[var(--font-weight--bold)] text-[var(--color--neutral-800)]">
-          {category.name}
-        </p>
-        <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)] truncate">
-          {category.description}
-        </p>
+      <div className="text">
+        <p className="name">{category.name}</p>
+        <p className="desc">{category.description}</p>
       </div>
-      <ChevronRight className="w-4 h-4 text-[var(--color--neutral-300)] flex-shrink-0" />
+      <ChevronRight
+        style={{
+          width: 16,
+          height: 16,
+          color: 'var(--color--neutral-300)',
+          flexShrink: 0,
+        }}
+      />
+
+      <style jsx>{`
+        .category-row {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--2xs);
+          padding: var(--spacing--2xs);
+          border: 0;
+          background: transparent;
+          border-radius: var(--radius--xs);
+          text-align: left;
+          cursor: pointer;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .category-row:hover {
+          background-color: var(--color--neutral-50);
+        }
+        .icon-wrap {
+          width: 40px;
+          height: 40px;
+          border-radius: var(--radius--xs);
+          background-color: var(--color--neutral-100);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .text {
+          flex: 1;
+          min-width: 0;
+        }
+        .name {
+          font-size: var(--font-size--sm);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--neutral-800);
+        }
+        .desc {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `}</style>
     </button>
   )
 }
@@ -172,56 +211,99 @@ interface NodeRowProps {
 
 function NodeRow({ node, onClick }: NodeRowProps) {
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 p-3 hover:bg-[var(--color--neutral-50)] rounded-[var(--radius--xs)] transition-snappy text-left"
-    >
+    <button onClick={onClick} className="node-row">
       <ServiceIcon service={node.icon} size={28} />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="text-[var(--font-size--sm)] font-[var(--font-weight--medium)] text-[var(--color--neutral-800)]">
-            {node.name}
-          </p>
-          {node.badge && (
-            <span className="px-1.5 py-0.5 text-[var(--font-size--3xs)] bg-[var(--color--neutral-100)] text-[var(--color--neutral-500)] rounded-[var(--radius--3xs)]">
-              {node.badge}
-            </span>
-          )}
+      <div className="text">
+        <div className="name-row">
+          <p className="name">{node.name}</p>
+          {node.badge && <span className="badge">{node.badge}</span>}
         </div>
-        <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)] truncate">
-          {node.description}
-        </p>
+        <p className="desc">{node.description}</p>
       </div>
-      <ChevronRight className="w-4 h-4 text-[var(--color--neutral-300)] flex-shrink-0" />
+      <ChevronRight
+        style={{
+          width: 16,
+          height: 16,
+          color: 'var(--color--neutral-300)',
+          flexShrink: 0,
+        }}
+      />
+
+      <style jsx>{`
+        .node-row {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--2xs);
+          padding: var(--spacing--2xs);
+          border: 0;
+          background: transparent;
+          border-radius: var(--radius--xs);
+          text-align: left;
+          cursor: pointer;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .node-row:hover {
+          background-color: var(--color--neutral-50);
+        }
+        .text {
+          flex: 1;
+          min-width: 0;
+        }
+        .name-row {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+        }
+        .name {
+          font-size: var(--font-size--sm);
+          font-weight: var(--font-weight--medium);
+          color: var(--color--neutral-800);
+        }
+        .badge {
+          padding: 2px 6px;
+          font-size: var(--font-size--3xs);
+          background-color: var(--color--neutral-100);
+          color: var(--color--neutral-500);
+          border-radius: var(--radius--3xs);
+        }
+        .desc {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `}</style>
     </button>
   )
 }
 
 export function NodesPanel() {
-  const { 
-    closeNodesPanel, 
-    nodesPanelLevel, 
+  const {
+    closeNodesPanel,
+    nodesPanelLevel,
     setNodesPanelLevel,
-    nodesPanelCategory, 
+    nodesPanelCategory,
     setNodesPanelCategory,
-    addNode
+    addNode,
   } = useStore()
-  
+
   const [searchQuery, setSearchQuery] = useState('')
-  
-  const selectedCategory = nodeCategories.find(c => c.id === nodesPanelCategory)
-  
+
+  const selectedCategory = nodeCategories.find((c) => c.id === nodesPanelCategory)
+
   const handleCategoryClick = (categoryId: string) => {
     setNodesPanelCategory(categoryId)
   }
-  
+
   const handleBack = () => {
     if (nodesPanelLevel === 2) {
       setNodesPanelLevel(1)
       setNodesPanelCategory(null)
     }
   }
-  
+
   const handleAddNode = (nodeType: string, nodeName: string, icon: string) => {
     addNode({
       type: nodeType,
@@ -230,71 +312,62 @@ export function NodesPanel() {
       position: { x: 400, y: 300 },
       inputs: ['main'],
       outputs: ['main'],
-      status: 'idle'
+      status: 'idle',
     })
     closeNodesPanel()
   }
-  
-  const filteredCategories = nodeCategories.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+  const filteredCategories = nodeCategories.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.description.toLowerCase().includes(searchQuery.toLowerCase()),
   )
-  
-  const filteredNodes = selectedCategory?.nodes.filter(n =>
-    n.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    n.description.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || []
-  
+
+  const filteredNodes =
+    selectedCategory?.nodes.filter(
+      (n) =>
+        n.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.description.toLowerCase().includes(searchQuery.toLowerCase()),
+    ) || []
+
   return (
-    <div className="n8n-nodes-panel w-[350px] h-full bg-white border-l border-[var(--color--neutral-150)] flex flex-col transition-base">
+    <div className="n8n-nodes-panel">
       {/* Header */}
-      <div className="p-4 border-b border-[var(--color--neutral-150)]">
-        <div className="flex items-center justify-between mb-4">
+      <div className="header">
+        <div className="title-row">
           {nodesPanelLevel > 1 ? (
-            <button 
-              onClick={handleBack}
-              className="flex items-center gap-2 text-[var(--color--neutral-500)] hover:text-[var(--color--neutral-700)] transition-snappy"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="text-[var(--font-size--lg)] font-[var(--font-weight--bold)] text-[var(--color--neutral-800)]">
-                {selectedCategory?.name || 'AI Nodes'}
-              </span>
+            <button onClick={handleBack} className="back-btn">
+              <ArrowLeft style={{ width: 16, height: 16 }} />
+              <span className="title">{selectedCategory?.name || 'AI Nodes'}</span>
             </button>
           ) : (
-            <h2 className="text-[var(--font-size--lg)] font-[var(--font-weight--bold)] text-[var(--color--neutral-800)]">
-              What happens next?
-            </h2>
+            <h2 className="title">What happens next?</h2>
           )}
-          <button 
-            onClick={closeNodesPanel}
-            className="p-1 hover:bg-[var(--color--neutral-100)] rounded-[var(--radius--3xs)] transition-snappy"
-          >
-            <X className="w-4 h-4 text-[var(--color--neutral-400)]" />
+          <button onClick={closeNodesPanel} className="close-btn">
+            <X style={{ width: 16, height: 16, color: 'var(--color--neutral-400)' }} />
           </button>
         </div>
-        
+
         {nodesPanelLevel > 1 && (
-          <p className="text-[var(--font-size--sm)] text-[var(--color--neutral-400)] mb-4">
+          <p className="subtitle">
             Select an {selectedCategory?.name} Node to add to your workflow
           </p>
         )}
-        
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color--neutral-400)]" />
+
+        <div className="search">
+          <Search className="search-icon" />
           <Input
             placeholder="Search nodes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-10 text-[var(--font-size--sm)]"
           />
         </div>
       </div>
-      
+
       {/* Content */}
-      <div className="flex-1 overflow-y-auto n8n-scrollbar p-2">
+      <div className="content n8n-scrollbar">
         {nodesPanelLevel === 1 ? (
-          // Categories list
-          <div className="space-y-1">
+          <div className="list">
             {filteredCategories.map((category) => (
               <CategoryRow
                 key={category.id}
@@ -304,8 +377,7 @@ export function NodesPanel() {
             ))}
           </div>
         ) : (
-          // Nodes list
-          <div className="space-y-1">
+          <div className="list">
             {filteredNodes.map((node) => (
               <NodeRow
                 key={node.id}
@@ -316,6 +388,94 @@ export function NodesPanel() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .n8n-nodes-panel {
+          width: 350px;
+          height: 100%;
+          background-color: #ffffff;
+          border-left: 1px solid var(--color--neutral-150);
+          display: flex;
+          flex-direction: column;
+          transition: transform var(--duration--base) var(--easing--ease-out);
+        }
+        .header {
+          padding: var(--spacing--sm);
+          border-bottom: 1px solid var(--color--neutral-150);
+        }
+        .title-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: var(--spacing--sm);
+        }
+        .back-btn {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          background: transparent;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+          color: var(--color--neutral-500);
+          transition: color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .back-btn:hover {
+          color: var(--color--neutral-700);
+        }
+        .title {
+          font-size: var(--font-size--lg);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--neutral-800);
+        }
+        .close-btn {
+          padding: var(--spacing--5xs);
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          border-radius: var(--radius--3xs);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .close-btn:hover {
+          background-color: var(--color--neutral-100);
+        }
+        .subtitle {
+          font-size: var(--font-size--sm);
+          color: var(--color--neutral-400);
+          margin-bottom: var(--spacing--sm);
+        }
+        .search {
+          position: relative;
+        }
+        .search :global(.search-icon) {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          color: var(--color--neutral-400);
+          z-index: 1;
+        }
+        .search :global(input) {
+          padding-left: 36px;
+          height: 40px;
+          font-size: var(--font-size--sm);
+        }
+        .content {
+          flex: 1;
+          overflow-y: auto;
+          padding: var(--spacing--3xs);
+        }
+        .list {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--5xs);
+        }
+      `}</style>
     </div>
   )
 }

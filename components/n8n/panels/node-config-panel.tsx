@@ -1,6 +1,6 @@
 'use client'
 
-import { useStore, WorkflowNode } from '@/lib/store'
+import { useStore } from '@/lib/store'
 import { useState } from 'react'
 import {
   X,
@@ -12,13 +12,10 @@ import {
   Pencil,
   Pin,
   Zap,
-  Check
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/shadcn/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/shadcn/select'
+import { Switch } from '@/components/shadcn/switch'
 import { ServiceIcon } from '../shared/service-icon'
 import { toast } from 'sonner'
 
@@ -37,7 +34,7 @@ const mockInputData = {
   Hour: 10,
   Minute: 16,
   Second: 15,
-  Timezone: 'Europe/Rome (UTC+01:00)'
+  Timezone: 'Europe/Rome (UTC+01:00)',
 }
 
 // Mock output data
@@ -57,8 +54,8 @@ const mockOutputData = [
     iCalUID: 'm2n17s1egabd4cj4p278nob8bk@google.com',
     kind: 'calendar#event',
     originalStartTime: { date: '2026-03-20' },
-    recurringEventId: 'm2n17s1egabd4cj4p278nob8bk'
-  }
+    recurringEventId: 'm2n17s1egabd4cj4p278nob8bk',
+  },
 ]
 
 interface SchemaFieldProps {
@@ -69,41 +66,94 @@ interface SchemaFieldProps {
 
 function SchemaField({ name, value, type }: SchemaFieldProps) {
   return (
-    <div className="flex items-center gap-2 py-1.5">
-      <span className="px-1.5 py-0.5 text-[var(--font-size--3xs)] font-[var(--font-weight--medium)] bg-[var(--color--neutral-100)] text-[var(--color--neutral-500)] rounded">
-        {type}
-      </span>
-      <span className="text-[var(--font-size--xs)] text-[var(--color--neutral-800)]">{name}</span>
-      <span className="text-[var(--font-size--xs)] text-[var(--color--neutral-400)] ml-auto truncate max-w-[120px]">
-        {String(value)}
-      </span>
+    <div className="schema-field">
+      <span className="type-badge">{type}</span>
+      <span className="field-name">{name}</span>
+      <span className="field-value">{String(value)}</span>
+
+      <style jsx>{`
+        .schema-field {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          padding-block: var(--spacing--5xs);
+        }
+        .type-badge {
+          padding: 2px 6px;
+          font-size: var(--font-size--3xs);
+          font-weight: var(--font-weight--medium);
+          background-color: var(--color--neutral-100);
+          color: var(--color--neutral-500);
+          border-radius: var(--radius--3xs);
+        }
+        .field-name {
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-800);
+        }
+        .field-value {
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-400);
+          margin-left: auto;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          max-width: 120px;
+        }
+      `}</style>
     </div>
   )
 }
 
-function DataViewToggle({ 
-  activeTab, 
-  onTabChange 
-}: { 
+function DataViewToggle({
+  activeTab,
+  onTabChange,
+}: {
   activeTab: DataViewTab
-  onTabChange: (tab: DataViewTab) => void 
+  onTabChange: (tab: DataViewTab) => void
 }) {
   return (
-    <div className="flex items-center gap-1 p-1 bg-[var(--color--neutral-50)] rounded-[var(--radius--xs)]">
+    <div className="toggle">
       {(['schema', 'table', 'json'] as const).map((tab) => (
         <button
           key={tab}
           onClick={() => onTabChange(tab)}
-          className={cn(
-            'px-3 py-1 text-[var(--font-size--2xs)] rounded-[var(--radius--3xs)] transition-snappy capitalize',
-            activeTab === tab
-              ? 'bg-white text-[var(--color--neutral-800)] shadow-sm'
-              : 'text-[var(--color--neutral-500)] hover:text-[var(--color--neutral-700)]'
-          )}
+          data-active={activeTab === tab ? 'true' : undefined}
+          className="toggle-btn"
         >
           {tab === 'json' ? 'JSON' : tab.charAt(0).toUpperCase() + tab.slice(1)}
         </button>
       ))}
+
+      <style jsx>{`
+        .toggle {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--5xs);
+          padding: var(--spacing--5xs);
+          background-color: var(--color--neutral-50);
+          border-radius: var(--radius--xs);
+        }
+        .toggle-btn {
+          padding: var(--spacing--5xs) var(--spacing--2xs);
+          font-size: var(--font-size--2xs);
+          border: 0;
+          background: transparent;
+          border-radius: var(--radius--3xs);
+          cursor: pointer;
+          text-transform: capitalize;
+          color: var(--color--neutral-500);
+          transition: color var(--duration--snappy) var(--easing--ease-out),
+            background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .toggle-btn:hover {
+          color: var(--color--neutral-700);
+        }
+        .toggle-btn[data-active='true'] {
+          background-color: #ffffff;
+          color: var(--color--neutral-800);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+      `}</style>
     </div>
   )
 }
@@ -111,12 +161,15 @@ function DataViewToggle({
 function JsonView({ data }: { data: unknown }) {
   const formatJson = (obj: unknown, indent = 0): React.ReactNode => {
     const indentStr = '  '.repeat(indent)
-    
-    if (obj === null) return <span className="text-[var(--color--purple-600)]">null</span>
-    if (typeof obj === 'boolean') return <span className="text-[var(--color--purple-600)]">{String(obj)}</span>
-    if (typeof obj === 'number') return <span className="text-[var(--color--blue-500)]">{obj}</span>
-    if (typeof obj === 'string') return <span className="text-[var(--color--green-700)]">"{obj}"</span>
-    
+
+    if (obj === null) return <span style={{ color: 'var(--color--purple-600)' }}>null</span>
+    if (typeof obj === 'boolean')
+      return <span style={{ color: 'var(--color--purple-600)' }}>{String(obj)}</span>
+    if (typeof obj === 'number')
+      return <span style={{ color: 'var(--color--blue-500)' }}>{obj}</span>
+    if (typeof obj === 'string')
+      return <span style={{ color: 'var(--color--green-700)' }}>"{obj}"</span>
+
     if (Array.isArray(obj)) {
       if (obj.length === 0) return <span>[]</span>
       return (
@@ -124,7 +177,7 @@ function JsonView({ data }: { data: unknown }) {
           {'[\n'}
           {obj.map((item, i) => (
             <span key={i}>
-              {indentStr}  {formatJson(item, indent + 1)}
+              {indentStr} {formatJson(item, indent + 1)}
               {i < obj.length - 1 ? ',\n' : '\n'}
             </span>
           ))}
@@ -132,7 +185,7 @@ function JsonView({ data }: { data: unknown }) {
         </span>
       )
     }
-    
+
     if (typeof obj === 'object') {
       const entries = Object.entries(obj as Record<string, unknown>)
       if (entries.length === 0) return <span>{'{}'}</span>
@@ -141,44 +194,51 @@ function JsonView({ data }: { data: unknown }) {
           {'{\n'}
           {entries.map(([key, value], i) => (
             <span key={key}>
-              {indentStr}  <span className="text-[var(--color--neutral-700)]">"{key}"</span>: {formatJson(value, indent + 1)}
+              {indentStr}{' '}
+              <span style={{ color: 'var(--color--neutral-700)' }}>"{key}"</span>:{' '}
+              {formatJson(value, indent + 1)}
               {i < entries.length - 1 ? ',\n' : '\n'}
             </span>
           ))}
-          {indentStr}{'}'}
+          {indentStr}
+          {'}'}
         </span>
       )
     }
-    
+
     return <span>{String(obj)}</span>
   }
-  
+
   return (
-    <pre className="text-[var(--font-size--xs)] font-mono leading-relaxed overflow-x-auto">
+    <pre className="json-view">
       {formatJson(data)}
+
+      <style jsx>{`
+        .json-view {
+          font-size: var(--font-size--xs);
+          font-family: var(--font-family--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+          line-height: var(--line-height--relaxed, 1.625);
+          overflow-x: auto;
+        }
+      `}</style>
     </pre>
   )
 }
 
 export function NodeConfigPanel() {
-  const { 
-    currentWorkflow, 
-    selectedNodeId, 
-    closeNodeConfig,
-    executeNode
-  } = useStore()
-  
+  const { currentWorkflow, selectedNodeId, closeNodeConfig, executeNode } = useStore()
+
   const [inputTab, setInputTab] = useState<DataViewTab>('schema')
   const [outputTab, setOutputTab] = useState<DataViewTab>('json')
   const [configTab, setConfigTab] = useState<ConfigTab>('parameters')
-  const [leftWidth, setLeftWidth] = useState(280)
-  const [rightWidth, setRightWidth] = useState(350)
+  const [leftWidth] = useState(280)
+  const [rightWidth] = useState(350)
   const [hasOutput, setHasOutput] = useState(false)
-  
-  const selectedNode = currentWorkflow?.nodes.find(n => n.id === selectedNodeId)
-  
+
+  const selectedNode = currentWorkflow?.nodes.find((n) => n.id === selectedNodeId)
+
   if (!selectedNode) return null
-  
+
   const handleExecuteStep = () => {
     if (selectedNodeId) {
       executeNode(selectedNodeId)
@@ -186,89 +246,70 @@ export function NodeConfigPanel() {
       toast.success('Node executed successfully')
     }
   }
-  
+
   return (
-    <div className="n8n-node-config-panel fixed inset-0 z-50 flex">
+    <div className="n8n-node-config-panel">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-[var(--color--black-alpha-300)]"
-        onClick={closeNodeConfig}
-      />
-      
+      <div className="backdrop" onClick={closeNodeConfig} />
+
       {/* Panel */}
-      <div className="relative m-4 flex-1 bg-white rounded-[var(--radius--md)] shadow-xl flex flex-col overflow-hidden">
+      <div className="panel">
         {/* Header */}
-        <div className="h-12 px-4 border-b border-[var(--color--neutral-150)] flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="panel-header">
+          <div className="header-left">
             <ServiceIcon service={selectedNode.icon} size={24} />
-            <span className="text-[var(--font-size--md)] font-[var(--font-weight--bold)] text-[var(--color--neutral-800)]">
-              {selectedNode.name}
-            </span>
+            <span className="node-name">{selectedNode.name}</span>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <GripVertical className="w-4 h-4 text-[var(--color--neutral-300)]" />
+
+          <div className="header-center">
+            <GripVertical style={{ width: 16, height: 16, color: 'var(--color--neutral-300)' }} />
           </div>
-          
-          <div className="flex items-center gap-3">
-            <a 
-              href="#" 
-              className="flex items-center gap-1 text-[var(--font-size--sm)] text-[var(--color--neutral-500)] hover:text-[var(--color--neutral-700)]"
-            >
+
+          <div className="header-right">
+            <a href="#" className="docs-link">
               Docs
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink style={{ width: 12, height: 12 }} />
             </a>
-            <button 
-              onClick={closeNodeConfig}
-              className="p-1 hover:bg-[var(--color--neutral-100)] rounded-[var(--radius--3xs)] transition-snappy"
-            >
-              <X className="w-5 h-5 text-[var(--color--neutral-500)]" />
+            <button onClick={closeNodeConfig} className="close-btn">
+              <X style={{ width: 20, height: 20, color: 'var(--color--neutral-500)' }} />
             </button>
           </div>
         </div>
-        
+
         {/* Content */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="panel-content">
           {/* Left Column - INPUT */}
-          <div 
-            className="border-r border-[var(--color--neutral-150)] flex flex-col overflow-hidden"
-            style={{ width: leftWidth }}
-          >
-            <div className="p-3 border-b border-[var(--color--neutral-150)]">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[var(--font-size--2xs)] font-[var(--font-weight--bold)] text-[var(--color--neutral-400)] uppercase tracking-wider">
-                  INPUT
-                </span>
+          <div className="column left" style={{ width: leftWidth }}>
+            <div className="column-header">
+              <div className="column-header-row">
+                <span className="column-label">INPUT</span>
                 <DataViewToggle activeTab={inputTab} onTabChange={setInputTab} />
               </div>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-3 n8n-scrollbar">
+
+            <div className="column-body n8n-scrollbar">
               {/* Source node */}
-              <div className="mb-4">
-                <button className="w-full flex items-center gap-2 p-2 bg-[var(--color--neutral-50)] rounded-[var(--radius--xs)] text-left">
-                  <div className="w-2 h-2 rounded-full bg-[var(--color--green-500)]" />
-                  <span className="text-[var(--font-size--xs)] text-[var(--color--neutral-700)] flex-1">
-                    Daily Check
-                  </span>
-                  <Zap className="w-3 h-3 text-[var(--color--orange-300)]" />
-                  <span className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)]">1 item</span>
-                  <ChevronDown className="w-3 h-3 text-[var(--color--neutral-400)]" />
+              <div style={{ marginBottom: 'var(--spacing--sm)' }}>
+                <button className="source-node">
+                  <div className="source-dot" />
+                  <span className="source-name">Daily Check</span>
+                  <Zap style={{ width: 12, height: 12, color: 'var(--color--orange-300)' }} />
+                  <span className="source-count">1 item</span>
+                  <ChevronDown
+                    style={{ width: 12, height: 12, color: 'var(--color--neutral-400)' }}
+                  />
                 </button>
               </div>
-              
-              <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)] mb-4">
+
+              <p className="fields-note">
                 The fields below come from the last successful execution.{' '}
-                <button className="text-[var(--color--orange-300)] hover:underline">
-                  Execute node
-                </button>
-                {' '}to refresh them.
+                <button className="link">Execute node</button> to refresh them.
               </p>
-              
+
               {inputTab === 'schema' && (
-                <div className="space-y-1">
+                <div className="schema-list">
                   {Object.entries(mockInputData).map(([key, value]) => (
-                    <SchemaField 
+                    <SchemaField
                       key={key}
                       name={key}
                       value={value}
@@ -277,61 +318,51 @@ export function NodeConfigPanel() {
                   ))}
                 </div>
               )}
-              
+
               {inputTab === 'json' && <JsonView data={[mockInputData]} />}
-              
+
               {/* Variables section */}
-              <div className="mt-4 pt-4 border-t border-[var(--color--neutral-100)]">
-                <button className="flex items-center gap-2 text-[var(--font-size--xs)] text-[var(--color--neutral-500)]">
-                  <ChevronRight className="w-3 h-3" />
+              <div className="variables">
+                <button className="variables-btn">
+                  <ChevronRight style={{ width: 12, height: 12 }} />
                   Variables and context
                 </button>
               </div>
             </div>
           </div>
-          
+
           {/* Center Column - PARAMETERS */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-3 border-b border-[var(--color--neutral-150)]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+          <div className="column center">
+            <div className="column-header">
+              <div className="params-header-row">
+                <div className="config-tabs">
                   {(['parameters', 'settings'] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => setConfigTab(tab)}
-                      className={cn(
-                        'text-[var(--font-size--sm)] font-[var(--font-weight--medium)] capitalize',
-                        configTab === tab
-                          ? 'text-[var(--color--orange-300)]'
-                          : 'text-[var(--color--neutral-500)] hover:text-[var(--color--neutral-700)]'
-                      )}
+                      data-active={configTab === tab ? 'true' : undefined}
+                      className="config-tab"
                     >
                       {tab}
                     </button>
                   ))}
                 </div>
-                <Button
-                  onClick={handleExecuteStep}
-                  className="bg-[var(--color--orange-300)] hover:bg-[var(--color--orange-400)] text-white gap-2"
-                  size="sm"
-                >
-                  <Play className="w-3 h-3 fill-white" />
+                <Button onClick={handleExecuteStep} className="execute-btn" size="sm">
+                  <Play style={{ width: 12, height: 12, fill: 'white' }} />
                   Execute step
                 </Button>
               </div>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-4 n8n-scrollbar">
+
+            <div className="column-body n8n-scrollbar center-body">
               {configTab === 'parameters' && (
-                <div className="space-y-4">
+                <div className="param-list">
                   {/* Credential */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Credential
-                    </label>
-                    <div className="flex gap-2">
+                  <div className="param">
+                    <label className="param-label">Credential</label>
+                    <div className="param-row">
                       <Select defaultValue="gcal">
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger style={{ flex: 1 }}>
                           <SelectValue placeholder="Select credential" />
                         </SelectTrigger>
                         <SelectContent>
@@ -339,16 +370,14 @@ export function NodeConfigPanel() {
                         </SelectContent>
                       </Select>
                       <Button variant="ghost" size="icon">
-                        <Pencil className="w-4 h-4" />
+                        <Pencil style={{ width: 16, height: 16 }} />
                       </Button>
                     </div>
                   </div>
-                  
+
                   {/* Resource */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Resource
-                    </label>
+                  <div className="param">
+                    <label className="param-label">Resource</label>
                     <Select defaultValue="event">
                       <SelectTrigger>
                         <SelectValue />
@@ -359,12 +388,10 @@ export function NodeConfigPanel() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   {/* Operation */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Operation
-                    </label>
+                  <div className="param">
+                    <label className="param-label">Operation</label>
                     <Select defaultValue="getMany">
                       <SelectTrigger>
                         <SelectValue />
@@ -378,15 +405,13 @@ export function NodeConfigPanel() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   {/* Calendar */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Calendar
-                    </label>
-                    <div className="flex gap-2">
+                  <div className="param">
+                    <label className="param-label">Calendar</label>
+                    <div className="param-row">
                       <Select defaultValue="list">
-                        <SelectTrigger className="w-28">
+                        <SelectTrigger style={{ width: 112 }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -395,7 +420,7 @@ export function NodeConfigPanel() {
                         </SelectContent>
                       </Select>
                       <Select defaultValue="giulio">
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger style={{ flex: 1 }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -404,65 +429,47 @@ export function NodeConfigPanel() {
                       </Select>
                     </div>
                   </div>
-                  
+
                   {/* Return All */}
-                  <div className="flex items-center justify-between">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Return All
-                    </label>
+                  <div className="param-switch-row">
+                    <label className="param-label">Return All</label>
                     <Switch defaultChecked />
                   </div>
-                  
+
                   {/* After */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      After
-                    </label>
-                    <div className="flex items-center gap-2 p-2 border border-[var(--color--neutral-200)] rounded-[var(--radius--3xs)] bg-white">
-                      <span className="px-1.5 py-0.5 text-[var(--font-size--3xs)] bg-[var(--color--neutral-100)] text-[var(--color--neutral-500)] rounded">
-                        fx
-                      </span>
-                      <code className="text-[var(--font-size--xs)] text-[var(--color--orange-300)] font-mono flex-1">
-                        {'{{ $now }}'}
-                      </code>
-                      <button className="p-1 hover:bg-[var(--color--neutral-100)] rounded">
-                        <Pencil className="w-3 h-3 text-[var(--color--neutral-400)]" />
+                  <div className="param">
+                    <label className="param-label">After</label>
+                    <div className="expr-field">
+                      <span className="fx-badge">fx</span>
+                      <code className="expr">{'{{ $now }}'}</code>
+                      <button className="expr-edit">
+                        <Pencil
+                          style={{ width: 12, height: 12, color: 'var(--color--neutral-400)' }}
+                        />
                       </button>
                     </div>
-                    <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)]">
-                      [DateTime: 2026-03-20T10:16:15.388+01:00]
-                    </p>
+                    <p className="expr-hint">[DateTime: 2026-03-20T10:16:15.388+01:00]</p>
                   </div>
-                  
+
                   {/* Before */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Before
-                    </label>
-                    <div className="flex items-center gap-2 p-2 border border-[var(--color--neutral-200)] rounded-[var(--radius--3xs)] bg-white">
-                      <span className="px-1.5 py-0.5 text-[var(--font-size--3xs)] bg-[var(--color--neutral-100)] text-[var(--color--neutral-500)] rounded">
-                        fx
-                      </span>
-                      <code className="text-[var(--font-size--xs)] text-[var(--color--orange-300)] font-mono flex-1">
-                        {'{{ $now.plus({ days: 30 }) }}'}
-                      </code>
-                      <button className="p-1 hover:bg-[var(--color--neutral-100)] rounded">
-                        <Pencil className="w-3 h-3 text-[var(--color--neutral-400)]" />
+                  <div className="param">
+                    <label className="param-label">Before</label>
+                    <div className="expr-field">
+                      <span className="fx-badge">fx</span>
+                      <code className="expr">{'{{ $now.plus({ days: 30 }) }}'}</code>
+                      <button className="expr-edit">
+                        <Pencil
+                          style={{ width: 12, height: 12, color: 'var(--color--neutral-400)' }}
+                        />
                       </button>
                     </div>
-                    <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)]">
-                      [DateTime: 2026-04-19T10:16:15.389+02:00]
-                    </p>
+                    <p className="expr-hint">[DateTime: 2026-04-19T10:16:15.389+02:00]</p>
                   </div>
-                  
+
                   {/* Options */}
-                  <div className="space-y-2">
-                    <label className="text-[var(--font-size--xs)] font-[var(--font-weight--medium)] text-[var(--color--neutral-700)]">
-                      Options
-                    </label>
-                    <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)]">
-                      No properties
-                    </p>
+                  <div className="param">
+                    <label className="param-label">Options</label>
+                    <p className="muted">No properties</p>
                     <Select>
                       <SelectTrigger>
                         <SelectValue placeholder="Add option" />
@@ -473,61 +480,56 @@ export function NodeConfigPanel() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   {/* Info box */}
-                  <div className="p-3 bg-[var(--color--yellow-100)] rounded-[var(--radius--xs)] text-[var(--font-size--2xs)] text-[var(--color--neutral-700)]">
-                    This node will use the time zone set in n8n's settings, but you can override this in the workflow settings
+                  <div className="info-box">
+                    This node will use the time zone set in n8n's settings, but you can override
+                    this in the workflow settings
                   </div>
-                  
+
                   {/* Feedback prompt */}
-                  <div className="pt-4 text-[var(--font-size--xs)] text-[var(--color--neutral-300)]">
-                    I wish this node would...
-                  </div>
+                  <div className="feedback">I wish this node would...</div>
                 </div>
               )}
             </div>
           </div>
-          
+
           {/* Right Column - OUTPUT */}
-          <div 
-            className="border-l border-[var(--color--neutral-150)] flex flex-col overflow-hidden"
-            style={{ width: rightWidth }}
-          >
-            <div className="p-3 border-b border-[var(--color--neutral-150)]">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[var(--font-size--2xs)] font-[var(--font-weight--bold)] text-[var(--color--neutral-400)] uppercase tracking-wider">
-                  OUTPUT
-                </span>
-                <div className="flex items-center gap-2">
+          <div className="column right" style={{ width: rightWidth }}>
+            <div className="column-header">
+              <div className="column-header-row">
+                <span className="column-label">OUTPUT</span>
+                <div className="output-actions">
                   <DataViewToggle activeTab={outputTab} onTabChange={setOutputTab} />
-                  <button className="p-1 hover:bg-[var(--color--neutral-100)] rounded-[var(--radius--3xs)]">
-                    <Pencil className="w-3 h-3 text-[var(--color--neutral-400)]" />
+                  <button className="icon-btn">
+                    <Pencil
+                      style={{ width: 12, height: 12, color: 'var(--color--neutral-400)' }}
+                    />
                   </button>
-                  <button className="p-1 hover:bg-[var(--color--neutral-100)] rounded-[var(--radius--3xs)]">
-                    <Pin className="w-3 h-3 text-[var(--color--neutral-400)]" />
+                  <button className="icon-btn">
+                    <Pin style={{ width: 12, height: 12, color: 'var(--color--neutral-400)' }} />
                   </button>
                 </div>
               </div>
-              {hasOutput && (
-                <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-500)]">
-                  236 items
-                </p>
-              )}
+              {hasOutput && <p className="output-count">236 items</p>}
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-3 n8n-scrollbar">
+
+            <div className="column-body n8n-scrollbar">
               {hasOutput ? (
                 <>
                   {outputTab === 'json' && <JsonView data={mockOutputData} />}
                   {outputTab === 'schema' && (
-                    <div className="space-y-1">
+                    <div className="schema-list">
                       {Object.keys(mockOutputData[0]).map((key) => (
-                        <SchemaField 
+                        <SchemaField
                           key={key}
                           name={key}
-                          value={typeof mockOutputData[0][key as keyof typeof mockOutputData[0]] === 'object' 
-                            ? '[Object]' 
-                            : String(mockOutputData[0][key as keyof typeof mockOutputData[0]])}
+                          value={
+                            typeof mockOutputData[0][key as keyof (typeof mockOutputData)[0]] ===
+                            'object'
+                              ? '[Object]'
+                              : String(mockOutputData[0][key as keyof (typeof mockOutputData)[0]])
+                          }
                           type="T"
                         />
                       ))}
@@ -535,61 +537,465 @@ export function NodeConfigPanel() {
                   )}
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <div className="w-12 h-12 rounded-full bg-[var(--color--neutral-100)] flex items-center justify-center mb-4">
-                    <ChevronRight className="w-6 h-6 text-[var(--color--neutral-400)]" />
+                <div className="empty">
+                  <div className="empty-icon">
+                    <ChevronRight
+                      style={{ width: 24, height: 24, color: 'var(--color--neutral-400)' }}
+                    />
                   </div>
-                  <p className="text-[var(--font-size--sm)] text-[var(--color--neutral-500)] mb-4">
-                    No output data
-                  </p>
+                  <p className="empty-text">No output data</p>
                   <Button
                     variant="outline"
                     onClick={handleExecuteStep}
-                    className="gap-2 text-[var(--color--orange-300)] border-[var(--color--orange-300)] hover:bg-[var(--color--orange-50)]"
+                    className="empty-cta"
                   >
-                    <Play className="w-3 h-3" />
+                    <Play style={{ width: 12, height: 12 }} />
                     Execute step
                   </Button>
-                  <p className="text-[var(--font-size--2xs)] text-[var(--color--neutral-400)] mt-2">
-                    or{' '}
-                    <button className="text-[var(--color--orange-300)] hover:underline">
-                      set mock data
-                    </button>
+                  <p className="empty-hint">
+                    or <button className="link">set mock data</button>
                   </p>
                 </div>
               )}
             </div>
-            
+
             {/* Pagination */}
             {hasOutput && (
-              <div className="p-3 border-t border-[var(--color--neutral-150)] flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <button className="w-6 h-6 text-[var(--font-size--xs)] border border-[var(--color--orange-300)] text-[var(--color--orange-300)] rounded">
+              <div className="pagination">
+                <div className="page-buttons">
+                  <button className="page-btn" data-active="true">
                     1
                   </button>
-                  <button className="w-6 h-6 text-[var(--font-size--xs)] text-[var(--color--neutral-500)] hover:bg-[var(--color--neutral-100)] rounded">
-                    2
-                  </button>
-                  <button className="w-6 h-6 text-[var(--font-size--xs)] text-[var(--color--neutral-500)] hover:bg-[var(--color--neutral-100)] rounded">
-                    3
-                  </button>
-                  <button className="w-6 h-6 text-[var(--font-size--xs)] text-[var(--color--neutral-500)] hover:bg-[var(--color--neutral-100)] rounded">
-                    4
-                  </button>
-                  <span className="text-[var(--font-size--xs)] text-[var(--color--neutral-400)]">...</span>
-                  <button className="w-6 h-6 text-[var(--font-size--xs)] text-[var(--color--neutral-500)] hover:bg-[var(--color--neutral-100)] rounded">
-                    10
-                  </button>
+                  <button className="page-btn">2</button>
+                  <button className="page-btn">3</button>
+                  <button className="page-btn">4</button>
+                  <span className="ellipsis">...</span>
+                  <button className="page-btn">10</button>
                 </div>
-                <div className="flex items-center gap-2 text-[var(--font-size--xs)] text-[var(--color--neutral-500)]">
+                <div className="page-size">
                   <span>Page Size</span>
-                  <span className="font-[var(--font-weight--medium)]">25</span>
+                  <span className="page-size-value">25</span>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .n8n-node-config-panel {
+          position: fixed;
+          inset: 0;
+          z-index: 50;
+          display: flex;
+        }
+        .backdrop {
+          position: absolute;
+          inset: 0;
+          background-color: var(--color--black-alpha-300);
+        }
+        .panel {
+          position: relative;
+          margin: var(--spacing--sm);
+          flex: 1;
+          background-color: #ffffff;
+          border-radius: var(--radius--md);
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .panel-header {
+          height: 48px;
+          padding-inline: var(--spacing--sm);
+          border-bottom: 1px solid var(--color--neutral-150);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--2xs);
+        }
+        .node-name {
+          font-size: var(--font-size--md);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--neutral-800);
+        }
+        .header-center {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+        }
+        .header-right {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--2xs);
+        }
+        .docs-link {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--5xs);
+          font-size: var(--font-size--sm);
+          color: var(--color--neutral-500);
+          text-decoration: none;
+          transition: color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .docs-link:hover {
+          color: var(--color--neutral-700);
+        }
+        .close-btn {
+          padding: var(--spacing--5xs);
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          border-radius: var(--radius--3xs);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .close-btn:hover {
+          background-color: var(--color--neutral-100);
+        }
+        .panel-content {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+        }
+        .column {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        .column.left {
+          border-right: 1px solid var(--color--neutral-150);
+        }
+        .column.center {
+          flex: 1;
+        }
+        .column.right {
+          border-left: 1px solid var(--color--neutral-150);
+        }
+        .column-header {
+          padding: var(--spacing--2xs);
+          border-bottom: 1px solid var(--color--neutral-150);
+        }
+        .column-header-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: var(--spacing--2xs);
+        }
+        .column-header-row:last-child {
+          margin-bottom: 0;
+        }
+        .column-label {
+          font-size: var(--font-size--2xs);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--neutral-400);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .output-actions {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+        }
+        .icon-btn {
+          padding: var(--spacing--5xs);
+          border: 0;
+          background: transparent;
+          cursor: pointer;
+          border-radius: var(--radius--3xs);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .icon-btn:hover {
+          background-color: var(--color--neutral-100);
+        }
+        .output-count {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-500);
+        }
+        .column-body {
+          flex: 1;
+          overflow-y: auto;
+          padding: var(--spacing--2xs);
+        }
+        .center-body {
+          padding: var(--spacing--sm);
+        }
+
+        /* Source node */
+        .source-node {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          padding: var(--spacing--3xs);
+          background-color: var(--color--neutral-50);
+          border: 0;
+          border-radius: var(--radius--xs);
+          text-align: left;
+          cursor: pointer;
+        }
+        .source-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: var(--color--green-500);
+        }
+        .source-name {
+          flex: 1;
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-700);
+        }
+        .source-count {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+        }
+        .fields-note {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+          margin-bottom: var(--spacing--sm);
+        }
+        .link {
+          background: transparent;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+          color: var(--color--orange-300);
+        }
+        .link:hover {
+          text-decoration: underline;
+        }
+        .schema-list {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--5xs);
+        }
+        .variables {
+          margin-top: var(--spacing--sm);
+          padding-top: var(--spacing--sm);
+          border-top: 1px solid var(--color--neutral-100);
+        }
+        .variables-btn {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-500);
+          background: transparent;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+        }
+
+        /* Center column */
+        .params-header-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .config-tabs {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--sm);
+        }
+        .config-tab {
+          background: transparent;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+          font-size: var(--font-size--sm);
+          font-weight: var(--font-weight--medium);
+          text-transform: capitalize;
+          color: var(--color--neutral-500);
+          transition: color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .config-tab:hover {
+          color: var(--color--neutral-700);
+        }
+        .config-tab[data-active='true'] {
+          color: var(--color--orange-300);
+        }
+        .execute-btn {
+          background-color: var(--color--orange-300) !important;
+          color: #ffffff !important;
+          gap: var(--spacing--3xs);
+        }
+        .execute-btn:hover {
+          background-color: var(--color--orange-400) !important;
+        }
+
+        /* Params */
+        .param-list {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--sm);
+        }
+        .param {
+          display: flex;
+          flex-direction: column;
+          gap: var(--spacing--3xs);
+        }
+        .param-switch-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .param-label {
+          font-size: var(--font-size--xs);
+          font-weight: var(--font-weight--medium);
+          color: var(--color--neutral-700);
+        }
+        .param-row {
+          display: flex;
+          gap: var(--spacing--3xs);
+        }
+        .expr-field {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          padding: var(--spacing--3xs);
+          border: 1px solid var(--color--neutral-200);
+          border-radius: var(--radius--3xs);
+          background-color: #ffffff;
+        }
+        .fx-badge {
+          padding: 2px 6px;
+          font-size: var(--font-size--3xs);
+          background-color: var(--color--neutral-100);
+          color: var(--color--neutral-500);
+          border-radius: var(--radius--3xs);
+        }
+        .expr {
+          flex: 1;
+          font-size: var(--font-size--xs);
+          color: var(--color--orange-300);
+          font-family: var(--font-family--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+        }
+        .expr-edit {
+          padding: var(--spacing--5xs);
+          background: transparent;
+          border: 0;
+          cursor: pointer;
+          border-radius: var(--radius--3xs);
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .expr-edit:hover {
+          background-color: var(--color--neutral-100);
+        }
+        .expr-hint {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+        }
+        .muted {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+        }
+        .info-box {
+          padding: var(--spacing--2xs);
+          background-color: var(--color--yellow-100);
+          border-radius: var(--radius--xs);
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-700);
+        }
+        .feedback {
+          padding-top: var(--spacing--sm);
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-300);
+        }
+
+        /* Empty state */
+        .empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          text-align: center;
+        }
+        .empty-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background-color: var(--color--neutral-100);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: var(--spacing--sm);
+        }
+        .empty-text {
+          font-size: var(--font-size--sm);
+          color: var(--color--neutral-500);
+          margin-bottom: var(--spacing--sm);
+        }
+        .empty-cta {
+          gap: var(--spacing--3xs);
+          color: var(--color--orange-300) !important;
+          border-color: var(--color--orange-300) !important;
+        }
+        .empty-cta:hover {
+          background-color: var(--color--orange-50) !important;
+        }
+        .empty-hint {
+          font-size: var(--font-size--2xs);
+          color: var(--color--neutral-400);
+          margin-top: var(--spacing--3xs);
+        }
+
+        /* Pagination */
+        .pagination {
+          padding: var(--spacing--2xs);
+          border-top: 1px solid var(--color--neutral-150);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .page-buttons {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--5xs);
+        }
+        .page-btn {
+          width: 24px;
+          height: 24px;
+          font-size: var(--font-size--xs);
+          background: transparent;
+          border: 0;
+          color: var(--color--neutral-500);
+          border-radius: var(--radius--3xs);
+          cursor: pointer;
+          transition: background-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .page-btn:hover {
+          background-color: var(--color--neutral-100);
+        }
+        .page-btn[data-active='true'] {
+          border: 1px solid var(--color--orange-300);
+          color: var(--color--orange-300);
+        }
+        .ellipsis {
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-400);
+        }
+        .page-size {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--3xs);
+          font-size: var(--font-size--xs);
+          color: var(--color--neutral-500);
+        }
+        .page-size-value {
+          font-weight: var(--font-weight--medium);
+        }
+      `}</style>
     </div>
   )
 }

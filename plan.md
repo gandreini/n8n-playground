@@ -50,7 +50,7 @@ The n8n design team's shared prototype repo currently has a single prototype at 
 | `PrototypeEntry` type | Metadata + `slug`, `path`, `hasPage` |
 | `scanPrototypes()` | Reads `app/prototypes/*/*/metadata.json`, skips `_`-prefixed dirs, skips malformed JSON with `console.warn` |
 | `scanTemplates()` | Reads `app/prototypes/_templates/*/metadata.json` |
-| `scanComponents()` | Recursive `.tsx` scan of `components/n8n/` and `components/ui/`, returns `{ name, path, category }[]` |
+| `scanComponents()` | Recursive `.tsx` scan of `components/n8n/` and `components/shadcn/`, returns `{ name, path, category }[]` |
 | `createPrototype()` | Shared creation logic: mkdir, write metadata.json, copy template page.tsx (or skip for external). Used by API route AND slash command. |
 
 **Key detail:** All `fs` paths use `path.join(process.cwd(), ...)`. Server-side only.
@@ -77,7 +77,7 @@ The n8n design team's shared prototype repo currently has a single prototype at 
 - Homepage imports the same logo
 
 ### UI details
-- Tabs: shadcn `Tabs` component (`components/ui/tabs.tsx`)
+- Tabs: shadcn `Tabs` component (`components/shadcn/tabs.tsx`)
 - Create modal: shadcn `Dialog` + form fields (name, description, username, template select)
 - Link external modal: shadcn `Dialog` + form (name, description, username, URL)
 - Use template modal: shadcn `Dialog` + form (username, prototype name)
@@ -126,7 +126,7 @@ Keep it rough and practical (Brian's style: "just some rough instructions"). Not
 
 **Sections:**
 1. **What this is** — One paragraph: shared prototype playground for the n8n design team. One Next.js app, every designer gets a namespace, all prototypes in one place for visibility and code reuse.
-2. **Tech stack** — Bullet list: Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Zustand, pnpm. No database — everything is files on disk.
+2. **Tech stack** — Bullet list: Next.js 16, React 19, styled-jsx (for our own code), n8n design tokens via CSS custom properties, shadcn/ui (vendored, Tailwind-backed), Zustand, pnpm. No database — everything is files on disk.
 3. **Project structure** — Show the directory tree with `app/prototypes/{username}/{prototype-name}/` convention. Explain `_templates/` and `metadata.json`.
 4. **Rules** — The critical ones that prevent people from breaking each other's work:
    - Stay in your own directory (`app/prototypes/{username}/`)
@@ -135,7 +135,7 @@ Keep it rough and practical (Brian's style: "just some rough instructions"). Not
    - Each prototype is standalone — no cross-prototype imports
 5. **Shared components** — List what's available: n8n components (app-layout, sidebar, prototype-shell, panels, screens, modals, shared) and full shadcn/ui library. Note: use `PrototypeShell` for prototypes that need n8n chrome (not `AppLayout`).
 6. **How to create a prototype** — Two paths: (1) use `/create-prototype` command, (2) manually create directory + metadata.json + page.tsx
-7. **Conventions** — Every prototype needs a `metadata.json`. Use shared components, don't recreate them. Prefer Tailwind utility classes. Use n8n design tokens from globals.css.
+7. **Conventions** — Every prototype needs a `metadata.json`. Use shared components, don't recreate them. Style with styled-jsx, not Tailwind utility classes. Use n8n design tokens from globals.css.
 8. **Self-verification** — Key philosophy: "Before reporting work as done, verify it yourself." Instructions to:
    - Run `pnpm lint` and fix errors
    - Use Playwright MCP or Chrome DevTools MCP to open the browser, take a screenshot, and visually verify the output
@@ -173,7 +173,7 @@ Personal file, not committed. Following Brian's pattern exactly:
 
 ## Workspace
 - Each prototype directory is a standalone project
-- I can import shared components from components/n8n/ and components/ui/
+- I can import shared components from components/n8n/ and components/shadcn/
 - Each prototype has its own page.tsx and metadata.json
 ```
 
@@ -256,5 +256,5 @@ The command should be written so a designer who has never used git can run `/dep
 | `components/n8n/sidebar.tsx` | Sidebar with N8nLogo (lines 21-29). Extract logo to shared. |
 | `lib/store.ts` | Zustand store. Used by existing prototype. Not modified. |
 | `app/globals.css` | n8n design tokens. Not modified. |
-| `components/ui/tabs.tsx` | shadcn Tabs — used for homepage tab bar |
-| `components/ui/dialog.tsx` | shadcn Dialog — used for create/link modals |
+| `components/shadcn/tabs.tsx` | shadcn Tabs — used for homepage tab bar |
+| `components/shadcn/dialog.tsx` | shadcn Dialog — used for create/link modals |

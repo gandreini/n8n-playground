@@ -16,23 +16,47 @@ interface TabBarProps {
 
 export function TabBar({ tabs, activeTab, onTabChange, className }: TabBarProps) {
     return (
-        <div className={cn("n8n-tab-bar px-6", className)}>
-            <div className="flex">
+        <div className={cn("n8n-tab-bar", className)}>
+            <div className="inner">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => onTabChange(tab.id)}
-                        className={cn(
-                            "n8n-tab-bar__tab px-4 py-2 text-[length:var(--font-size--sm)] font-[var(--font-weight--medium)] border-b-2 transition-snappy",
-                            activeTab === tab.id
-                                ? "text-[color:var(--color--orange-300)] border-[var(--color--orange-300)]"
-                                : "text-[color:var(--color--neutral-500)] border-transparent hover:text-[color:var(--color--neutral-700)]",
-                        )}
+                        data-active={activeTab === tab.id}
+                        className="tab"
                     >
                         {tab.label}
                     </button>
                 ))}
             </div>
+
+            <style jsx>{`
+                .n8n-tab-bar {
+                    padding-inline: var(--spacing--md);
+                }
+                .inner {
+                    display: flex;
+                }
+                .tab {
+                    padding: var(--spacing--2xs) var(--spacing--xs);
+                    font-size: var(--font-size--sm);
+                    font-weight: var(--font-weight--medium);
+                    border: 0;
+                    border-bottom: 2px solid transparent;
+                    background: transparent;
+                    color: var(--color--neutral-500);
+                    cursor: pointer;
+                    transition: color var(--duration--snappy) var(--easing--ease-out),
+                        border-color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .tab:hover {
+                    color: var(--color--neutral-700);
+                }
+                .tab[data-active="true"] {
+                    color: var(--color--orange-300);
+                    border-bottom-color: var(--color--orange-300);
+                }
+            `}</style>
         </div>
     );
 }

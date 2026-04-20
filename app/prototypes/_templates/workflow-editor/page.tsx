@@ -7,6 +7,135 @@ import { PersonalScreen } from "@/components/n8n/screens/personal"
 import { WorkflowEditor } from "@/components/n8n/screens/workflow-editor"
 import { SettingsScreen } from "@/components/n8n/screens/settings"
 
+const TEMPLATE_CATEGORIES = [
+  "Email Automation",
+  "Slack Bot",
+  "Data Sync",
+  "CRM Integration",
+  "Social Media",
+  "E-commerce",
+] as const
+
+function PlaceholderScreen({
+  title,
+  subtitle,
+  emptyLabel,
+  betaBadge = false,
+}: {
+  title: string
+  subtitle: string
+  emptyLabel: string
+  betaBadge?: boolean
+}) {
+  return (
+    <div className="wrap">
+      <div className="title-row">
+        <h1>{title}</h1>
+        {betaBadge && <span className="beta">beta</span>}
+      </div>
+      <p className="subtitle">{subtitle}</p>
+      <div className="empty">
+        <p>{emptyLabel}</p>
+      </div>
+
+      <style jsx>{`
+        .wrap {
+          padding: var(--spacing--xl);
+        }
+        .title-row {
+          display: flex;
+          align-items: center;
+          gap: var(--spacing--2xs);
+          margin-bottom: var(--spacing--2xs);
+        }
+        h1 {
+          font-size: var(--font-size--2xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--text--shade-1);
+        }
+        .beta {
+          font-size: var(--font-size--2xs);
+          font-weight: var(--font-weight--medium);
+          color: var(--color--primary);
+          background-color: var(--color--primary--tint-3);
+          padding: 2px var(--spacing--2xs);
+          border-radius: var(--radius--full);
+        }
+        .subtitle {
+          color: var(--color--text);
+          margin-bottom: var(--spacing--xl);
+        }
+        .empty {
+          border: 1px solid var(--border-color--light);
+          border-radius: var(--radius--sm);
+          padding: var(--spacing--2xl);
+          text-align: center;
+        }
+        .empty p {
+          color: var(--color--text);
+        }
+      `}</style>
+    </div>
+  )
+}
+
+function TemplatesScreen() {
+  return (
+    <div className="wrap">
+      <h1>Templates</h1>
+      <p className="subtitle">Browse and use pre-built workflow templates</p>
+      <div className="grid">
+        {TEMPLATE_CATEGORIES.map((template) => (
+          <div key={template} className="card">
+            <h3>{template}</h3>
+            <p>A template for {template.toLowerCase()}</p>
+          </div>
+        ))}
+      </div>
+
+      <style jsx>{`
+        .wrap {
+          padding: var(--spacing--xl);
+        }
+        h1 {
+          font-size: var(--font-size--2xl);
+          font-weight: var(--font-weight--bold);
+          color: var(--color--text--shade-1);
+          margin-bottom: var(--spacing--2xs);
+        }
+        .subtitle {
+          color: var(--color--text);
+          margin-bottom: var(--spacing--xl);
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: var(--spacing--sm);
+        }
+        .card {
+          border: 1px solid var(--border-color--light);
+          border-radius: var(--radius--sm);
+          padding: var(--spacing--sm);
+          cursor: pointer;
+          transition: border-color var(--duration--snappy) var(--easing--ease-out);
+        }
+        .card:hover {
+          border-color: var(--color--primary);
+        }
+        .card h3 {
+          font-weight: var(--font-weight--medium);
+          color: var(--color--text--shade-1);
+          margin-bottom: var(--spacing--2xs);
+        }
+        .card p {
+          font-size: var(--font-size--sm);
+          color: var(--color--text);
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function Home() {
   const { currentScreen } = useStore()
 
@@ -18,42 +147,23 @@ export default function Home() {
         return <PersonalScreen />
       case "shared":
         return (
-          <div className="p-8">
-            <h1 className="text-2xl font-semibold text-foreground mb-2">Shared with you</h1>
-            <p className="text-muted-foreground mb-8">Workflows and credentials shared with you</p>
-            <div className="border border-border rounded-lg p-12 text-center">
-              <p className="text-muted-foreground">No items shared with you yet</p>
-            </div>
-          </div>
+          <PlaceholderScreen
+            title="Shared with you"
+            subtitle="Workflows and credentials shared with you"
+            emptyLabel="No items shared with you yet"
+          />
         )
       case "chat":
         return (
-          <div className="p-8">
-            <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-2xl font-semibold text-foreground">Chat</h1>
-              <span className="text-xs bg-n8n-primary/10 text-n8n-primary px-2 py-0.5 rounded-full font-medium">beta</span>
-            </div>
-            <p className="text-muted-foreground mb-8">Chat with AI to build workflows</p>
-            <div className="border border-border rounded-lg p-12 text-center">
-              <p className="text-muted-foreground">Start a new conversation to build workflows with AI</p>
-            </div>
-          </div>
+          <PlaceholderScreen
+            title="Chat"
+            subtitle="Chat with AI to build workflows"
+            emptyLabel="Start a new conversation to build workflows with AI"
+            betaBadge
+          />
         )
       case "templates":
-        return (
-          <div className="p-8">
-            <h1 className="text-2xl font-semibold text-foreground mb-2">Templates</h1>
-            <p className="text-muted-foreground mb-8">Browse and use pre-built workflow templates</p>
-            <div className="grid grid-cols-3 gap-4">
-              {["Email Automation", "Slack Bot", "Data Sync", "CRM Integration", "Social Media", "E-commerce"].map((template) => (
-                <div key={template} className="border border-border rounded-lg p-4 hover:border-n8n-primary/50 transition-colors cursor-pointer">
-                  <h3 className="font-medium text-foreground mb-2">{template}</h3>
-                  <p className="text-sm text-muted-foreground">A template for {template.toLowerCase()}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
+        return <TemplatesScreen />
       case "settings":
         return <SettingsScreen />
       case "workflow-editor":

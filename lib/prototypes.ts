@@ -159,7 +159,7 @@ export async function scanComponents(): Promise<ComponentEntry[]> {
   }
 
   scanDir(path.join(process.cwd(), "components/n8n"), "n8n")
-  scanDir(path.join(process.cwd(), "components/ui"), "ui")
+  scanDir(path.join(process.cwd(), "components/shadcn"), "ui")
 
   return entries
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useStore, Screen } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import {
     Home,
     User,
@@ -14,10 +14,8 @@ import {
     Plus,
     Search,
     PanelLeft,
-    ChevronRight,
     Sparkles,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { N8nLogo } from "./shared/n8n-logo";
 
 interface NavItemProps {
@@ -42,41 +40,110 @@ function NavItem({
     return (
         <button
             onClick={onClick}
-            className={cn(
-                "n8n-menu-item w-full flex items-center gap-[var(--spacing--3xs)] px-[var(--spacing--2xs)] py-[var(--spacing--4xs)] rounded-[var(--radius--3xs)] transition-snappy text-left h-[var(--height--md)]",
-                active
-                    ? "bg-[var(--color--neutral-100)] text-[color:var(--color--neutral-800)] font-[var(--font-weight--bold)]"
-                    : "text-[color:var(--color--neutral-500)] hover:bg-[var(--color--neutral-100)] hover:text-[color:var(--color--neutral-700)]",
-            )}
+            data-active={active ? "true" : undefined}
+            className="n8n-menu-item"
         >
-            <span className="relative flex-shrink-0 flex items-center justify-center w-5 h-5">
-                {hasNotification && (
-                    <span className="absolute -right-0.5 -top-0.5 w-[6px] h-[6px] rounded-full bg-[var(--color--orange-300)]" />
-                )}
+            <span className="icon">
+                {hasNotification && <span className="dot" />}
                 {icon}
             </span>
             {!compact && (
                 <>
-                    <span className="flex-1 text-[length:var(--font-size--xs)] truncate">
-                        {label}
-                    </span>
-                    {badge && (
-                        <span className="px-1.5 py-0.5 text-[length:var(--font-size--3xs)] bg-[var(--color--neutral-150)] text-[color:var(--color--neutral-500)] rounded-[var(--radius--3xs)] leading-none">
-                            {badge}
-                        </span>
-                    )}
+                    <span className="label">{label}</span>
+                    {badge && <span className="badge">{badge}</span>}
                 </>
             )}
+
+            <style jsx>{`
+                .n8n-menu-item {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    padding: var(--spacing--4xs) var(--spacing--2xs);
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    text-align: left;
+                    height: var(--height--md);
+                    color: var(--color--neutral-500);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out),
+                        color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .n8n-menu-item:hover {
+                    background-color: var(--color--neutral-100);
+                    color: var(--color--neutral-700);
+                }
+                .n8n-menu-item[data-active="true"] {
+                    background-color: var(--color--neutral-100);
+                    color: var(--color--neutral-800);
+                    font-weight: var(--font-weight--bold);
+                }
+                .icon {
+                    position: relative;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 20px;
+                    height: 20px;
+                }
+                .icon :global(svg) {
+                    width: 18px;
+                    height: 18px;
+                }
+                .dot {
+                    position: absolute;
+                    right: -2px;
+                    top: -2px;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background-color: var(--color--orange-300);
+                }
+                .label {
+                    flex: 1;
+                    font-size: var(--font-size--xs);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .badge {
+                    padding: 2px 6px;
+                    font-size: var(--font-size--3xs);
+                    background-color: var(--color--neutral-150);
+                    color: var(--color--neutral-500);
+                    border-radius: var(--radius--3xs);
+                    line-height: 1;
+                }
+            `}</style>
         </button>
     );
 }
 
 function SectionLabel({ label }: { label: string }) {
     return (
-        <div className="flex justify-between items-center px-[var(--spacing--xs)] mt-[var(--spacing--2xs)]">
-            <span className="text-[length:var(--font-size--2xs)] font-[var(--font-weight--bold)] text-[color:var(--color--neutral-400)] truncate">
-                {label}
-            </span>
+        <div className="section-label">
+            <span>{label}</span>
+
+            <style jsx>{`
+                .section-label {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-inline: var(--spacing--xs);
+                    margin-top: var(--spacing--2xs);
+                }
+                span {
+                    font-size: var(--font-size--2xs);
+                    font-weight: var(--font-weight--bold);
+                    color: var(--color--neutral-400);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            `}</style>
         </div>
     );
 }
@@ -85,47 +152,47 @@ export function Sidebar() {
     const { currentScreen, setScreen } = useStore();
 
     return (
-        <aside className="n8n-sidebar relative h-full flex flex-col border-r border-[var(--border-color--light,var(--color--neutral-150))] bg-[var(--menu--color--background,var(--color--neutral-50))] w-[200px]">
+        <aside className="n8n-sidebar">
             {/* Header — matches MainSidebarHeader.vue */}
-            <div className="flex items-center px-[var(--spacing--3xs)] py-[var(--spacing--2xs)] gap-[var(--spacing--4xs)]">
-                <div className="mr-auto flex items-center pl-2">
+            <div className="header">
+                <div className="logo-wrap">
                     <N8nLogo size={32} />
                 </div>
-                <button className="n8n-button--highlight p-1.5 rounded-[var(--radius--3xs)] hover:bg-[var(--color--neutral-125)] transition-snappy">
-                    <Plus className="w-4 h-4 text-[var(--color--neutral-500)]" />
+                <button className="hdr-btn">
+                    <Plus />
                 </button>
-                <button className="n8n-button--highlight p-1.5 rounded-[var(--radius--3xs)] hover:bg-[var(--color--neutral-125)] transition-snappy">
-                    <Search className="w-4 h-4 text-[var(--color--neutral-500)]" />
+                <button className="hdr-btn">
+                    <Search />
                 </button>
-                <button className="n8n-button--highlight p-1.5 rounded-[var(--radius--3xs)] hover:bg-[var(--color--neutral-125)] transition-snappy">
-                    <PanelLeft className="w-4 h-4 text-[var(--color--neutral-500)]" />
+                <button className="hdr-btn">
+                    <PanelLeft />
                 </button>
             </div>
 
-            {/* Scroll area — matches ProjectNavigation.vue */}
-            <div className="flex-1 min-h-0 flex flex-col pt-[var(--spacing--2xs)] overflow-y-auto n8n-scrollbar">
+            {/* Scroll area */}
+            <div className="scroll n8n-scrollbar">
                 {/* Home section */}
-                <div className="px-[var(--spacing--3xs)] pb-[var(--spacing--2xs)]">
+                <div className="group">
                     <NavItem
-                        icon={<Home className="w-[18px] h-[18px]" />}
+                        icon={<Home />}
                         label="Overview"
                         active={currentScreen === "overview"}
                         onClick={() => setScreen("overview")}
                     />
                     <NavItem
-                        icon={<User className="w-[18px] h-[18px]" />}
+                        icon={<User />}
                         label="Personal"
                         active={currentScreen === "personal"}
                         onClick={() => setScreen("personal")}
                     />
                     <NavItem
-                        icon={<Share2 className="w-[18px] h-[18px]" />}
+                        icon={<Share2 />}
                         label="Shared with you"
                         active={currentScreen === "shared"}
                         onClick={() => setScreen("shared")}
                     />
                     <NavItem
-                        icon={<MessageCircle className="w-[18px] h-[18px]" />}
+                        icon={<MessageCircle />}
                         label="Chat"
                         badge="beta"
                         active={currentScreen === "chat"}
@@ -135,42 +202,89 @@ export function Sidebar() {
 
                 {/* Projects section */}
                 <SectionLabel label="Projects" />
-                <div className="px-[var(--spacing--3xs)] py-[var(--spacing--2xs)]">
-                    <NavItem
-                        icon={<Sparkles className="w-[18px] h-[18px]" />}
-                        label="Customer Support"
-                    />
+                <div className="group">
+                    <NavItem icon={<Sparkles />} label="Customer Support" />
                 </div>
             </div>
 
             {/* Bottom menu — matches BottomMenu.vue */}
-            <div className="mt-auto">
-                <div className="px-[var(--spacing--3xs)] py-[var(--spacing--3xs)]">
+            <div className="bottom">
+                <div className="group">
+                    <NavItem icon={<Cloud />} label="Admin Panel" />
+                    <NavItem icon={<PackageOpen />} label="Templates" />
+                    <NavItem icon={<BarChart3 />} label="Insights" />
+                    <NavItem icon={<CircleHelp />} label="Help" hasNotification />
                     <NavItem
-                        icon={<Cloud className="w-[18px] h-[18px]" />}
-                        label="Admin Panel"
-                    />
-                    <NavItem
-                        icon={<PackageOpen className="w-[18px] h-[18px]" />}
-                        label="Templates"
-                    />
-                    <NavItem
-                        icon={<BarChart3 className="w-[18px] h-[18px]" />}
-                        label="Insights"
-                    />
-                    <NavItem
-                        icon={<CircleHelp className="w-[18px] h-[18px]" />}
-                        label="Help"
-                        hasNotification
-                    />
-                    <NavItem
-                        icon={<Settings className="w-[18px] h-[18px]" />}
+                        icon={<Settings />}
                         label="Settings"
                         active={currentScreen === "settings"}
                         onClick={() => setScreen("settings")}
                     />
                 </div>
             </div>
+
+            <style jsx>{`
+                .n8n-sidebar {
+                    position: relative;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    width: 200px;
+                    border-right: 1px solid var(--border-color--light, var(--color--neutral-150));
+                    background-color: var(--menu--color--background, var(--color--neutral-50));
+                }
+                .header {
+                    display: flex;
+                    align-items: center;
+                    padding: var(--spacing--2xs) var(--spacing--3xs);
+                    gap: var(--spacing--4xs);
+                }
+                .logo-wrap {
+                    margin-right: auto;
+                    display: flex;
+                    align-items: center;
+                    padding-left: var(--spacing--2xs);
+                }
+                .hdr-btn {
+                    padding: 6px;
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .hdr-btn:hover {
+                    background-color: var(--color--neutral-125);
+                }
+                .hdr-btn :global(svg) {
+                    width: 16px;
+                    height: 16px;
+                    color: var(--color--neutral-500);
+                }
+
+                .scroll {
+                    flex: 1;
+                    min-height: 0;
+                    display: flex;
+                    flex-direction: column;
+                    padding-top: var(--spacing--2xs);
+                    overflow-y: auto;
+                }
+                .group {
+                    padding-inline: var(--spacing--3xs);
+                    padding-block: var(--spacing--2xs);
+                }
+                .bottom {
+                    margin-top: auto;
+                }
+                .bottom .group {
+                    padding-inline: var(--spacing--3xs);
+                    padding-block: var(--spacing--3xs);
+                }
+            `}</style>
         </aside>
     );
 }

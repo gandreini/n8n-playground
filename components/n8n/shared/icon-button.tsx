@@ -16,13 +16,33 @@ export function IconButton({ icon, onClick, className, size = "md", label }: Ico
         <button
             onClick={onClick}
             aria-label={label}
-            className={cn(
-                "n8n-icon-button rounded-[var(--radius--3xs)] hover:bg-[var(--color--neutral-100)] transition-snappy flex items-center justify-center shrink-0",
-                size === "sm" ? "p-1" : "p-1.5",
-                className,
-            )}
+            data-size={size}
+            className={cn("n8n-icon-button", className)}
         >
             {icon}
+
+            <style jsx>{`
+                .n8n-icon-button {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-shrink: 0;
+                    background: transparent;
+                    border: 0;
+                    border-radius: var(--radius--3xs);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .n8n-icon-button[data-size="sm"] {
+                    padding: 4px;
+                }
+                .n8n-icon-button[data-size="md"] {
+                    padding: 6px;
+                }
+                .n8n-icon-button:hover {
+                    background-color: var(--color--neutral-100);
+                }
+            `}</style>
         </button>
     );
 }

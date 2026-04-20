@@ -26,15 +26,23 @@ export function VisionList({
 
     if (filtered.length === 0) {
         return (
-            <p className="text-[var(--color--neutral-400)] text-sm py-8">
+            <p className="empty">
                 No vision prototypes yet. Click the star next to a prototype to
                 add it here.
+
+                <style jsx>{`
+                    .empty {
+                        color: var(--color--neutral-400);
+                        font-size: var(--font-size--sm);
+                        padding-block: var(--spacing--xl);
+                    }
+                `}</style>
             </p>
         );
     }
 
     return (
-        <div className="playground-vision-list space-y-0">
+        <div className="playground-vision-list">
             {filtered.map((entry) => (
                 <PrototypeRow key={entry.slug} entry={entry} isDev={isDev} />
             ))}
