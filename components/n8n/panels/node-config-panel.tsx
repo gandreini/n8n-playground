@@ -362,7 +362,7 @@ export function NodeConfigPanel() {
                     <label className="param-label">Credential</label>
                     <div className="param-row">
                       <Select defaultValue="gcal">
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger style={{ flex: 1 }}>
                           <SelectValue placeholder="Select credential" />
                         </SelectTrigger>
                         <SelectContent>
@@ -411,7 +411,7 @@ export function NodeConfigPanel() {
                     <label className="param-label">Calendar</label>
                     <div className="param-row">
                       <Select defaultValue="list">
-                        <SelectTrigger className="w-28">
+                        <SelectTrigger style={{ width: 112 }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -420,7 +420,7 @@ export function NodeConfigPanel() {
                         </SelectContent>
                       </Select>
                       <Select defaultValue="giulio">
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger style={{ flex: 1 }}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
