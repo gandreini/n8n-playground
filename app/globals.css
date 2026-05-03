@@ -24,7 +24,7 @@
      Shadcn components expect these single-dash names. We
      map them to upstream n8n tokens so there is a single
      source of truth for every color. */
-  --background: var(--color--neutral-50);
+  --background: var(--color--neutral-white);
   --foreground: var(--color--neutral-800);
   --card: var(--color--neutral-white);
   --card-foreground: var(--color--neutral-800);
@@ -34,7 +34,7 @@
   --primary-foreground: var(--color--neutral-white);
   --secondary: var(--color--neutral-100);
   --secondary-foreground: var(--color--neutral-800);
-  --muted: var(--color--neutral-100);
+  --muted: var(--color--neutral-125);
   --muted-foreground: var(--color--neutral-500);
   --accent: var(--color--neutral-100);
   --accent-foreground: var(--color--neutral-800);
@@ -43,10 +43,9 @@
   --border: var(--color--neutral-150);
   --input: var(--color--neutral-200);
   --ring: var(--color--orange-300);
-  /* Shadcn reads --radius for its rounded-* utilities.
-     Upstream exposes a radius scale (--radius--xs, --radius--sm, …)
-     but no bare --radius; pin it to the mid value. */
-  --radius: var(--radius--sm);
+  /* --radius falls through to upstream n8n tokens (_tokens.scss):
+     --radius--sm: 2px | --radius: 4px | --radius--lg: 8px | --radius--xl: 12px
+     The @theme block below maps each Tailwind size to a matching step. */
 }
 
 @theme inline {
@@ -71,28 +70,32 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: var(--radius--sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius--lg);
+  --radius-xl: var(--radius--xl);
 }
 
-/* Base rules — formerly `@layer base { * { @apply border-border outline-ring/50; } … }`.
-   Rewritten as plain CSS so the intent reads without a Tailwind translation step. */
-* {
-  border-color: var(--border);
-  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
-}
+/* Base rules — Shadcn sensible defaults. Kept inside `@layer base` so
+   Tailwind utilities like `border-transparent` (in `@layer utilities`)
+   still override them. Un-layered rules would always win over layered
+   ones regardless of specificity, which would break Shadcn components. */
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  /* Use our @theme font-sans (Inter via Google Fonts) to preserve the
-     previous `body.font-sans` render. Upstream's --font-family expects
-     InterVariable, which we don't host. */
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    /* Use our @theme font-sans (Inter via Google Fonts) to preserve the
+       previous `body.font-sans` render. Upstream's --font-family expects
+       InterVariable, which we don't host. */
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 /* ──────────────── UTILITY CLASSES ──────────────── */
