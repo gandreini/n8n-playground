@@ -36,89 +36,40 @@ Create a new prototype in the playground. Accepts an optional name as argument: 
 
 4. **Get a brief description.** Ask: "One-line description of what you're prototyping?"
 
-5. **Choose a template.** Ask which template to use:
-   - **blank** — Minimal page with just a title
-   - **n8n-app** — Page with n8n sidebar chrome (uses PrototypeShell)
+5. **Choose a template.** Discover templates dynamically — never hardcode the list.
 
-6. **Create the prototype directory** at `app/prototypes/{username}/{prototype-name}/` with:
+   - List the directories in `app/prototypes/_templates/` (e.g. `ls app/prototypes/_templates/`).
+   - For each template directory, read its `metadata.json` and use the `title` + `description` fields to present it to the user.
+   - Show the templates as a numbered list (one line per template: `**{title}** — {description}`) and ask the user which one to use.
 
-   A `metadata.json` like this:
-   ```json
-   {
-     "title": "My Prototype",
-     "description": "What it does",
-     "author": "username",
-     "date": "2026-04-12",
-     "externalUrl": null,
-     "featured": false,
-     "template": false
-   }
-   ```
+   This way, adding a new template (a new folder under `_templates/` with its own `metadata.json` and `page.tsx`) makes it appear here automatically — no edits to this command needed.
 
-   A `page.tsx` — if using the **blank** template:
-   ```tsx
-   export default function BlankPrototype() {
-     return (
-       <div className="blank-prototype">
-         <h1 className="title">New Prototype</h1>
-         <p className="subtitle">Start building here.</p>
+6. **Create the prototype** by copying the chosen template, then customizing its metadata. Do NOT inline `page.tsx` content here — always copy from the template directory so the templates stay the single source of truth.
 
-         <style jsx>{`
-           .blank-prototype {
-             padding: var(--spacing--lg);
-           }
-           .title {
-             font-size: var(--font-size--xl);
-             font-weight: var(--font-weight--semibold);
-             color: var(--color--neutral-800);
-           }
-           .subtitle {
-             margin-top: var(--spacing--3xs);
-             color: var(--color--neutral-400);
-           }
-         `}</style>
-       </div>
-     )
-   }
-   ```
+   - Copy the template directory:
+     ```bash
+     cp -R app/prototypes/_templates/{template}/ app/prototypes/{username}/{prototype-name}/
+     ```
+   - Overwrite `app/prototypes/{username}/{prototype-name}/metadata.json` with the user's values:
+     ```json
+     {
+       "title": "{prototype name, human-friendly}",
+       "description": "{the one-liner from step 4}",
+       "author": "{username}",
+       "date": "{today's date as YYYY-MM-DD}",
+       "externalUrl": null,
+       "featured": false,
+       "template": false
+     }
+     ```
+     `template` MUST be `false` — copying a template directory inherits `template: true`, which would make the new prototype show up in the Templates tab instead of Prototypes.
+   - Leave `page.tsx` (and any other files in the template) untouched. The user iterates from there.
 
-   If using the **n8n-app** template:
-   ```tsx
-   "use client"
-
-   import { PrototypeShell } from "@/components/n8n/prototype-shell"
-
-   export default function N8nAppPrototype() {
-     return (
-       <PrototypeShell>
-         <div className="n8n-prototype">
-           <h1 className="title">New Prototype</h1>
-           <p className="subtitle">This prototype includes n8n app chrome with sidebar.</p>
-
-           <style jsx>{`
-             .n8n-prototype {
-               padding: var(--spacing--lg);
-             }
-             .title {
-               font-size: var(--font-size--xl);
-               font-weight: var(--font-weight--semibold);
-               color: var(--color--neutral-800);
-             }
-             .subtitle {
-               margin-top: var(--spacing--3xs);
-               color: var(--color--neutral-400);
-             }
-           `}</style>
-         </div>
-       </PrototypeShell>
-     )
-   }
-   ```
-
-   **Styling convention:** every prototype uses **styled-jsx** (built into Next.js). Each component ends with a `<style jsx>{...}</style>` block; give elements semantic class names and reference n8n design tokens directly (`var(--color--orange-500)`, `var(--spacing--md)`). Do not write Tailwind utility classes — Tailwind is quarantined to the vendored `components/shadcn/` library.
+   **Styling convention reminder:** every prototype uses **styled-jsx** (built into Next.js). Each component ends with a `<style jsx>{...}</style>` block; give elements semantic class names and reference n8n design tokens directly (`var(--color--orange-500)`, `var(--spacing--md)`). Do not write Tailwind utility classes — Tailwind is quarantined to the vendored `components/shadcn/` library.
 
 7. **Report what was created:**
+   - Template used
    - Directory path
-   - Files created
+   - Files copied
    - URL to view it: `http://localhost:3000/prototypes/{username}/{prototype-name}`
    - Remind: "Run `pnpm dev` if the dev server isn't already running"
