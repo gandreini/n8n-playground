@@ -1,3 +1,4 @@
+// components/n8n/workflow-canvas/nodes/action-node.tsx
 'use client'
 
 import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
@@ -10,56 +11,70 @@ export function ActionNode({ data, selected }: NodeProps<RFActionNode>) {
   return (
     <div className="action-node" data-selected={selected ? 'true' : 'false'}>
       <Handle type="target" position={Position.Left} className="handle" />
-      <div className="icon-box">
-        <ServiceIcon service={data.service} size={40} tinted={false} />
+      <div className="pill">
+        <div className="icon-side">
+          <ServiceIcon service={data.service} size={36} tinted={false} />
+        </div>
+        <div className="label-side">
+          <div className="label">{data.label}</div>
+          {data.sublabel && <div className="sublabel">{data.sublabel}</div>}
+        </div>
       </div>
       <Handle type="source" position={Position.Right} className="handle" />
-      {data.sublabel && <div className="handle-sublabel">{data.sublabel}</div>}
-      <div className="label">{data.label}</div>
 
       <style jsx>{`
         .action-node {
           position: relative;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: var(--spacing--3xs);
         }
-        .icon-box {
-          width: 64px;
-          height: 64px;
-          border-radius: var(--radius--md, 6px);
+        .pill {
+          display: flex;
+          align-items: stretch;
+          width: 200px;
+          min-height: 60px;
           background: var(--color--neutral-white);
           border: 1px solid var(--color--neutral-150);
+          border-radius: var(--radius--md, 6px);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          overflow: hidden;
+        }
+        .icon-side {
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-          transition: border-color 0.15s ease, box-shadow 0.15s ease;
+          width: 60px;
+          flex-shrink: 0;
+          background: transparent;
         }
-        .action-node[data-selected='true'] .icon-box {
-          border-color: var(--color--orange-300);
-          box-shadow: 0 0 0 2px var(--color--orange-alpha-300);
+        .label-side {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: var(--spacing--3xs) var(--spacing--xs) var(--spacing--3xs) 0;
+          gap: 2px;
+          min-width: 0;
         }
         .label {
-          font-size: var(--font-size--xs, 12px);
+          font-size: var(--font-size--sm, 13px);
           font-weight: var(--font-weight--medium, 500);
           color: var(--color--neutral-800);
           line-height: 1.3;
-          text-align: center;
-          max-width: 110px;
-          margin-top: var(--spacing--3xs);
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
-        .handle-sublabel {
-          position: absolute;
-          top: 32px;
-          left: calc(50% + 32px + 6px);
-          transform: translateY(-50%);
-          font-size: 10px;
+        .sublabel {
+          font-size: var(--font-size--2xs, 10px);
           color: var(--color--neutral-500);
-          white-space: nowrap;
-          pointer-events: none;
-          line-height: 1;
+          line-height: 1.2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .action-node[data-selected='true'] .pill {
+          border-color: var(--color--orange-300);
+          box-shadow: 0 0 0 2px var(--color--orange-alpha-300);
         }
         .handle {
           width: 8px;
