@@ -14,6 +14,7 @@ import { WorkflowEditor } from "@/components/n8n/screens/workflow-editor";
 import { SettingsScreen } from "@/components/n8n/screens/settings";
 import { Toaster } from "@/components/shadcn/sonner";
 import { ProjectView } from "./project-view";
+import { WorkspaceHome } from "./workspace-home";
 
 function ComingSoon({ label }: { label: string }) {
     return (
@@ -41,6 +42,12 @@ type WorkspaceSettingsState = {
     bg: string;
 } | null;
 
+type WorkspaceHomeState = {
+    id: string;
+    name: string;
+    agentIds: string[];
+} | null;
+
 export function AppLayout() {
     const { currentScreen } = useStore();
     const [aiAssistantActive, setAiAssistantActive] = useState(true);
@@ -49,12 +56,15 @@ export function AppLayout() {
     const [aiAssistantKey, setAiAssistantKey] = useState(0);
     const [workspaceSettings, setWorkspaceSettings] =
         useState<WorkspaceSettingsState>(null);
+    const [workspaceHome, setWorkspaceHome] =
+        useState<WorkspaceHomeState>(null);
 
     const clearActives = () => {
         setAiAssistantActive(false);
         setAgentsView(null);
         setActiveProjectId(null);
         setWorkspaceSettings(null);
+        setWorkspaceHome(null);
     };
 
     /* Agent chat fullscreen — its own sub-sidebar */
@@ -101,6 +111,18 @@ export function AppLayout() {
 
     /* Default — main sidebar + main area renders the active screen */
     const renderScreen = () => {
+        if (workspaceHome) {
+            return (
+                <WorkspaceHome
+                    workspaceName={workspaceHome.name}
+                    workspaceAgentIds={workspaceHome.agentIds}
+                    onAgentClick={(agentId) => {
+                        clearActives();
+                        setAgentsView({ type: "chat", agentId });
+                    }}
+                />
+            );
+        }
         if (workspaceSettings) {
             return (
                 <WorkspaceSettings
@@ -152,10 +174,11 @@ export function AppLayout() {
         <div className="n8n-app-layout">
             {showSidebar && (
                 <Sidebar
-                    aiAssistantActive={false}
+                    aiAssistantActive={aiAssistantActive}
                     onAiAssistantClick={() => {
                         clearActives();
                         setAiAssistantActive(true);
+                        setAiAssistantKey((k) => k + 1);
                     }}
                     agentsView={agentsView}
                     onNewAgentClick={() => {
@@ -171,11 +194,17 @@ export function AppLayout() {
                         setAgentsView(null);
                         setActiveProjectId(null);
                         setWorkspaceSettings(null);
+                        setWorkspaceHome(null);
                     }}
                     onOpenWorkspaceSettings={(ws) => {
                         clearActives();
                         setWorkspaceSettings(ws);
                     }}
+                    onWorkspaceSelect={(ws) => {
+                        clearActives();
+                        setWorkspaceHome(ws);
+                    }}
+                    workspaceHomeId={workspaceHome?.id ?? null}
                     activeProjectId={activeProjectId}
                     onProjectClick={(id) => {
                         clearActives();

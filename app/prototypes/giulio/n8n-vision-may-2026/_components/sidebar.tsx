@@ -62,10 +62,81 @@ const WORKSPACES: Workspace[] = [
         avatar: "🛠️",
         bg: "var(--color--neutral-100)",
         members: 87,
-        projects: ["Backend services", "Mobile apps"],
-        workflows: ["PR review bot", "Deploy notifications"],
-        agentIds: ["code-reviewer", "bug-triager"],
+        projects: [
+            "Backend services",
+            "Mobile apps",
+            "API gateway",
+            "Auth service",
+            "Billing system",
+            "Notifications platform",
+            "Analytics pipeline",
+            "Search service",
+            "Cache layer",
+            "Database migrations",
+            "Identity & access",
+            "Webhook ingest",
+            "Observability stack",
+            "Edge functions",
+            "Internal SDK",
+            "Mobile design system",
+            "Storefront",
+            "Admin tools",
+        ],
+        workflows: [
+            "PR review bot",
+            "Deploy notifications",
+            "CI status digest",
+            "Failed test alerts",
+            "Code coverage tracker",
+            "Release notes draft",
+            "Dependency update runner",
+            "Security scan trigger",
+            "Issue triager",
+            "Daily standup digest",
+            "On-call rotation reminder",
+            "Production error summary",
+            "Slow query report",
+            "Database backup check",
+            "Stale branch cleanup",
+            "Sentry to Linear sync",
+            "Build time tracker",
+            "Dependabot summary",
+            "Postmortem template generator",
+            "Latency regression alert",
+            "Cost anomaly detector",
+            "License compliance check",
+        ],
+        agentIds: [
+            "code-reviewer",
+            "bug-triager",
+            "release-notes",
+            "incident-responder",
+            "dep-upgrader",
+            "perf-watchdog",
+            "security-scanner",
+            "oncall-summarizer",
+            "schema-doc",
+            "flaky-test-hunter",
+            "feature-flag-ranger",
+        ],
     },
+];
+
+type FavoriteKind = "project" | "workflow" | "agent";
+
+interface Favorite {
+    kind: FavoriteKind;
+    name: string;
+    /** for kind === "agent", references AGENTS.id */
+    agentId?: string;
+}
+
+const FAVORITES: Favorite[] = [
+    { kind: "agent", name: "Darwin", agentId: "darwin" },
+    { kind: "workflow", name: "Slack notifications" },
+    { kind: "project", name: "Marketing Automation" },
+    { kind: "agent", name: "Code Reviewer", agentId: "code-reviewer" },
+    { kind: "workflow", name: "PR review bot" },
 ];
 
 interface NavItemProps {
@@ -615,6 +686,12 @@ interface SidebarProps {
         avatar: string;
         bg: string;
     }) => void;
+    onWorkspaceSelect: (workspace: {
+        id: string;
+        name: string;
+        agentIds: string[];
+    }) => void;
+    workspaceHomeId: string | null;
     activeProjectId: string | null;
     onProjectClick: (id: string) => void;
 }
@@ -627,6 +704,8 @@ export function Sidebar({
     onAgentClick,
     onScreenChange,
     onOpenWorkspaceSettings,
+    onWorkspaceSelect,
+    workspaceHomeId,
     activeProjectId,
     onProjectClick,
 }: SidebarProps) {
@@ -707,10 +786,56 @@ export function Sidebar({
                 />
             </div>
 
+            {!collapsed && <SectionLabel label="Favorites" />}
+            <div className="group">
+                {FAVORITES.map((fav) => {
+                    const agent =
+                        fav.kind === "agent" && fav.agentId
+                            ? AGENTS.find((a) => a.id === fav.agentId)
+                            : undefined;
+                    const icon =
+                        fav.kind === "project" ? (
+                            <Folder />
+                        ) : fav.kind === "workflow" ? (
+                            <Workflow />
+                        ) : agent ? (
+                            <AgentAvatar
+                                avatar={agent.avatar}
+                                bg={agent.avatarBg}
+                            />
+                        ) : (
+                            <Folder />
+                        );
+                    const handleClick =
+                        fav.kind === "agent" && fav.agentId
+                            ? () => onAgentClick(fav.agentId!)
+                            : undefined;
+                    return (
+                        <NavItem
+                            key={`${fav.kind}-${fav.name}`}
+                            icon={icon}
+                            label={fav.name}
+                            compact={collapsed}
+                            onClick={handleClick}
+                        />
+                    );
+                })}
+            </div>
+
             <WorkspaceSelect
                 collapsed={collapsed}
                 currentWorkspaceId={workspaceId}
-                onSelect={setWorkspaceId}
+                onSelect={(id) => {
+                    setWorkspaceId(id);
+                    const ws = WORKSPACES.find((w) => w.id === id);
+                    if (ws) {
+                        onWorkspaceSelect({
+                            id: ws.id,
+                            name: ws.name,
+                            agentIds: ws.agentIds,
+                        });
+                    }
+                }}
                 onOpenSettings={() =>
                     onOpenWorkspaceSettings({
                         id: currentWorkspace.id,
@@ -741,7 +866,9 @@ export function Sidebar({
 
                 {!collapsed && <SectionLabel label="Projects" showAdd />}
                 <div className="group">
-                    {PROJECTS.map((project) => (
+                    {PROJECTS.filter((p) =>
+                        currentWorkspace.projects.includes(p.name)
+                    ).map((project) => (
                         <NavItem
                             key={project.id}
                             icon={<Folder />}

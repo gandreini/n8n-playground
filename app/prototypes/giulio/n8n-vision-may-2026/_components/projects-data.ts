@@ -157,4 +157,40 @@ export const PROJECTS: Project[] = [
         ],
         chats: [],
     },
+    ...(
+        [
+            ["personal-tasks", "Personal tasks", "Day-to-day personal todos."],
+            ["side-projects", "Side projects", "Things you tinker with after hours."],
+            ["design-system", "Design system", "Tokens, components and patterns."],
+            ["user-research", "User research", "Studies, interviews and synthesis."],
+            ["backend-services", "Backend services", "Core services that power the product."],
+            ["mobile-apps", "Mobile apps", "iOS + Android client work."],
+            ["api-gateway", "API gateway", "Routing, rate-limiting and auth at the edge."],
+            ["auth-service", "Auth service", "Identity, sessions and SSO."],
+            ["billing-system", "Billing system", "Subscriptions, invoicing and dunning."],
+            ["notifications", "Notifications platform", "Email, push and in-app delivery."],
+            ["analytics-pipeline", "Analytics pipeline", "Event ingest, transforms and warehouse."],
+            ["search-service", "Search service", "Full-text search and ranking."],
+            ["cache-layer", "Cache layer", "Redis tiers and CDN caching strategy."],
+            ["db-migrations", "Database migrations", "Schema evolution and backfills."],
+            ["identity-access", "Identity & access", "RBAC, audit logs and policy."],
+            ["webhook-ingest", "Webhook ingest", "Inbound webhook handling and retries."],
+            ["observability", "Observability stack", "Metrics, logs and traces."],
+            ["edge-functions", "Edge functions", "Edge runtime workloads."],
+            ["internal-sdk", "Internal SDK", "Shared client libraries."],
+            ["mobile-design-system", "Mobile design system", "Cross-platform components."],
+            ["storefront", "Storefront", "Customer-facing storefront app."],
+            ["admin-tools", "Admin tools", "Internal admin dashboards."],
+        ] as const
+    ).map(
+        ([id, name, description]): Project => ({
+            id,
+            name,
+            description,
+            resources: [],
+            documents: [],
+            knowledge: [],
+            chats: [],
+        })
+    ),
 ];
