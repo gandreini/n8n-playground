@@ -13,6 +13,7 @@ export type ServiceId =
   | 'ai'
 
 export interface BaseNodeData {
+  [key: string]: unknown
   id: string
   position: { x: number; y: number }
 }
