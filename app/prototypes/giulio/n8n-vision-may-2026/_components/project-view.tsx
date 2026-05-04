@@ -1,8 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Folder, Plus, MoreHorizontal } from "lucide-react";
-import { PROJECTS, type Chat, type Project } from "./projects-data";
+import {
+    ArrowLeft,
+    Folder,
+    Plus,
+    MoreHorizontal,
+    Check,
+    Loader2,
+    ChevronRight,
+    Copy,
+    RefreshCw,
+} from "lucide-react";
+import {
+    PROJECTS,
+    type Chat,
+    type ConversationMessage,
+    type Project,
+} from "./projects-data";
 import { Composer } from "./composer";
 
 interface ProjectViewProps {
@@ -105,17 +120,37 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                 </div>
 
                 <div className="content">
-                    <div className="empty-state">
-                        <h1 className="project-name-large">{project.name}</h1>
-                        <p className="project-description">{project.description}</p>
-                        <Composer
-                            placeholder="Send a message..."
-                            leftButton="paperclip"
-                            showAgentSelect={false}
-                            value={composerValue}
-                            onChange={setComposerValue}
-                        />
-                    </div>
+                    {selectedChat?.thread ? (
+                        <ConversationThread messages={selectedChat.thread} />
+                    ) : (
+                        <div className="empty-state">
+                            <h1 className="project-name-large">
+                                {selectedChat ? selectedChat.title : project.name}
+                            </h1>
+                            {!selectedChat && (
+                                <p className="project-description">{project.description}</p>
+                            )}
+                            <Composer
+                                placeholder="Send a message..."
+                                leftButton="paperclip"
+                                showAgentSelect={false}
+                                value={composerValue}
+                                onChange={setComposerValue}
+                            />
+                        </div>
+                    )}
+
+                    {selectedChat?.thread && (
+                        <div className="composer-pin">
+                            <Composer
+                                placeholder="Send a message..."
+                                leftButton="paperclip"
+                                showAgentSelect={false}
+                                value={composerValue}
+                                onChange={setComposerValue}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -370,6 +405,15 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                     margin: 0 0 var(--spacing--xs);
                     max-width: 480px;
                 }
+                .composer-pin {
+                    flex-shrink: 0;
+                    display: flex;
+                    justify-content: center;
+                    padding: var(--spacing--md) var(--spacing--xl);
+                    border-top: 1px solid
+                        var(--border-color--light, var(--color--neutral-150));
+                    background-color: var(--color--background-base);
+                }
 
                 /* ARTIFACTS (placeholder) */
                 .artifacts {
@@ -384,6 +428,229 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                 .placeholder {
                     color: var(--color--neutral-400);
                     font-size: var(--font-size--xs);
+                }
+            `}</style>
+        </div>
+    );
+}
+
+interface ConversationThreadProps {
+    messages: ConversationMessage[];
+}
+
+function ConversationThread({ messages }: ConversationThreadProps) {
+    return (
+        <div className="thread n8n-scrollbar">
+            <div className="thread-inner">
+                {messages.map((msg, idx) =>
+                    msg.role === "user" ? (
+                        <div className="user-msg" key={idx}>
+                            {msg.paragraphs.map((p, i) => (
+                                <p key={i}>{p}</p>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="assistant-msg" key={idx}>
+                            {msg.paragraphs.map((p, i) => (
+                                <p key={i}>{p}</p>
+                            ))}
+
+                            {msg.steps && (
+                                <div className="steps">
+                                    {msg.steps.map((step, i) => (
+                                        <div
+                                            className={`step ${step.status}`}
+                                            key={i}
+                                        >
+                                            {step.status === "done" ? (
+                                                <Check />
+                                            ) : (
+                                                <Loader2 className="spin" />
+                                            )}
+                                            <span>{step.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {msg.agentCard && (
+                                <button className="agent-card">
+                                    <span className="agent-card-icon">
+                                        {msg.agentCard.icon}
+                                    </span>
+                                    <span className="agent-card-info">
+                                        <span className="agent-card-name">
+                                            {msg.agentCard.name}
+                                        </span>
+                                        <span className="agent-card-meta">
+                                            {msg.agentCard.meta}
+                                        </span>
+                                    </span>
+                                    <ChevronRight />
+                                </button>
+                            )}
+
+                            <div className="msg-actions">
+                                <button>
+                                    <Copy />
+                                </button>
+                                <button>
+                                    <RefreshCw />
+                                </button>
+                                <button>
+                                    <MoreHorizontal />
+                                </button>
+                            </div>
+                        </div>
+                    ),
+                )}
+            </div>
+
+            <style jsx>{`
+                .thread {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: var(--spacing--lg) var(--spacing--xl);
+                }
+                .thread-inner {
+                    max-width: 720px;
+                    margin: 0 auto;
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--md);
+                }
+                .user-msg {
+                    align-self: flex-end;
+                    max-width: 80%;
+                    padding: var(--spacing--xs) var(--spacing--sm);
+                    background-color: var(--color--neutral-100);
+                    border-radius: var(--radius--md);
+                    color: var(--color--neutral-800);
+                    font-size: 14px;
+                    line-height: 20px;
+                }
+                .user-msg p {
+                    margin: 0;
+                }
+                .assistant-msg {
+                    align-self: flex-start;
+                    max-width: 80%;
+                    color: var(--color--neutral-800);
+                    font-size: 14px;
+                    line-height: 22px;
+                }
+                .assistant-msg p {
+                    margin: 0;
+                }
+                .steps {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    padding: var(--spacing--xs) 0;
+                }
+                .step {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    font-size: 14px;
+                    color: var(--color--neutral-700);
+                }
+                .step :global(svg) {
+                    width: 14px;
+                    height: 14px;
+                    color: var(--color--neutral-500);
+                }
+                .step.done :global(svg) {
+                    color: var(--color--neutral-700);
+                }
+                .step.pending :global(svg.spin) {
+                    animation: spin 1s linear infinite;
+                }
+                @keyframes spin {
+                    from {
+                        transform: rotate(0deg);
+                    }
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+
+                .agent-card {
+                    width: 100%;
+                    display: grid;
+                    grid-template-columns: auto 1fr auto;
+                    align-items: center;
+                    gap: var(--spacing--xs);
+                    padding: var(--spacing--xs) var(--spacing--sm);
+                    margin-top: var(--spacing--sm);
+                    border: 1px solid
+                        var(--border-color--light, var(--color--neutral-150));
+                    background: white;
+                    border-radius: var(--radius--md);
+                    cursor: pointer;
+                    text-align: left;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .agent-card:hover {
+                    background-color: var(--color--neutral-50);
+                }
+                .agent-card-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: var(--radius--3xs);
+                    background-color: var(--color--neutral-100);
+                    font-size: 16px;
+                }
+                .agent-card-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .agent-card-name {
+                    font-size: var(--font-size--sm);
+                    font-weight: var(--font-weight--medium);
+                    color: var(--color--neutral-800);
+                }
+                .agent-card-meta {
+                    font-size: var(--font-size--2xs);
+                    color: var(--color--neutral-500);
+                }
+                .agent-card :global(svg) {
+                    width: 16px;
+                    height: 16px;
+                    color: var(--color--neutral-400);
+                }
+
+                .msg-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    margin-top: var(--spacing--xs);
+                }
+                .msg-actions button {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 24px;
+                    height: 24px;
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    color: var(--color--neutral-500);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .msg-actions button:hover {
+                    background-color: var(--color--neutral-100);
+                }
+                .msg-actions :global(svg) {
+                    width: 14px;
+                    height: 14px;
                 }
             `}</style>
         </div>
