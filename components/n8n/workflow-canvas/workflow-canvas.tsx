@@ -7,14 +7,15 @@ import {
   ReactFlowProvider,
   Background,
   BackgroundVariant,
-  Controls,
   addEdge,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   type Connection,
   type Edge,
   type Node,
 } from '@xyflow/react'
+import { Maximize2, Plus, Minus } from 'lucide-react'
 import '@xyflow/react/dist/style.css'
 
 import type {
@@ -29,6 +30,52 @@ import { AddNodeToolbar } from './add-node-toolbar'
 interface WorkflowCanvasProps {
   initialNodes: WorkflowCanvasNode[]
   initialEdges: WorkflowCanvasEdge[]
+}
+
+function CanvasControls() {
+  const { zoomIn, zoomOut, fitView } = useReactFlow()
+  return (
+    <div className="canvas-controls">
+      <button type="button" className="ctrl-btn" onClick={() => fitView({ padding: 0.2, duration: 200 })} aria-label="Fit view">
+        <Maximize2 size={14} />
+      </button>
+      <button type="button" className="ctrl-btn" onClick={() => zoomIn({ duration: 150 })} aria-label="Zoom in">
+        <Plus size={14} />
+      </button>
+      <button type="button" className="ctrl-btn" onClick={() => zoomOut({ duration: 150 })} aria-label="Zoom out">
+        <Minus size={14} />
+      </button>
+
+      <style jsx>{`
+        .canvas-controls {
+          position: absolute;
+          bottom: var(--spacing--xs);
+          left: var(--spacing--xs);
+          display: flex;
+          gap: var(--spacing--3xs);
+          z-index: 10;
+        }
+        .ctrl-btn {
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--color--neutral-white);
+          border: 1px solid var(--color--neutral-200);
+          border-radius: var(--radius--md, 6px);
+          color: var(--color--neutral-700);
+          cursor: pointer;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+          transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .ctrl-btn:hover {
+          background: var(--color--neutral-50);
+          border-color: var(--color--neutral-300);
+        }
+      `}</style>
+    </div>
+  )
 }
 
 const NODE_TYPES = {
@@ -83,8 +130,8 @@ function WorkflowCanvasInner({ initialNodes, initialEdges }: WorkflowCanvasProps
         proOptions={{ hideAttribution: true }}
       >
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
-        <Controls position="bottom-left" />
       </ReactFlow>
+      <CanvasControls />
       <AddNodeToolbar onAdd={(newNode) => setNodes((nds) => [...nds, toReactFlowNode(newNode)])} />
 
       <style jsx>{`

@@ -10,11 +10,11 @@ type RFTriggerNode = Node<TriggerNodeData, 'trigger'>
 export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
   return (
     <div className="trigger-node" data-selected={selected ? 'true' : 'false'}>
+      <span className="bolt" aria-hidden>
+        <Zap size={12} fill="currentColor" strokeWidth={0} />
+      </span>
       <div className="icon-box">
-        <span className="bolt" aria-hidden>
-          <Zap size={10} fill="currentColor" strokeWidth={0} />
-        </span>
-        <ServiceIcon service={data.service} size={32} />
+        <ServiceIcon service={data.service} size={28} />
       </div>
       <Handle type="source" position={Position.Right} className="handle" />
       <div className="labels">
@@ -32,9 +32,9 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
         }
         .icon-box {
           position: relative;
-          width: 80px;
-          height: 80px;
-          border-radius: 24px 6px 6px 24px;
+          width: 64px;
+          height: 64px;
+          border-radius: 50px 6px 6px 50px;
           background: var(--color--neutral-white);
           border: 1px solid var(--color--neutral-200);
           display: flex;
@@ -49,12 +49,13 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
         }
         .bolt {
           position: absolute;
-          top: 4px;
-          left: 6px;
+          top: -4px;
+          left: -8px;
           color: var(--color--orange-500);
           display: flex;
           align-items: center;
           justify-content: center;
+          z-index: 1;
         }
         .labels {
           margin-top: var(--spacing--3xs);

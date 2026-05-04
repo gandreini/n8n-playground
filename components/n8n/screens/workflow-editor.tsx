@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronsRight, ArrowUpRight } from 'lucide-react'
 import { useStore } from '@/lib/store'
 import {
   WorkflowCanvas,
@@ -39,10 +39,12 @@ export function WorkflowEditor() {
     <div className="workflow-editor-screen">
       <header className="topbar">
         <button type="button" className="back-btn" onClick={closeWorkflow} aria-label="Back to overview">
-          <ChevronLeft size={16} />
+          <ChevronsRight size={16} />
         </button>
         <div className="title">{currentWorkflow?.name ?? 'Untitled workflow'}</div>
-        <div className="topbar-spacer" />
+        <button type="button" className="external-btn" aria-label="Open in n8n">
+          <ArrowUpRight size={16} />
+        </button>
       </header>
       <div className="canvas-area">
         <WorkflowCanvas
@@ -91,8 +93,20 @@ export function WorkflowEditor() {
           font-weight: var(--font-weight--medium, 500);
           color: var(--color--neutral-800);
         }
-        .topbar-spacer {
+        .external-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 28px;
+          height: 28px;
+          border: none;
+          background: transparent;
+          border-radius: var(--radius--sm, 4px);
+          color: var(--color--neutral-700);
+          cursor: pointer;
+        }
+        .external-btn:hover {
+          background: var(--color--neutral-100);
         }
         .canvas-area {
           flex: 1;
