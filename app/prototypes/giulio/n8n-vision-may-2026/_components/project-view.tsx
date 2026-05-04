@@ -20,6 +20,17 @@ import {
 } from "./projects-data";
 import { Composer } from "./composer";
 import { ArtifactsPanel } from "./artifacts-panel";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/shadcn/dialog";
+import { Input } from "@/components/shadcn/input";
+import { Button } from "@/components/shadcn/button";
+import { Label } from "@/components/shadcn/label";
 
 interface ProjectViewProps {
     projectId: string;
@@ -32,6 +43,7 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
 
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [composerValue, setComposerValue] = useState("");
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     const chatsByGroup: Record<Chat["group"], Chat[]> = {
         today: project.chats.filter((c) => c.group === "today"),
@@ -157,8 +169,43 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
 
             <ArtifactsPanel
                 project={project}
-                onOpenSettings={() => console.debug("open settings", project.id)}
+                onOpenSettings={() => setSettingsOpen(true)}
             />
+
+            <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Project settings</DialogTitle>
+                        <DialogDescription>
+                            These changes are not persisted in this prototype.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="settings-fields">
+                        <div className="field">
+                            <Label htmlFor="project-name">Project name</Label>
+                            <Input id="project-name" defaultValue={project.name} />
+                        </div>
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => console.debug("archive project", project.id)}
+                        >
+                            Archive project
+                        </Button>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setSettingsOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <style jsx>{`
                 .project-view {
@@ -415,6 +462,18 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                     border-top: 1px solid
                         var(--border-color--light, var(--color--neutral-150));
                     background-color: var(--color--background-base);
+                }
+
+                .settings-fields {
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--md);
+                    padding: var(--spacing--xs) 0;
+                }
+                .field {
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--3xs);
                 }
 
             `}</style>
