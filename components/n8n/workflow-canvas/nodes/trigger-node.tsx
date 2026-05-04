@@ -11,12 +11,12 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
   return (
     <div className="trigger-node" data-selected={selected ? 'true' : 'false'}>
       <span className="bolt" aria-hidden>
-        <Zap size={14} fill="currentColor" strokeWidth={0} />
+        <Zap size={12} fill="currentColor" strokeWidth={0} />
       </span>
       <div className="icon-box">
-        <ServiceIcon service={data.service} size={40} tinted={false} />
+        <ServiceIcon service={data.service} size={32} tinted={false} />
       </div>
-      <Handle type="source" position={Position.Right} className="handle" />
+      <Handle type="source" position={Position.Right} className="handle" style={{ top: 40 }} />
       {data.sublabel && <div className="handle-sublabel">{data.sublabel}</div>}
       <div className="label">{data.label}</div>
 
@@ -26,15 +26,14 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: var(--spacing--3xs);
         }
         .icon-box {
           position: relative;
-          width: 64px;
-          height: 64px;
+          width: 80px;
+          height: 80px;
           border-radius: 50px 6px 6px 50px;
-          background: var(--color--neutral-white);
-          border: 1px solid var(--color--neutral-150);
+          background: var(--background--surface, #ffffff);
+          border: 1px solid var(--color--foreground--tint-1, #e0e0e0);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -42,35 +41,37 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .trigger-node[data-selected='true'] .icon-box {
-          border-color: var(--color--orange-300);
-          box-shadow: 0 0 0 2px var(--color--orange-alpha-300);
+          border-color: var(--color--primary, var(--color--orange-300));
+          box-shadow: 0 0 0 2px var(--color--primary--tint-2, rgba(255, 110, 90, 0.25));
         }
         .bolt {
           position: absolute;
-          top: -4px;
-          left: -8px;
-          color: var(--color--orange-400);
+          top: -2px;
+          left: -6px;
+          color: var(--color--primary, var(--color--orange-400));
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1;
         }
         .label {
-          font-size: var(--font-size--xs, 12px);
-          font-weight: var(--font-weight--medium, 500);
-          color: var(--color--neutral-800);
+          margin-top: 8px;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 400;
           line-height: 1.3;
+          color: var(--color--text, #3d3d3d);
           text-align: center;
           max-width: 110px;
-          margin-top: var(--spacing--3xs);
         }
         .handle-sublabel {
           position: absolute;
-          top: 32px;
-          left: calc(50% + 32px + 6px);
+          top: 40px;
+          left: calc(50% + 40px + 6px);
           transform: translateY(-50%);
+          font-family: 'Inter', sans-serif;
           font-size: 10px;
-          color: var(--color--neutral-500);
+          color: var(--color--text--tint-1, var(--color--neutral-500));
           white-space: nowrap;
           pointer-events: none;
           line-height: 1;
@@ -78,8 +79,8 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
         .handle {
           width: 8px;
           height: 8px;
-          background: var(--color--neutral-white);
-          border: 1px solid var(--color--neutral-400);
+          background: var(--background--surface, #ffffff);
+          border: 1px solid var(--color--foreground, var(--color--neutral-300));
         }
       `}</style>
     </div>

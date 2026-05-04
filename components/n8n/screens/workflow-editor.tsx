@@ -60,53 +60,48 @@ export function WorkflowEditor() {
           flex-direction: column;
           width: 100%;
           height: 100%;
-          background: var(--color--neutral-50);
+          background: var(--color--background--light-2, #f5f5f5);
         }
+        /* ArtifactPanel/Header – Figma 125:3048 */
         .topbar {
           display: flex;
           align-items: center;
-          height: 44px;
-          padding: 0 var(--spacing--xs);
-          background: var(--color--neutral-white);
-          border-bottom: 1px solid var(--color--neutral-200);
+          justify-content: space-between;
+          padding: 8px;
+          background: var(--background--surface, #ffffff);
+          border-bottom: 1px solid var(--color--foreground--tint-1, #e0e0e0);
           flex-shrink: 0;
         }
-        .back-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          border: none;
-          background: transparent;
-          border-radius: var(--radius--sm, 4px);
-          color: var(--color--neutral-700);
-          cursor: pointer;
-        }
-        .back-btn:hover {
-          background: var(--color--neutral-100);
-        }
-        .title {
-          flex: 1;
-          text-align: center;
-          font-size: var(--font-size--sm, 13px);
-          font-weight: var(--font-weight--medium, 500);
-          color: var(--color--neutral-800);
-        }
+        .back-btn,
         .external-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 28px;
-          height: 28px;
+          width: 36px;
+          height: 36px;
           border: none;
           background: transparent;
-          border-radius: var(--radius--sm, 4px);
-          color: var(--color--neutral-700);
+          border-radius: 6px;
+          color: var(--color--text, #3d3d3d);
           cursor: pointer;
+          transition: background 0.15s ease;
         }
+        .back-btn:hover,
         .external-btn:hover {
-          background: var(--color--neutral-100);
+          background: var(--background--surface--hover, var(--color--neutral-100));
+        }
+        .title {
+          flex: 1;
+          text-align: center;
+          font-family: 'Inter', sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          line-height: 20px;
+          color: var(--color--text, #3d3d3d);
+          padding: 0 8px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .canvas-area {
           flex: 1;

@@ -204,16 +204,18 @@ export function OverviewScreen() {
         }
         .split-btn {
           display: flex;
+          gap: 1px;
+          background: var(--color--orange-600);
+          border-radius: var(--radius--3xs);
         }
-        .split-btn :global(.left-half button) {
+        .split-btn :global(.left-half) {
           border-top-right-radius: 0 !important;
           border-bottom-right-radius: 0 !important;
         }
-        .split-btn :global(.right-half button) {
+        .split-btn :global(.right-half) {
           border-top-left-radius: 0 !important;
           border-bottom-left-radius: 0 !important;
           padding-inline: var(--spacing--3xs) !important;
-          border-left: 1px solid var(--color--orange-500);
         }
         .stats {
           display: flex;

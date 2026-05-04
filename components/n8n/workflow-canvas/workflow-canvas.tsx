@@ -129,7 +129,12 @@ function WorkflowCanvasInner({ initialNodes, initialEdges }: WorkflowCanvasProps
         fitView
         proOptions={{ hideAttribution: true }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={16}
+          size={1}
+          color="var(--color--foreground--tint-1, #e0e0e0)"
+        />
       </ReactFlow>
       <CanvasControls />
       <AddNodeToolbar onAdd={(newNode) => setNodes((nds) => [...nds, toReactFlowNode(newNode)])} />
@@ -139,7 +144,10 @@ function WorkflowCanvasInner({ initialNodes, initialEdges }: WorkflowCanvasProps
           position: relative;
           width: 100%;
           height: 100%;
-          background: var(--color--neutral-50);
+          background: var(--color--background--light-2, #f5f5f5);
+        }
+        .workflow-canvas-root :global(.react-flow__background) {
+          background: var(--color--background--light-2, #f5f5f5);
         }
       `}</style>
     </div>

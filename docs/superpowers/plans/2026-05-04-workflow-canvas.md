@@ -1240,12 +1240,12 @@ git commit -m "✨ Add workflow-canvas-demo prototype showcasing WorkflowCanvas"
 ## Task 10: Cleanup, lint, build verification, and visual polish
 
 **Files:**
-- Delete: `app/__canvas-test/page.tsx` (the throwaway test page from Task 6)
+- Delete: `app/canvas-test/page.tsx` (the throwaway test page from Task 6)
 
 - [ ] **Step 1: Delete the throwaway test page**
 
 ```bash
-rm -rf app/__canvas-test
+rm -rf app/canvas-test
 ```
 
 - [ ] **Step 2: Run lint and type-check**
