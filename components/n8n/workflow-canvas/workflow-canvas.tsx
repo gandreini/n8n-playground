@@ -24,7 +24,7 @@ import type {
 import { ActionNode } from './nodes/action-node'
 import { TriggerNode } from './nodes/trigger-node'
 import { StickyNode } from './nodes/sticky-node'
-// import { AddNodeToolbar } from './add-node-toolbar' // Task 8
+import { AddNodeToolbar } from './add-node-toolbar'
 
 interface WorkflowCanvasProps {
   initialNodes: WorkflowCanvasNode[]
@@ -85,7 +85,7 @@ function WorkflowCanvasInner({ initialNodes, initialEdges }: WorkflowCanvasProps
         <Background variant={BackgroundVariant.Dots} gap={16} size={1} />
         <Controls position="bottom-left" />
       </ReactFlow>
-      {/* <AddNodeToolbar onAdd={(newNode) => setNodes((nds) => [...nds, toReactFlowNode(newNode)])} /> Task 8 */}
+      <AddNodeToolbar onAdd={(newNode) => setNodes((nds) => [...nds, toReactFlowNode(newNode)])} />
 
       <style jsx>{`
         .workflow-canvas-root {
