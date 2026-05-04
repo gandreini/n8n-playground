@@ -19,6 +19,7 @@ import {
     type Project,
 } from "./projects-data";
 import { Composer } from "./composer";
+import { ArtifactsPanel } from "./artifacts-panel";
 
 interface ProjectViewProps {
     projectId: string;
@@ -154,9 +155,10 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                 </div>
             </div>
 
-            <aside className="artifacts">
-                <p className="placeholder">Artifacts panel</p>
-            </aside>
+            <ArtifactsPanel
+                project={project}
+                onOpenSettings={() => console.debug("open settings", project.id)}
+            />
 
             <style jsx>{`
                 .project-view {
@@ -415,20 +417,6 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                     background-color: var(--color--background-base);
                 }
 
-                /* ARTIFACTS (placeholder) */
-                .artifacts {
-                    width: 272px;
-                    flex-shrink: 0;
-                    height: 100%;
-                    border-left: 1px solid
-                        var(--border-color--subtle, var(--color--black-alpha-100));
-                    background-color: var(--color--neutral-white);
-                    padding: var(--spacing--sm);
-                }
-                .placeholder {
-                    color: var(--color--neutral-400);
-                    font-size: var(--font-size--xs);
-                }
             `}</style>
         </div>
     );
