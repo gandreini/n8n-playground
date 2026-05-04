@@ -23,6 +23,13 @@ export function NodePicker({ open, onClose, onPickService, onPickSticky }: NodeP
     return SERVICE_CATALOG.filter((s) => s.label.toLowerCase().includes(q))
   }, [query])
 
+  const stickyColors = useMemo((): StickyColor[] => {
+    const all: StickyColor[] = ['yellow', 'blue', 'green', 'pink']
+    const q = query.trim().toLowerCase()
+    if (!q) return all
+    return all.filter((c) => c.includes(q))
+  }, [query])
+
   const triggers = filtered.filter((s) => s.kind === 'trigger')
   const actions  = filtered.filter((s) => s.kind === 'action')
 
@@ -70,19 +77,21 @@ export function NodePicker({ open, onClose, onPickService, onPickSticky }: NodeP
           </div>
         )}
 
-        <div className="section">
-          <div className="section-title">Sticky note</div>
-          <div className="grid">
-            {(['yellow', 'blue', 'green', 'pink'] as StickyColor[]).map((c) => (
-              <button key={c} className="item" onClick={() => onPickSticky(c)} type="button">
-                <span className="swatch" data-color={c}>
-                  <StickyNote size={14} />
-                </span>
-                <span>{c.charAt(0).toUpperCase() + c.slice(1)}</span>
-              </button>
-            ))}
+        {stickyColors.length > 0 && (
+          <div className="section">
+            <div className="section-title">Sticky note</div>
+            <div className="grid">
+              {stickyColors.map((c) => (
+                <button key={c} className="item" onClick={() => onPickSticky(c)} type="button">
+                  <span className="swatch" data-color={c}>
+                    <StickyNote size={14} />
+                  </span>
+                  <span>{c.charAt(0).toUpperCase() + c.slice(1)}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <style jsx>{`
