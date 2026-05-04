@@ -12,6 +12,7 @@ next.user-config.*
 
 # Personal Claude config (not committed)
 claude.local.md
+.claude/settings.local.json
 
 # Common ignores
 node_modules/
