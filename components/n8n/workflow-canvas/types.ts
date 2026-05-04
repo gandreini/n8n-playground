@@ -11,6 +11,8 @@ export type ServiceId =
   | 'switch'
   | 'code'
   | 'ai'
+  | 'chat'
+  | 'form'
 
 export interface BaseNodeData {
   [key: string]: unknown

@@ -8,7 +8,9 @@ import {
   Webhook,
   Zap,
   Bot,
-  Globe
+  Globe,
+  MessageSquare,
+  FileText
 } from 'lucide-react'
 
 interface ServiceIconProps {
@@ -167,7 +169,7 @@ export function ServiceIcon({ service, size = 24, className, tinted = true }: Se
         <Globe
           className={cn('n8n-service-icon', className)}
           size={size}
-          style={{ color: 'var(--color--purple-600)', flexShrink: 0 }}
+          style={{ color: 'var(--color--blue-600)', flexShrink: 0 }}
         />
       )
     }
@@ -185,13 +187,49 @@ export function ServiceIcon({ service, size = 24, className, tinted = true }: Se
         <Bot
           className={cn('n8n-service-icon', className)}
           size={size}
-          style={{ color: 'var(--color--green-600)', flexShrink: 0 }}
+          style={{ color: 'var(--color--neutral-700)', flexShrink: 0 }}
         />
       )
     }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--green-100)')}>
         <Bot size={size * 0.6} style={{ color: 'var(--color--green-600)' }} />
+      </div>
+    )
+  }
+
+  // Chat trigger icon
+  if (service === 'chat') {
+    if (!tinted) {
+      return (
+        <MessageSquare
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--neutral-700)', flexShrink: 0 }}
+        />
+      )
+    }
+    return (
+      <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--neutral-100)')}>
+        <MessageSquare size={size * 0.6} style={{ color: 'var(--color--neutral-700)' }} />
+      </div>
+    )
+  }
+
+  // Form trigger icon
+  if (service === 'form') {
+    if (!tinted) {
+      return (
+        <FileText
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--neutral-700)', flexShrink: 0 }}
+        />
+      )
+    }
+    return (
+      <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--neutral-100)')}>
+        <FileText size={size * 0.6} style={{ color: 'var(--color--neutral-700)' }} />
       </div>
     )
   }

@@ -11,16 +11,14 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
   return (
     <div className="trigger-node" data-selected={selected ? 'true' : 'false'}>
       <span className="bolt" aria-hidden>
-        <Zap size={12} fill="currentColor" strokeWidth={0} />
+        <Zap size={14} fill="currentColor" strokeWidth={0} />
       </span>
       <div className="icon-box">
-        <ServiceIcon service={data.service} size={36} tinted={false} />
+        <ServiceIcon service={data.service} size={40} tinted={false} />
       </div>
       <Handle type="source" position={Position.Right} className="handle" />
-      <div className="labels">
-        <div className="label">{data.label}</div>
-        {data.sublabel && <div className="sublabel">{data.sublabel}</div>}
-      </div>
+      {data.sublabel && <div className="handle-sublabel">{data.sublabel}</div>}
+      <div className="label">{data.label}</div>
 
       <style jsx>{`
         .trigger-node {
@@ -51,28 +49,31 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
           position: absolute;
           top: -4px;
           left: -8px;
-          color: var(--color--orange-500);
+          color: var(--color--orange-400);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1;
-        }
-        .labels {
-          margin-top: var(--spacing--3xs);
-          text-align: center;
-          max-width: 110px;
         }
         .label {
           font-size: var(--font-size--xs, 12px);
           font-weight: var(--font-weight--medium, 500);
           color: var(--color--neutral-800);
           line-height: 1.3;
+          text-align: center;
+          max-width: 110px;
+          margin-top: var(--spacing--3xs);
         }
-        .sublabel {
-          font-size: var(--font-size--2xs, 10px);
+        .handle-sublabel {
+          position: absolute;
+          top: 32px;
+          left: calc(50% + 32px + 6px);
+          transform: translateY(-50%);
+          font-size: 10px;
           color: var(--color--neutral-500);
-          line-height: 1.3;
-          margin-top: 2px;
+          white-space: nowrap;
+          pointer-events: none;
+          line-height: 1;
         }
         .handle {
           width: 8px;

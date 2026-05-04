@@ -9,7 +9,7 @@ import {
 const initialNodes: WorkflowCanvasNode[] = [
   { id: 't1', type: 'trigger', service: 'webhook', label: 'Webhook',          sublabel: 'GET',
     position: { x:   0, y: 200 } },
-  { id: 't2', type: 'trigger', service: 'clock',   label: 'When chat received',
+  { id: 't2', type: 'trigger', service: 'chat',   label: 'When chat received',
     position: { x:   0, y: 360 } },
   { id: 'a1', type: 'action',  service: 'ai',      label: 'AI Agent',
     position: { x: 280, y: 280 } },

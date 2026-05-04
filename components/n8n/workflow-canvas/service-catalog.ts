@@ -12,6 +12,8 @@ export interface ServiceCatalogEntry {
 export const SERVICE_CATALOG: ServiceCatalogEntry[] = [
   { id: 'webhook',         label: 'Webhook',          kind: 'trigger' },
   { id: 'clock',           label: 'Schedule',         kind: 'trigger' },
+  { id: 'chat',            label: 'Chat trigger',     kind: 'trigger' },
+  { id: 'form',            label: 'Form trigger',     kind: 'trigger' },
   { id: 'http',            label: 'HTTP Request',     kind: 'action'  },
   { id: 'gmail',           label: 'Gmail',            kind: 'action'  },
   { id: 'slack',           label: 'Slack',            kind: 'action'  },
