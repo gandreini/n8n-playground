@@ -11,7 +11,7 @@ export function ActionNode({ data, selected }: NodeProps<RFActionNode>) {
     <div className="action-node" data-selected={selected ? 'true' : 'false'}>
       <Handle type="target" position={Position.Left} className="handle" />
       <div className="icon-box">
-        <ServiceIcon service={data.service} size={28} />
+        <ServiceIcon service={data.service} size={36} tinted={false} />
       </div>
       <Handle type="source" position={Position.Right} className="handle" />
       <div className="labels">
@@ -32,7 +32,7 @@ export function ActionNode({ data, selected }: NodeProps<RFActionNode>) {
           height: 64px;
           border-radius: var(--radius--md, 6px);
           background: var(--color--neutral-white);
-          border: 1px solid var(--color--neutral-200);
+          border: 1px solid var(--color--neutral-150);
           display: flex;
           align-items: center;
           justify-content: center;

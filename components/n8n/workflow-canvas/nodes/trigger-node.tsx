@@ -14,7 +14,7 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
         <Zap size={12} fill="currentColor" strokeWidth={0} />
       </span>
       <div className="icon-box">
-        <ServiceIcon service={data.service} size={28} />
+        <ServiceIcon service={data.service} size={36} tinted={false} />
       </div>
       <Handle type="source" position={Position.Right} className="handle" />
       <div className="labels">
@@ -36,7 +36,7 @@ export function TriggerNode({ data, selected }: NodeProps<RFTriggerNode>) {
           height: 64px;
           border-radius: 50px 6px 6px 50px;
           background: var(--color--neutral-white);
-          border: 1px solid var(--color--neutral-200);
+          border: 1px solid var(--color--neutral-150);
           display: flex;
           align-items: center;
           justify-content: center;

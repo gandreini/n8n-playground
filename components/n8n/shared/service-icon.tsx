@@ -15,6 +15,7 @@ interface ServiceIconProps {
   service: string
   size?: number
   className?: string
+  tinted?: boolean
 }
 
 // Wrapper style shared by all icon-in-tinted-square variants
@@ -31,7 +32,7 @@ function tintedStyle(size: number, background: string): React.CSSProperties {
   }
 }
 
-export function ServiceIcon({ service, size = 24, className }: ServiceIconProps) {
+export function ServiceIcon({ service, size = 24, className, tinted = true }: ServiceIconProps) {
   const svgStyle: React.CSSProperties = { flexShrink: 0 }
 
   // Google Calendar icon (colorful calendar)
@@ -89,6 +90,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // Clock/Schedule icon
   if (service === 'clock') {
+    if (!tinted) {
+      return (
+        <Clock
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--green-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--green-100)')}>
         <Clock size={size * 0.6} style={{ color: 'var(--color--green-600)' }} />
@@ -98,6 +108,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // Switch/Router icon
   if (service === 'switch') {
+    if (!tinted) {
+      return (
+        <GitBranch
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--blue-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--blue-100)')}>
         <GitBranch size={size * 0.6} style={{ color: 'var(--color--blue-600)' }} />
@@ -107,6 +126,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // Code icon
   if (service === 'code') {
+    if (!tinted) {
+      return (
+        <Code
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--purple-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--purple-100)')}>
         <Code size={size * 0.6} style={{ color: 'var(--color--purple-600)' }} />
@@ -116,6 +144,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // Webhook icon
   if (service === 'webhook') {
+    if (!tinted) {
+      return (
+        <Webhook
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--orange-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--orange-100)')}>
         <Webhook size={size * 0.6} style={{ color: 'var(--color--orange-600)' }} />
@@ -125,6 +162,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // HTTP Request icon
   if (service === 'http') {
+    if (!tinted) {
+      return (
+        <Globe
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--purple-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--purple-100)')}>
         <Globe size={size * 0.6} style={{ color: 'var(--color--purple-600)' }} />
@@ -134,6 +180,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
 
   // AI/Bot icon
   if (service === 'openai' || service === 'anthropic' || service === 'ai') {
+    if (!tinted) {
+      return (
+        <Bot
+          className={cn('n8n-service-icon', className)}
+          size={size}
+          style={{ color: 'var(--color--green-600)', flexShrink: 0 }}
+        />
+      )
+    }
     return (
       <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--green-100)')}>
         <Bot size={size * 0.6} style={{ color: 'var(--color--green-600)' }} />
@@ -142,6 +197,15 @@ export function ServiceIcon({ service, size = 24, className }: ServiceIconProps)
   }
 
   // Default fallback
+  if (!tinted) {
+    return (
+      <Zap
+        className={cn('n8n-service-icon', className)}
+        size={size}
+        style={{ color: 'var(--color--neutral-500)', flexShrink: 0 }}
+      />
+    )
+  }
   return (
     <div className={cn('n8n-service-icon', className)} style={tintedStyle(size, 'var(--color--neutral-100)')}>
       <Zap size={size * 0.6} style={{ color: 'var(--color--neutral-500)' }} />
