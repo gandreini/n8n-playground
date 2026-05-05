@@ -2,7 +2,7 @@
 
 A shared prototyping playground for the n8n design team. One Next.js app where every designer gets their own namespace — all prototypes live in one place for visibility and code reuse.
 
-**Live at:** [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app)
+**Live at:** [n8n-playground.vercel.app](https://n8n-playground.vercel.app/)
 
 ---
 
@@ -28,7 +28,7 @@ When you're happy with your prototype, you open a pull request. Vercel automatic
 
 ### Vercel: read-only showcase
 
-The production site at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) is **read-only**. You can browse all published prototypes, but you can't create, edit, or star anything there — those actions only work locally (they use dev-only APIs).
+The production site at [n8n-playground.vercel.app](https://n8n-playground.vercel.app/) is **read-only**. You can browse all published prototypes, but you can't create, edit, or star anything there — those actions only work locally (they use dev-only APIs).
 
 This is by design: Vercel is for sharing finished work, not for authoring.
 

@@ -15,7 +15,7 @@ If it **does not exist**, the user is a new joiner. Greet them and walk them thr
 > **When you're ready to share:** run `/deploy`. I push your branch and Vercel gives you two things:
 >
 > 1. **A personal preview URL** — a unique link for your branch. Send it to anyone; they click and try it. Every new push updates the same URL.
-> 2. **A spot on the shared gallery** — once the PR is merged to `main`, your prototype appears at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's. That's the public showcase for the design team.
+> 2. **A spot on the shared gallery** — once the PR is merged to `main`, your prototype appears at [n8n-playground.vercel.app](https://n8n-playground.vercel.app/) alongside everyone else's. That's the public showcase for the design team.
 >
 > **Two commands to get started:**
 >

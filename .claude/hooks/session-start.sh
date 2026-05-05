@@ -124,7 +124,7 @@ Send this message:
 > **When you're ready to share:** run \`/deploy\`. I push your branch and Vercel gives you two things:
 >
 > 1. **A personal preview URL** — a unique link for your branch. Send it to anyone; they click and try it. Every new push updates the same URL.
-> 2. **A spot on the shared gallery** — once the PR is merged to \`main\`, your prototype appears at [v0-n8n-playground.vercel.app](https://v0-n8n-playground.vercel.app) alongside everyone else's.
+> 2. **A spot on the shared gallery** — once the PR is merged to \`main\`, your prototype appears at [n8n-playground.vercel.app](https://n8n-playground.vercel.app/) alongside everyone else's.
 >
 > **Ready to build?** Say \"yes\" (or run \`/create-prototype\`) and I'll scaffold your first one and start the dev server.${PREFLIGHT}${MCP_CHECK}"
 
