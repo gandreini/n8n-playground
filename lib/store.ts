@@ -387,7 +387,7 @@ const mockExecutions: Execution[] = [
 ]
 
 // Create sample workflow for editor
-const sampleWorkflow: Workflow = {
+export const sampleWorkflow: Workflow = {
   id: 'sample',
   name: 'GCal - Auto-label UI Research Events in Google Calendar',
   status: 'published',
@@ -535,14 +535,11 @@ export const useStore = create<AppState>((set, get) => ({
   
   openWorkflow: (id) => {
     const workflow = get().workflows.find(w => w.id === id)
-    if (workflow) {
-      // Use sample workflow for demo
-      set({
-        currentWorkflow: id === '2' ? sampleWorkflow : workflow,
-        currentScreen: 'workflow-editor',
-        selectedWorkflowId: id
-      })
-    }
+    set({
+      currentWorkflow: { ...sampleWorkflow, id, name: workflow?.name ?? id },
+      currentScreen: 'workflow-editor',
+      selectedWorkflowId: id
+    })
   },
   
   closeWorkflow: () => set({

@@ -4,23 +4,39 @@ import { useEffect, useRef, useState } from "react";
 import {
     ArrowLeft,
     Plus,
-    PanelRight,
-    MoreHorizontal,
     ChevronDown,
     ArrowRight,
     Search,
     X,
-    Link2,
     Table,
     CheckCircle2,
     LoaderCircle,
     Circle,
+    Workflow,
+    Bot,
+    Lightbulb,
+    Zap,
+    Layers,
+    Filter,
 } from "lucide-react";
+import { N8nButton } from "@/components/n8n/shared/button";
+import { useStore } from "@/lib/store";
 import { Composer } from "./composer";
+import {
+    ResourceSidebar,
+    ResourceItem,
+    TaskItem,
+    type ResourceSection,
+} from "./resource-sidebar";
+import {
+    ArtifactViewer,
+    type SelectedArtifact,
+} from "./artifact-viewer";
 import {
     CONVERSATIONS,
     CHAT_GROUP_LABELS as GROUP_LABELS,
     CHAT_GROUP_ORDER,
+    formatConversationDate,
     type ChatGroup,
     type Conversation,
 } from "./conversations-data";
@@ -44,19 +60,69 @@ function makeId(prefix: string) {
 interface AIAssistantProps {
     onBack?: () => void;
     showSubSidebar?: boolean;
+    onOpenProjectChat?: (projectId: string, chatId: string) => void;
 }
 
-export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps) {
+export function AIAssistant({
+    onBack,
+    showSubSidebar = false,
+    onOpenProjectChat,
+}: AIAssistantProps) {
     const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<string>(() => makeId("s"));
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [rightPanelOpen, setRightPanelOpen] = useState(true);
+    // Sidebar starts collapsed for new chats; we expand it once a chat is loaded.
+    const [rightPanelOpen, setRightPanelOpen] = useState(false);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyView, setHistoryView] = useState(false);
     const [historySearch, setHistorySearch] = useState("");
+    const [selectedArtifact, setSelectedArtifact] =
+        useState<SelectedArtifact | null>(null);
+    const [artifactWidth, setArtifactWidth] = useState(720);
+    const [sidebarWidth, setSidebarWidth] = useState(272);
+    // Defer time-of-day greeting until after mount to avoid SSR/client mismatch.
+    const [greeting, setGreeting] = useState("Hi, Giulio");
     const threadEndRef = useRef<HTMLDivElement>(null);
+    const openWorkflow = useStore((s) => s.openWorkflow);
+
+    useEffect(() => {
+        const hour = new Date().getHours();
+        const pool =
+            hour >= 5 && hour < 12
+                ? [
+                      "Morning, Giulio ☕",
+                      "Buongiorno, Giulio 👋",
+                      "Rise and automate, Giulio",
+                      "Coffee's brewing — hi Giulio",
+                      "Up and at 'em, Giulio",
+                  ]
+                : hour < 18
+                ? [
+                      "Hey Giulio, how's the day going?",
+                      "Afternoon, Giulio 🌤️",
+                      "Mid-day, Giulio. Let's ship something",
+                      "Surviving the afternoon, Giulio?",
+                      "Hey Giulio — past the lunch coma?",
+                  ]
+                : hour < 23
+                ? [
+                      "Evening, Giulio 🌙",
+                      "Buonasera, Giulio",
+                      "Still here, Giulio? Let's wrap something up",
+                      "Hey Giulio. One more workflow before dinner?",
+                      "Winding down, Giulio?",
+                  ]
+                : [
+                      "Burning the midnight oil, Giulio?",
+                      "Still up, Giulio? The bots are.",
+                      "3 a.m. workflows, Giulio? 🦉",
+                      "Late night hacking, Giulio?",
+                      "Hey night owl, Giulio",
+                  ];
+        setGreeting(pool[Math.floor(Math.random() * pool.length)]);
+    }, []);
 
     const selectedChat = CHATS.find((c) => c.id === selectedChatId);
     const headerTitle = historyView
@@ -76,6 +142,14 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
         threadEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     }, [messages, isLoading]);
 
+    const handleSelectChat = (chat: Conversation) => {
+        if (chat.projectId && chat.projectChatId && onOpenProjectChat) {
+            onOpenProjectChat(chat.projectId, chat.projectChatId);
+            return;
+        }
+        startFreshChat(chat.id);
+    };
+
     const startFreshChat = (chatId: string | null) => {
         setSelectedChatId(chatId);
         const chat = chatId ? CHATS.find((c) => c.id === chatId) : null;
@@ -93,6 +167,9 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
         setSessionId(makeId("s"));
         setHistoryOpen(false);
         setHistoryView(false);
+        // Auto-expand sidebar when an existing chat is opened; collapse for new chat.
+        setRightPanelOpen(Boolean(chat && chat.messages.length > 0));
+        setSelectedArtifact(null);
     };
 
     const handleSend = async (text: string) => {
@@ -151,6 +228,82 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
 
     const isEmpty = messages.length === 0;
 
+    // The right-side ResourceSidebar contents. New chats stay empty until the
+    // user actually does something; saved chats show demo artifacts/tasks.
+    const showDemoSidebarData = Boolean(selectedChat);
+    const tasks = showDemoSidebarData
+        ? ([
+              { label: "Check existing credentials for…", status: "done" as const },
+              { label: "Check existing credentials for…", status: "done" as const },
+              { label: "Text the workflow execution", status: "active" as const },
+              { label: "Provide access URLs and usa…", status: "todo" as const },
+          ])
+        : [];
+    const tasksDone = tasks.filter((t) => t.status === "done").length;
+    const sidebarSections: ResourceSection[] = [
+        {
+            key: "artifacts",
+            label: "Artifacts",
+            onAdd: () => console.debug("ai-assistant: add artifact"),
+            items: showDemoSidebarData
+                ? [
+                      <ResourceItem
+                          key="wf-scraper"
+                          icon={<Workflow />}
+                          name="Record store scraper"
+                          onClick={() =>
+                              setSelectedArtifact({
+                                  type: "workflow",
+                                  name: "Record store scraper",
+                              })
+                          }
+                      />,
+                      <ResourceItem
+                          key="agent-darwin"
+                          icon={<Bot />}
+                          name="Darwin"
+                          onClick={() => console.debug("open agent: Darwin")}
+                      />,
+                      <ResourceItem
+                          key="agent-analyst"
+                          icon={<Bot />}
+                          name="Data Analyst"
+                          onClick={() => console.debug("open agent: Data Analyst")}
+                      />,
+                      <ResourceItem
+                          key="table-hardwax"
+                          icon={<Table />}
+                          name="hardwax_vinyl_releases"
+                          onClick={() => console.debug("open table: hardwax_vinyl_releases")}
+                      />,
+                  ]
+                : [],
+        },
+        {
+            key: "tasks",
+            label: "Tasks",
+            accessory:
+                tasks.length > 0 ? `${tasksDone}/${tasks.length}` : undefined,
+            onAdd: () => console.debug("ai-assistant: add task"),
+            items: tasks.map((t, i) => (
+                <TaskItem
+                    key={i}
+                    label={t.label}
+                    status={t.status}
+                    icon={
+                        t.status === "done" ? (
+                            <CheckCircle2 />
+                        ) : t.status === "active" ? (
+                            <LoaderCircle className="spin" />
+                        ) : (
+                            <Circle />
+                        )
+                    }
+                />
+            )),
+        },
+    ];
+
     return (
         <div className="ai-assistant">
             {showSubSidebar && (
@@ -188,8 +341,17 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                                             data-active={
                                                 chat.id === selectedChatId ? "true" : undefined
                                             }
-                                            onClick={() => startFreshChat(chat.id)}
+                                            onClick={() => handleSelectChat(chat)}
                                         >
+                                            {chat.projectName && (
+                                                <span
+                                                    className="project-tag"
+                                                    title={`In project: ${chat.projectName}`}
+                                                >
+                                                    <Layers />
+                                                    <span>{chat.projectName}</span>
+                                                </span>
+                                            )}
                                             <span className="chat-title">{chat.title}</span>
                                         </button>
                                     ))}
@@ -245,11 +407,17 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                                                                 : undefined
                                                         }
                                                         onClick={() => {
-                                                            startFreshChat(chat.id);
+                                                            handleSelectChat(chat);
                                                             setHistoryOpen(false);
                                                         }}
                                                     >
-                                                        {chat.title}
+                                                        {chat.projectName && (
+                                                            <span className="project-tag">
+                                                                <Layers />
+                                                                <span>{chat.projectName}</span>
+                                                            </span>
+                                                        )}
+                                                        <span className="dd-item-title">{chat.title}</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -271,24 +439,9 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                             )}
                         </div>
                     </div>
-                    <div className="top-bar-right">
-                        <button className="icon-btn" aria-label="More">
-                            <MoreHorizontal />
-                        </button>
-                        <button
-                            className="icon-btn"
-                            aria-label={rightPanelOpen ? "Hide artifacts panel" : "Show artifacts panel"}
-                            aria-pressed={rightPanelOpen}
-                            data-active={rightPanelOpen ? "true" : undefined}
-                            onClick={() => setRightPanelOpen((open) => !open)}
-                        >
-                            <PanelRight />
-                        </button>
-                    </div>
                 </div>
 
-                <div className="below-top-bar">
-                    <div className="main">
+                <div className="main">
                 {historyView ? (
                     <div className="history-page">
                         <div className="history-page-header">
@@ -312,6 +465,13 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                                     onChange={(e) => setHistorySearch(e.target.value)}
                                 />
                             </div>
+                            <N8nButton
+                                variant="subtle"
+                                size="medium"
+                                iconOnly
+                                aria-label="Filter conversations"
+                                icon={<Filter style={{ width: 16, height: 16 }} />}
+                            />
                             <button
                                 className="history-new-btn"
                                 onClick={() => {
@@ -342,11 +502,17 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                                                 key={chat.id}
                                                 className="history-item"
                                                 onClick={() => {
-                                                    startFreshChat(chat.id);
+                                                    handleSelectChat(chat);
                                                     setHistoryView(false);
                                                 }}
                                             >
-                                                {chat.title}
+                                                {chat.projectName && (
+                                                    <span className="project-tag">
+                                                        <Layers />
+                                                        <span>{chat.projectName}</span>
+                                                    </span>
+                                                )}
+                                                <span className="history-item-title">{chat.title}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -357,8 +523,13 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                 ) : (
                 <div className="content" data-mode={isEmpty ? "empty" : "conversation"}>
                     {isEmpty ? (
-                        <>
-                            <h1 className="title">AI Assistant</h1>
+                        <div className="empty-stack">
+                            <div className="hero">
+                                <h1 className="title">{greeting}</h1>
+                                <p className="subtitle">
+                                    Your instance is healthy — 2,259 runs this week, 1.3% failure rate, 38h saved.
+                                </p>
+                            </div>
 
                             <Composer
                                 placeholder="Ask anything..."
@@ -368,7 +539,62 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                                 onChange={setInput}
                                 onSend={handleSend}
                             />
-                        </>
+
+                            <div className="shortcut-pills">
+                                <button className="pill" type="button">
+                                    <Workflow />
+                                    <span>Build a workflow</span>
+                                </button>
+                                <button className="pill" type="button">
+                                    <Bot />
+                                    <span>Build an agent</span>
+                                </button>
+                                <button className="pill" type="button">
+                                    <Lightbulb />
+                                    <span>Find inspiration</span>
+                                </button>
+                                <button className="pill" type="button">
+                                    <Zap />
+                                    <span>Quick examples</span>
+                                    <ChevronDown />
+                                </button>
+                            </div>
+
+                            <div className="recents">
+                                <div className="recents-header">
+                                    <span className="recents-label">Recent conversations</span>
+                                </div>
+                                <div className="recents-list">
+                                    {CHATS.slice(0, 8).map((chat) => (
+                                        <button
+                                            key={chat.id}
+                                            className="recent-item"
+                                            type="button"
+                                            onClick={() => handleSelectChat(chat)}
+                                        >
+                                            {chat.projectName && (
+                                                <span className="project-tag">
+                                                    <Layers />
+                                                    <span>{chat.projectName}</span>
+                                                </span>
+                                            )}
+                                            <span className="recent-title">{chat.title}</span>
+                                            <span className="recent-date">
+                                                {formatConversationDate(chat.updatedAt)}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    className="recents-view-all"
+                                    type="button"
+                                    onClick={() => setHistoryView(true)}
+                                >
+                                    <span>See all conversations</span>
+                                    <ArrowRight />
+                                </button>
+                            </div>
+                        </div>
                     ) : (
                         <>
                             <div className="thread n8n-scrollbar">
@@ -409,48 +635,47 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     )}
                 </div>
                 )}
-                    </div>
-
-                    {rightPanelOpen && (
-                    <aside className="right-panel">
-                <div className="panel-box">
-                    <div className="panel-header">Artifacts</div>
-                    <button className="panel-row">
-                        <Link2 />
-                        <span>Record store scraper</span>
-                    </button>
-                    <button className="panel-row">
-                        <Table />
-                        <span>hardwax_vinyl_releases</span>
-                    </button>
-                </div>
-
-                <div className="panel-box">
-                    <div className="panel-header">
-                        <span>Tasks</span>
-                        <span className="counter">1/4</span>
-                    </div>
-                    <div className="panel-row task" data-status="done">
-                        <CheckCircle2 />
-                        <span>Check existing credentials for…</span>
-                    </div>
-                    <div className="panel-row task" data-status="done">
-                        <CheckCircle2 />
-                        <span>Check existing credentials for…</span>
-                    </div>
-                    <div className="panel-row task" data-status="active">
-                        <LoaderCircle className="spin" />
-                        <span>Text the workflow execution</span>
-                    </div>
-                    <div className="panel-row task" data-status="todo">
-                        <Circle />
-                        <span>Provide access URLs and usa…</span>
-                    </div>
-                </div>
-            </aside>
-                    )}
                 </div>
             </div>
+
+            {selectedArtifact && (
+                <>
+                    <Resizer
+                        onResize={(delta) =>
+                            setArtifactWidth((w) =>
+                                clamp(w - delta, 360, 1200)
+                            )
+                        }
+                        ariaLabel="Resize workflow panel"
+                    />
+                    <ArtifactViewer
+                        artifact={selectedArtifact}
+                        onClose={() => setSelectedArtifact(null)}
+                        onOpenFull={
+                            selectedArtifact.type === "workflow"
+                                ? () => openWorkflow(selectedArtifact.name)
+                                : undefined
+                        }
+                        width={artifactWidth}
+                    />
+                </>
+            )}
+
+            {rightPanelOpen && (
+                <Resizer
+                    onResize={(delta) =>
+                        setSidebarWidth((w) => clamp(w - delta, 220, 480))
+                    }
+                    ariaLabel="Resize sidebar"
+                />
+            )}
+            <ResourceSidebar
+                collapsed={!rightPanelOpen}
+                onToggleCollapse={() => setRightPanelOpen((open) => !open)}
+                onMoreClick={() => console.debug("ai-assistant: more")}
+                sections={sidebarSections}
+                width={rightPanelOpen ? sidebarWidth : undefined}
+            />
 
             <style jsx>{`
                 .ai-assistant {
@@ -560,7 +785,8 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     width: 100%;
                     display: flex;
                     align-items: center;
-                    padding: var(--spacing--4xs) var(--spacing--2xs);
+                    gap: var(--spacing--4xs);
+                    padding: var(--spacing--3xs) var(--spacing--2xs);
                     border: 0;
                     background: transparent;
                     border-radius: var(--radius--3xs);
@@ -578,13 +804,45 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     color: var(--color--neutral-800);
                     font-weight: var(--font-weight--medium);
                 }
+                .chat-item .project-tag {
+                    flex-shrink: 0;
+                }
                 .chat-title {
                     flex: 1;
+                    min-width: 0;
                     font-size: var(--font-size--xs);
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                     line-height: var(--font-line-height--loose);
+                }
+
+                /* PROJECT TAG (shared) */
+                .project-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    max-width: 100%;
+                    padding: 2px 10px;
+                    background-color: var(--color--blue-50);
+                    color: var(--color--blue-600);
+                    border-radius: var(--radius--full);
+                    font-size: var(--font-size--2xs);
+                    font-weight: var(--font-weight--medium);
+                    line-height: 1.5;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .project-tag :global(svg) {
+                    width: 12px;
+                    height: 12px;
+                    flex-shrink: 0;
+                    color: currentColor;
+                }
+                .project-tag span {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 /* MAIN AREA */
@@ -595,17 +853,12 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     flex-direction: column;
                     height: 100%;
                 }
-                .below-top-bar {
-                    flex: 1;
-                    min-height: 0;
-                    display: flex;
-                }
                 .main {
                     flex: 1;
+                    min-height: 0;
                     min-width: 0;
                     display: flex;
                     flex-direction: column;
-                    height: 100%;
                 }
                 .top-bar {
                     display: flex;
@@ -615,8 +868,7 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     padding: 0 var(--spacing--xs);
                     flex-shrink: 0;
                 }
-                .top-bar-left,
-                .top-bar-right {
+                .top-bar-left {
                     display: flex;
                     align-items: center;
                     gap: var(--spacing--3xs);
@@ -683,17 +935,158 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                 }
                 .content[data-mode="empty"] {
                     align-items: center;
-                    justify-content: center;
-                    /* Bias the centering upward so the title + composer
-                       group reads as visually balanced (title above the
-                       composer otherwise makes the optical center feel low). */
-                    padding: var(--spacing--xl) var(--spacing--xl) 18vh;
+                    overflow-y: auto;
+                    padding: 8vh var(--spacing--xl) var(--spacing--xl);
+                }
+                .empty-stack {
+                    width: 100%;
+                    max-width: 680px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: stretch;
                     gap: var(--spacing--md);
+                }
+                .empty-stack .title {
+                    text-align: center;
                 }
                 .title {
                     font-size: var(--font-size--xl);
                     font-weight: var(--font-weight--semibold);
                     color: var(--color--neutral-800);
+                }
+                .hero {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: var(--spacing--4xs);
+                }
+                .subtitle {
+                    font-size: var(--font-size--sm);
+                    color: var(--color--neutral-500);
+                    text-align: center;
+                    margin: 0;
+                    line-height: 1.45;
+                }
+
+                /* SHORTCUT PILLS */
+                .shortcut-pills {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    gap: var(--spacing--3xs);
+                    margin-top: var(--spacing--3xs);
+                }
+                .pill {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    height: 32px;
+                    padding: 0 var(--spacing--xs);
+                    border: 1px solid var(--color--black-alpha-200);
+                    background-color: var(--color--neutral-white);
+                    border-radius: var(--radius--full);
+                    color: var(--color--neutral-700);
+                    font-size: var(--font-size--xs);
+                    font-weight: var(--font-weight--medium);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out),
+                        border-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .pill:hover {
+                    background-color: var(--color--neutral-50);
+                    border-color: var(--color--black-alpha-300, var(--color--neutral-300));
+                }
+                .pill :global(svg) {
+                    width: 14px;
+                    height: 14px;
+                    color: var(--color--neutral-500);
+                    flex-shrink: 0;
+                }
+
+                /* RECENTS */
+                .recents {
+                    margin-top: var(--spacing--lg);
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--spacing--3xs);
+                }
+                .recents-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 var(--spacing--2xs);
+                }
+                .recents-label {
+                    font-size: var(--font-size--3xs);
+                    font-weight: var(--font-weight--bold);
+                    color: var(--color--neutral-400);
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                }
+                .recents-list {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .recent-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: var(--spacing--2xs);
+                    padding: var(--spacing--3xs) var(--spacing--2xs);
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    text-align: left;
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .recent-item:hover {
+                    background-color: var(--color--neutral-100);
+                }
+                .recent-title {
+                    flex: 1;
+                    min-width: 0;
+                    font-size: var(--font-size--xs);
+                    color: var(--color--neutral-800);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .recent-item .project-tag {
+                    flex-shrink: 0;
+                }
+                .recent-date {
+                    flex-shrink: 0;
+                    font-size: var(--font-size--3xs);
+                    color: var(--color--neutral-400);
+                }
+                .recents-view-all {
+                    align-self: center;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    margin-top: var(--spacing--2xs);
+                    padding: var(--spacing--3xs) var(--spacing--xs);
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    color: var(--color--neutral-500);
+                    font-size: var(--font-size--xs);
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out),
+                        color var(--duration--snappy) var(--easing--ease-out);
+                }
+                .recents-view-all:hover {
+                    background-color: var(--color--neutral-100);
+                    color: var(--color--neutral-700);
+                }
+                .recents-view-all :global(svg) {
+                    width: 14px;
+                    height: 14px;
                 }
 
                 /* CONVERSATION THREAD */
@@ -704,7 +1097,7 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     padding: var(--spacing--lg) 0;
                 }
                 .thread-inner {
-                    max-width: 680px;
+                    max-width: 560px;
                     margin: 0 auto;
                     padding: 0 var(--spacing--md);
                     display: flex;
@@ -772,93 +1165,6 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     padding: var(--spacing--md);
                 }
 
-                /* RIGHT PANEL — sidebar treatment */
-                .right-panel {
-                    width: 260px;
-                    flex-shrink: 0;
-                    padding: var(--spacing--xs) var(--spacing--3xs);
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--spacing--xs);
-                    overflow-y: auto;
-                    border-left: 1px solid
-                        var(--border-color--light, var(--color--neutral-150));
-                    background-color: var(
-                        --menu--color--background,
-                        var(--color--neutral-50)
-                    );
-                }
-                .panel-box {
-                    background: transparent;
-                    border: 0;
-                    border-radius: 0;
-                    padding: 0;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 1px;
-                }
-                .panel-header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: var(--spacing--3xs);
-                    padding: var(--spacing--3xs) var(--spacing--2xs);
-                    font-size: var(--font-size--3xs);
-                    font-weight: var(--font-weight--bold);
-                    color: var(--color--neutral-400);
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .counter {
-                    color: var(--color--neutral-400);
-                    font-weight: var(--font-weight--regular);
-                    font-size: var(--font-size--3xs);
-                    text-transform: none;
-                    letter-spacing: 0;
-                }
-                .panel-row {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing--3xs);
-                    padding: var(--spacing--3xs);
-                    border: 0;
-                    background: transparent;
-                    border-radius: var(--radius--3xs);
-                    text-align: left;
-                    color: var(--color--neutral-700);
-                    cursor: pointer;
-                    font-size: var(--font-size--xs);
-                    line-height: 1.3;
-                    transition: background-color var(--duration--snappy)
-                        var(--easing--ease-out);
-                }
-                button.panel-row:hover {
-                    background-color: var(--color--neutral-50);
-                }
-                .panel-row :global(svg) {
-                    width: 14px;
-                    height: 14px;
-                    color: var(--color--neutral-500);
-                    flex-shrink: 0;
-                }
-                .panel-row span {
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-                .panel-row.task[data-status="done"] {
-                    color: var(--color--neutral-400);
-                    text-decoration: line-through;
-                }
-                .panel-row.task[data-status="done"] :global(svg) {
-                    color: rgb(34, 197, 94);
-                }
-                .panel-row.task[data-status="active"] :global(svg) {
-                    color: var(--color--neutral-400);
-                }
-                .panel-row.task[data-status="todo"] :global(svg) {
-                    color: var(--color--neutral-300);
-                }
                 :global(svg.spin) {
                     animation: ai-assistant-spin 1.4s linear infinite;
                 }
@@ -958,6 +1264,9 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     gap: 1px;
                 }
                 .dd-item {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--4xs);
                     padding: var(--spacing--3xs);
                     border: 0;
                     background: transparent;
@@ -966,11 +1275,18 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     text-align: left;
                     color: var(--color--neutral-700);
                     font-size: var(--font-size--xs);
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .dd-item .project-tag {
+                    flex-shrink: 0;
+                }
+                .dd-item-title {
+                    flex: 1;
+                    min-width: 0;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-                    transition: background-color var(--duration--snappy)
-                        var(--easing--ease-out);
                 }
                 .dd-item:hover {
                     background-color: var(--color--neutral-100);
@@ -1107,6 +1423,9 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                     margin-bottom: var(--spacing--3xs);
                 }
                 .history-item {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--2xs);
                     padding: var(--spacing--xs) var(--spacing--sm);
                     border: 1px solid transparent;
                     background: white;
@@ -1119,9 +1438,77 @@ export function AIAssistant({ onBack, showSubSidebar = false }: AIAssistantProps
                         var(--easing--ease-out),
                         border-color var(--duration--snappy) var(--easing--ease-out);
                 }
+                .history-item-title {
+                    flex: 1;
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .history-item .project-tag {
+                    flex-shrink: 0;
+                }
                 .history-item:hover {
                     background-color: var(--color--neutral-50);
                     border-color: var(--color--black-alpha-200);
+                }
+            `}</style>
+        </div>
+    );
+}
+
+function clamp(n: number, min: number, max: number) {
+    return Math.max(min, Math.min(max, n));
+}
+
+interface ResizerProps {
+    onResize: (deltaX: number) => void;
+    ariaLabel: string;
+}
+
+function Resizer({ onResize, ariaLabel }: ResizerProps) {
+    const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        const startX = e.clientX;
+        let lastX = startX;
+        const onMove = (ev: PointerEvent) => {
+            const delta = ev.clientX - lastX;
+            lastX = ev.clientX;
+            if (delta !== 0) onResize(delta);
+        };
+        const onUp = () => {
+            document.removeEventListener("pointermove", onMove);
+            document.removeEventListener("pointerup", onUp);
+            document.body.style.cursor = "";
+            document.body.style.userSelect = "";
+        };
+        document.addEventListener("pointermove", onMove);
+        document.addEventListener("pointerup", onUp);
+        document.body.style.cursor = "ew-resize";
+        document.body.style.userSelect = "none";
+    };
+    return (
+        <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={ariaLabel}
+            className="ai-resizer"
+            onPointerDown={handlePointerDown}
+        >
+            <style jsx>{`
+                .ai-resizer {
+                    flex-shrink: 0;
+                    width: 6px;
+                    margin: 0 -3px;
+                    cursor: ew-resize;
+                    background: transparent;
+                    position: relative;
+                    z-index: 2;
+                    transition: background-color 0.15s ease;
+                }
+                .ai-resizer:hover,
+                .ai-resizer:active {
+                    background-color: var(--color--orange-300, #ffb38a);
                 }
             `}</style>
         </div>

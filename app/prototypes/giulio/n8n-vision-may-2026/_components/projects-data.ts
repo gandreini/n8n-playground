@@ -69,6 +69,175 @@ const MARKETING_THREAD: ConversationMessage[] = [
     },
 ];
 
+const COMPETITOR_RESEARCH_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "I need an agent that monitors what our top 5 competitors are launching every week and gives me a summary.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Got it. I'll build a Competitor Research agent that monitors press releases, blog posts, and product pages, uses Firecrawl, HackerNews, and ProductHunt as sources, summarizes findings every Monday at 9AM, and posts a digest to your inbox + Slack.",
+        ],
+    },
+    {
+        role: "user",
+        paragraphs: ["Perfect. Add Notion, Linear, and Asana to the watchlist."],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Added. Your agent is configured to track 8 competitors total. First weekly digest goes out Monday at 9AM.",
+        ],
+    },
+];
+
+const EMAIL_SUMMARY_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "Build me a workflow that gives me a daily summary of my unread Gmail every morning.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Building \"Daily Email Summary\": 7AM trigger, fetches unread Gmail since 24h ago, groups by sender, summarizes important ones, and posts the digest to your Slack DM.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: ["Live. First summary ready tomorrow morning."],
+    },
+];
+
+const INVOICING_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "Build me a system: a workflow that pulls billable hours from Toggl every Friday, AND an agent that drafts the invoice and sends it to clients for review.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Two-part system. I'll set up a workflow \"Weekly Billable Hours Sync\" that triggers Friday 4PM, pulls hours from Toggl per project, and writes to a \"Pending Invoices\" data table. Plus an agent \"Invoice Drafter\" that reads the Pending Invoices table, drafts the invoice in your template, and asks you to review before sending via Stripe.",
+        ],
+    },
+    {
+        role: "user",
+        paragraphs: [
+            "Sounds good. The agent should also flag if hours look unusually high or low compared to the past 4 weeks.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Added anomaly detection. Agent will flag invoices that deviate more than 25% from the 4-week trailing average. Both pieces are deployed.",
+        ],
+    },
+];
+
+const GENERIC_PROJECT_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "Catch me up on what's running in this project. Anything that needs my attention?",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Walking through the project now.",
+            "One workflow is published and runs daily, one agent is set up but hasn't been triggered this week, and the docs were updated yesterday.",
+        ],
+        steps: [
+            { label: "Reviewing workflows", status: "done" },
+            { label: "Checking agent activity", status: "done" },
+            { label: "Scanning recent docs", status: "done" },
+        ],
+        agentCard: {
+            icon: "📋",
+            name: "Project status digest",
+            meta: "Updated · ready when you are",
+        },
+    },
+    {
+        role: "user",
+        paragraphs: ["Why hasn't the agent run this week?"],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Its trigger is wired to a webhook that hasn't received any events since Friday. Want me to send a test event or check the upstream service?",
+        ],
+    },
+];
+
+const PERSONAL_TASKS_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "I keep forgetting recurring chores. Can you build me something that watches my Todoist and pings me on Slack 30 minutes before each deadline?",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Sure — I'll wire up a reminder workflow.",
+            "It polls Todoist every 5 minutes, finds tasks due in the next 30 minutes, and sends a DM with the task name and due time.",
+        ],
+        steps: [
+            { label: "Connecting Todoist", status: "done" },
+            { label: "Connecting Slack", status: "done" },
+            { label: "Scheduling 5-minute polling", status: "done" },
+            { label: "Sending a test reminder", status: "done" },
+        ],
+        agentCard: {
+            icon: "⏰",
+            name: "Todoist reminder ping",
+            meta: "Live · Every 5 minutes",
+        },
+    },
+    {
+        role: "user",
+        paragraphs: [
+            "Nice. Can it also include the project name in the message?",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Done — messages now read \"⏰ {task} ({project}) due in 30m\". The next reminder will use the new format.",
+        ],
+    },
+];
+
+const SUPPORT_AGENT_THREAD: ConversationMessage[] = [
+    {
+        role: "user",
+        paragraphs: [
+            "I want an agent that handles tier-1 support tickets. It should answer common questions, escalate hard ones, and tag tickets in Zendesk.",
+        ],
+    },
+    {
+        role: "assistant",
+        paragraphs: [
+            "Customer Support agent setup: reads new tickets from Zendesk every 2 min, uses your help center as knowledge base, auto-replies to FAQ matches with confidence > 80%, and tags + escalates anything else to your team. Deploy?",
+        ],
+    },
+    {
+        role: "user",
+        paragraphs: ["Deploy it. But cap auto-replies at 50/hour for now."],
+    },
+    {
+        role: "assistant",
+        paragraphs: ["Deployed with rate limit. Agent is live and processing the inbox."],
+    },
+];
+
 export const PROJECTS: Project[] = [
     {
         id: "marketing",
@@ -105,6 +274,18 @@ export const PROJECTS: Project[] = [
                 title: "Draft Q3 campaign brief",
                 group: "yesterday",
             },
+            {
+                id: "ai-c2",
+                title: "Build an agent for competitor research",
+                group: "yesterday",
+                thread: COMPETITOR_RESEARCH_THREAD,
+            },
+            {
+                id: "ai-c9",
+                title: "Workflow that summarizes my emails",
+                group: "previous",
+                thread: EMAIL_SUMMARY_THREAD,
+            },
         ],
     },
     {
@@ -121,6 +302,12 @@ export const PROJECTS: Project[] = [
                 id: "c1",
                 title: "Add a lead scoring rule",
                 group: "today",
+            },
+            {
+                id: "ai-c4",
+                title: "Create a workflow + agent for invoicing",
+                group: "previous",
+                thread: INVOICING_THREAD,
             },
         ],
     },
@@ -143,6 +330,12 @@ export const PROJECTS: Project[] = [
                 title: "Update welcome email copy",
                 group: "today",
             },
+            {
+                id: "ai-c10",
+                title: "Help me set up a customer support agent",
+                group: "previous",
+                thread: SUPPORT_AGENT_THREAD,
+            },
         ],
     },
     {
@@ -157,9 +350,31 @@ export const PROJECTS: Project[] = [
         ],
         chats: [],
     },
+    {
+        id: "personal-tasks",
+        name: "Personal tasks",
+        description: "Day-to-day personal todos.",
+        resources: [
+            { id: "r1", type: "workflow", name: "Todoist reminder ping" },
+        ],
+        documents: [{ id: "d1", name: "WEEKLY_REVIEW.md" }],
+        knowledge: [],
+        chats: [
+            {
+                id: "pt-c1",
+                title: "Slack reminders for Todoist deadlines",
+                group: "today",
+                thread: PERSONAL_TASKS_THREAD,
+            },
+            {
+                id: "pt-c2",
+                title: "Weekly grocery list from Notion",
+                group: "yesterday",
+            },
+        ],
+    },
     ...(
         [
-            ["personal-tasks", "Personal tasks", "Day-to-day personal todos."],
             ["side-projects", "Side projects", "Things you tinker with after hours."],
             ["design-system", "Design system", "Tokens, components and patterns."],
             ["user-research", "User research", "Studies, interviews and synthesis."],
@@ -187,10 +402,26 @@ export const PROJECTS: Project[] = [
             id,
             name,
             description,
-            resources: [],
-            documents: [],
-            knowledge: [],
-            chats: [],
+            resources: [
+                { id: `${id}-r1`, type: "workflow", name: `${name} sync` },
+                { id: `${id}-r2`, type: "agent", name: `${name} assistant` },
+            ],
+            documents: [
+                { id: `${id}-d1`, name: "README.md" },
+                { id: `${id}-d2`, name: "NOTES.md" },
+            ],
+            knowledge: [
+                { id: `${id}-k1`, name: "Internal docs", kind: "link" },
+                { id: `${id}-k2`, name: "Reference.pdf", kind: "pdf" },
+            ],
+            chats: [
+                {
+                    id: `${id}-c1`,
+                    title: `${name} status check`,
+                    group: "today",
+                    thread: GENERIC_PROJECT_THREAD,
+                },
+            ],
         })
     ),
 ];

@@ -6,7 +6,7 @@ import {
     Home,
     Activity,
     Workflow,
-    Folder,
+    Layers,
     Cloud,
     PackageOpen,
     BarChart3,
@@ -19,108 +19,15 @@ import {
     ChevronDown,
     Check,
     Users,
+    MoreHorizontal,
 } from "lucide-react";
 import { N8nLogo } from "@/components/n8n/shared/n8n-logo";
 import { AGENTS } from "./agents-data";
 import { PROJECTS } from "./projects-data";
+import { WORKSPACES } from "./workspaces-data";
+import { useWorkspaceStore } from "./workspace-store";
 
-interface Workspace {
-    id: string;
-    name: string;
-    avatar: string;
-    bg: string;
-    members: number;
-    projects: string[];
-    workflows: string[];
-    agentIds: string[];
-}
-
-const WORKSPACES: Workspace[] = [
-    {
-        id: "personal",
-        name: "Personal",
-        avatar: "RJ",
-        bg: "var(--color--orange-200)",
-        members: 1,
-        projects: ["Personal tasks", "Side projects"],
-        workflows: ["Daily news digest", "Receipt sorter"],
-        agentIds: ["darwin", "data-analyst"],
-    },
-    {
-        id: "design",
-        name: "Design",
-        avatar: "🎨",
-        bg: "var(--color--neutral-100)",
-        members: 12,
-        projects: ["Design system", "User research"],
-        workflows: ["Figma export", "Screenshot diff"],
-        agentIds: ["ux-auditor"],
-    },
-    {
-        id: "engineering",
-        name: "Engineering",
-        avatar: "🛠️",
-        bg: "var(--color--neutral-100)",
-        members: 87,
-        projects: [
-            "Backend services",
-            "Mobile apps",
-            "API gateway",
-            "Auth service",
-            "Billing system",
-            "Notifications platform",
-            "Analytics pipeline",
-            "Search service",
-            "Cache layer",
-            "Database migrations",
-            "Identity & access",
-            "Webhook ingest",
-            "Observability stack",
-            "Edge functions",
-            "Internal SDK",
-            "Mobile design system",
-            "Storefront",
-            "Admin tools",
-        ],
-        workflows: [
-            "PR review bot",
-            "Deploy notifications",
-            "CI status digest",
-            "Failed test alerts",
-            "Code coverage tracker",
-            "Release notes draft",
-            "Dependency update runner",
-            "Security scan trigger",
-            "Issue triager",
-            "Daily standup digest",
-            "On-call rotation reminder",
-            "Production error summary",
-            "Slow query report",
-            "Database backup check",
-            "Stale branch cleanup",
-            "Sentry to Linear sync",
-            "Build time tracker",
-            "Dependabot summary",
-            "Postmortem template generator",
-            "Latency regression alert",
-            "Cost anomaly detector",
-            "License compliance check",
-        ],
-        agentIds: [
-            "code-reviewer",
-            "bug-triager",
-            "release-notes",
-            "incident-responder",
-            "dep-upgrader",
-            "perf-watchdog",
-            "security-scanner",
-            "oncall-summarizer",
-            "schema-doc",
-            "flaky-test-hunter",
-            "feature-flag-ranger",
-        ],
-    },
-];
+const SIDEBAR_LIST_LIMIT = 8;
 
 type FavoriteKind = "project" | "workflow" | "agent";
 
@@ -411,7 +318,15 @@ function WorkspaceSelect({
             {open && !collapsed && (
                 <div className="workspace-menu">
                     <div className="ws-current-card">
-                        <div className="ws-current-row">
+                        <button
+                            type="button"
+                            className="ws-current-row"
+                            aria-label={`Open ${current.name} home`}
+                            onClick={() => {
+                                onSelect(current.id);
+                                setOpen(false);
+                            }}
+                        >
                             <span
                                 className="ws-avatar-lg"
                                 style={{ backgroundColor: current.bg }}
@@ -427,7 +342,7 @@ function WorkspaceSelect({
                                         " · Your personal space"}
                                 </div>
                             </div>
-                        </div>
+                        </button>
                         <div className="ws-current-actions">
                             <button
                                 className="ws-action-btn"
@@ -554,14 +469,25 @@ function WorkspaceSelect({
                 .ws-current-card {
                     display: flex;
                     flex-direction: column;
-                    gap: var(--spacing--2xs);
-                    padding: var(--spacing--3xs) var(--spacing--3xs)
-                        var(--spacing--2xs);
+                    gap: var(--spacing--xs);
+                    padding-block: var(--spacing--3xs) var(--spacing--2xs);
                 }
                 .ws-current-row {
+                    width: 100%;
                     display: flex;
                     align-items: center;
                     gap: var(--spacing--2xs);
+                    padding: var(--spacing--3xs);
+                    border: 0;
+                    background: transparent;
+                    border-radius: var(--radius--3xs);
+                    cursor: pointer;
+                    text-align: left;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .ws-current-row:hover {
+                    background-color: var(--color--neutral-100);
                 }
                 .ws-avatar-lg {
                     display: inline-flex;
@@ -600,6 +526,7 @@ function WorkspaceSelect({
                 .ws-current-actions {
                     display: flex;
                     gap: var(--spacing--3xs);
+                    padding-inline: var(--spacing--3xs);
                 }
                 .ws-action-btn {
                     flex: 1;
@@ -686,14 +613,10 @@ interface SidebarProps {
         avatar: string;
         bg: string;
     }) => void;
-    onWorkspaceSelect: (workspace: {
-        id: string;
-        name: string;
-        agentIds: string[];
-    }) => void;
-    workspaceHomeId: string | null;
+    onWorkspaceSelect: (tab?: "projects" | "workflows" | "agents") => void;
     activeProjectId: string | null;
     onProjectClick: (id: string) => void;
+    onCreateProject: () => void;
 }
 
 export function Sidebar({
@@ -705,16 +628,16 @@ export function Sidebar({
     onScreenChange,
     onOpenWorkspaceSettings,
     onWorkspaceSelect,
-    workspaceHomeId,
     activeProjectId,
     onProjectClick,
+    onCreateProject,
 }: SidebarProps) {
-    const { currentScreen, setScreen } = useStore();
+    const { currentScreen, setScreen, openWorkflow } = useStore();
+    const { currentWorkspaceId, setCurrentWorkspaceId } = useWorkspaceStore();
     const [collapsed, setCollapsed] = useState(false);
-    const [workspaceId, setWorkspaceId] = useState("personal");
 
     const currentWorkspace =
-        WORKSPACES.find((w) => w.id === workspaceId) ?? WORKSPACES[0];
+        WORKSPACES.find((w) => w.id === currentWorkspaceId) ?? WORKSPACES[0];
     const workspaceAgents = currentWorkspace.agentIds
         .map((id) => AGENTS.find((a) => a.id === id))
         .filter((a): a is (typeof AGENTS)[number] => Boolean(a));
@@ -722,6 +645,11 @@ export function Sidebar({
     const goToScreen = (screen: Screen) => {
         setScreen(screen);
         onScreenChange();
+    };
+
+    const goToWorkflow = (name: string) => {
+        onScreenChange();
+        openWorkflow(name);
     };
 
     const isActive = (screen: Screen) =>
@@ -795,7 +723,7 @@ export function Sidebar({
                             : undefined;
                     const icon =
                         fav.kind === "project" ? (
-                            <Folder />
+                            <Layers />
                         ) : fav.kind === "workflow" ? (
                             <Workflow />
                         ) : agent ? (
@@ -804,11 +732,13 @@ export function Sidebar({
                                 bg={agent.avatarBg}
                             />
                         ) : (
-                            <Folder />
+                            <Layers />
                         );
                     const handleClick =
                         fav.kind === "agent" && fav.agentId
                             ? () => onAgentClick(fav.agentId!)
+                            : fav.kind === "workflow"
+                            ? () => goToWorkflow(fav.name)
                             : undefined;
                     return (
                         <NavItem
@@ -824,17 +754,10 @@ export function Sidebar({
 
             <WorkspaceSelect
                 collapsed={collapsed}
-                currentWorkspaceId={workspaceId}
+                currentWorkspaceId={currentWorkspaceId}
                 onSelect={(id) => {
-                    setWorkspaceId(id);
-                    const ws = WORKSPACES.find((w) => w.id === id);
-                    if (ws) {
-                        onWorkspaceSelect({
-                            id: ws.id,
-                            name: ws.name,
-                            agentIds: ws.agentIds,
-                        });
-                    }
+                    setCurrentWorkspaceId(id);
+                    onWorkspaceSelect();
                 }}
                 onOpenSettings={() =>
                     onOpenWorkspaceSettings({
@@ -864,32 +787,69 @@ export function Sidebar({
                 </div>
                 */}
 
-                {!collapsed && <SectionLabel label="Projects" showAdd />}
+                {!collapsed && (
+                    <SectionLabel label="Projects" showAdd onAdd={onCreateProject} />
+                )}
                 <div className="group">
-                    {PROJECTS.filter((p) =>
-                        currentWorkspace.projects.includes(p.name)
-                    ).map((project) => (
-                        <NavItem
-                            key={project.id}
-                            icon={<Folder />}
-                            label={project.name}
-                            compact={collapsed}
-                            active={project.id === activeProjectId}
-                            onClick={() => onProjectClick(project.id)}
-                        />
-                    ))}
+                    {(() => {
+                        const all = PROJECTS.filter((p) =>
+                            currentWorkspace.projects.includes(p.name)
+                        );
+                        const visible = all.slice(0, SIDEBAR_LIST_LIMIT);
+                        const hidden = all.length - visible.length;
+                        return (
+                            <>
+                                {visible.map((project) => (
+                                    <NavItem
+                                        key={project.id}
+                                        icon={<Layers />}
+                                        label={project.name}
+                                        compact={collapsed}
+                                        active={project.id === activeProjectId}
+                                        onClick={() => onProjectClick(project.id)}
+                                    />
+                                ))}
+                                {hidden > 0 && (
+                                    <NavItem
+                                        icon={<MoreHorizontal />}
+                                        label={`${hidden} more`}
+                                        compact={collapsed}
+                                        onClick={() => onWorkspaceSelect("projects")}
+                                    />
+                                )}
+                            </>
+                        );
+                    })()}
                 </div>
 
                 {!collapsed && <SectionLabel label="Workflows" showAdd />}
                 <div className="group">
-                    {currentWorkspace.workflows.map((name) => (
-                        <NavItem
-                            key={name}
-                            icon={<Workflow />}
-                            label={name}
-                            compact={collapsed}
-                        />
-                    ))}
+                    {(() => {
+                        const all = currentWorkspace.workflows;
+                        const visible = all.slice(0, SIDEBAR_LIST_LIMIT);
+                        const hidden = all.length - visible.length;
+                        return (
+                            <>
+                                {visible.map((workflow) => (
+                                    <NavItem
+                                        key={workflow.id}
+                                        icon={<Workflow />}
+                                        label={workflow.name}
+                                        compact={collapsed}
+                                        onClick={() => goToWorkflow(workflow.name)}
+                                    />
+                                ))}
+                                {hidden > 0 && (
+                                    <NavItem
+                                        icon={<MoreHorizontal />}
+                                        label={`${hidden} more`}
+                                        compact={collapsed}
+                                        onClick={() => onWorkspaceSelect("workflows")}
+                                    />
+                                )}
+                            </>
+                        );
+                    })()}
                 </div>
 
                 {!collapsed && (
@@ -900,16 +860,32 @@ export function Sidebar({
                     />
                 )}
                 <div className="group">
-                    {workspaceAgents.map((agent) => (
-                        <NavItem
-                            key={agent.id}
-                            icon={<AgentAvatar avatar={agent.avatar} bg={agent.avatarBg} />}
-                            label={agent.name}
-                            compact={collapsed}
-                            active={isAgentActive(agent.id)}
-                            onClick={() => onAgentClick(agent.id)}
-                        />
-                    ))}
+                    {(() => {
+                        const visible = workspaceAgents.slice(0, SIDEBAR_LIST_LIMIT);
+                        const hidden = workspaceAgents.length - visible.length;
+                        return (
+                            <>
+                                {visible.map((agent) => (
+                                    <NavItem
+                                        key={agent.id}
+                                        icon={<AgentAvatar avatar={agent.avatar} bg={agent.avatarBg} />}
+                                        label={agent.name}
+                                        compact={collapsed}
+                                        active={isAgentActive(agent.id)}
+                                        onClick={() => onAgentClick(agent.id)}
+                                    />
+                                ))}
+                                {hidden > 0 && (
+                                    <NavItem
+                                        icon={<MoreHorizontal />}
+                                        label={`${hidden} more`}
+                                        compact={collapsed}
+                                        onClick={() => onWorkspaceSelect("agents")}
+                                    />
+                                )}
+                            </>
+                        );
+                    })()}
                     {collapsed && (
                         <NavItem
                             icon={<Plus />}

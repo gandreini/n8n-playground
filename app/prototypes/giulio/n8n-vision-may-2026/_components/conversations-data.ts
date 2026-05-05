@@ -10,7 +10,39 @@ export interface Conversation {
     id: string;
     title: string;
     group: ChatGroup;
+    /** ISO date string (e.g. "2026-05-05T08:30:00Z") used for sorting and labels. */
+    updatedAt: string;
     messages: ConversationMessage[];
+    /** When set, this conversation lives inside a project. Clicking opens the project view. */
+    projectId?: string;
+    /** Chat id within the target project (matches Chat.id in projects-data.ts). */
+    projectChatId?: string;
+    /** Display name of the project (used for the badge — denormalized so the AI Assistant can render without importing PROJECTS). */
+    projectName?: string;
+}
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+export function formatConversationDate(iso: string, now: Date = new Date()): string {
+    const d = new Date(iso);
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+    const startOfThat = new Date(d);
+    startOfThat.setHours(0, 0, 0, 0);
+    const diffDays = Math.round(
+        (startOfToday.getTime() - startOfThat.getTime()) / MS_PER_DAY
+    );
+
+    if (diffDays <= 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+
+    const sameYear = d.getFullYear() === now.getFullYear();
+    return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        ...(sameYear ? {} : { year: "numeric" }),
+    });
 }
 
 export const CONVERSATIONS: Conversation[] = [
@@ -18,6 +50,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c1",
         title: "Daily Helsinki news report automatically",
         group: "today",
+        updatedAt: "2026-05-05T09:12:00Z",
         messages: [
             {
                 id: "c1-1",
@@ -43,6 +76,10 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c2",
         title: "Build an agent for competitor research",
         group: "yesterday",
+        updatedAt: "2026-05-04T14:48:00Z",
+        projectId: "marketing",
+        projectChatId: "ai-c2",
+        projectName: "Marketing Automation",
         messages: [
             {
                 id: "c2-1",
@@ -73,6 +110,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c3",
         title: "Workflow execution failures last week",
         group: "thisWeek",
+        updatedAt: "2026-05-02T11:30:00Z",
         messages: [
             {
                 id: "c3-1",
@@ -103,6 +141,10 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c4",
         title: "Create a workflow + agent for invoicing",
         group: "older",
+        updatedAt: "2026-04-25T16:05:00Z",
+        projectId: "sales",
+        projectChatId: "ai-c4",
+        projectName: "Sales Operations",
         messages: [
             {
                 id: "c4-1",
@@ -134,6 +176,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c5",
         title: "Why did my Slack notification fail?",
         group: "older",
+        updatedAt: "2026-04-22T08:14:00Z",
         messages: [
             {
                 id: "c5-1",
@@ -160,6 +203,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c6",
         title: "Build an automation that scrapes Hacker News",
         group: "older",
+        updatedAt: "2026-04-18T20:42:00Z",
         messages: [
             {
                 id: "c6-1",
@@ -185,6 +229,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c7",
         title: "Set up a recruiting sourcer agent",
         group: "older",
+        updatedAt: "2026-04-14T13:20:00Z",
         messages: [
             {
                 id: "c7-1",
@@ -216,6 +261,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c8",
         title: "Why are my workflow runs slow this week?",
         group: "older",
+        updatedAt: "2026-04-09T17:55:00Z",
         messages: [
             {
                 id: "c8-1",
@@ -241,6 +287,10 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c9",
         title: "Workflow that summarizes my emails",
         group: "older",
+        updatedAt: "2026-04-03T09:00:00Z",
+        projectId: "marketing",
+        projectChatId: "ai-c9",
+        projectName: "Marketing Automation",
         messages: [
             {
                 id: "c9-1",
@@ -265,6 +315,10 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c10",
         title: "Help me set up a customer support agent",
         group: "older",
+        updatedAt: "2026-03-26T15:40:00Z",
+        projectId: "onboarding",
+        projectChatId: "ai-c10",
+        projectName: "Customer Onboarding",
         messages: [
             {
                 id: "c10-1",
@@ -295,6 +349,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c11",
         title: "Heads up: webhook errors detected",
         group: "older",
+        updatedAt: "2026-03-19T10:25:00Z",
         messages: [
             {
                 id: "c11-1",
@@ -315,6 +370,7 @@ export const CONVERSATIONS: Conversation[] = [
         id: "c12",
         title: "How healthy is my n8n instance?",
         group: "older",
+        updatedAt: "2026-03-12T18:08:00Z",
         messages: [
             {
                 id: "c12-1",

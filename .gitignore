@@ -26,3 +26,13 @@ node_modules/
 .playwright-mcp/
 phase*-baseline-*.png
 phase*-after-*.png
+
+# Screenshots — Claude/agents save here per CLAUDE.md
+screenshots/
+
+# Safety net: ignore stray images at repo root (subfolders unaffected)
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.webp

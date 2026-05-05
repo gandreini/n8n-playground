@@ -2,24 +2,34 @@
 
 import { useState } from "react";
 import {
-    ArrowLeft,
-    Folder,
-    Plus,
+    Layers,
     MoreHorizontal,
     Check,
     Loader2,
     ChevronRight,
     Copy,
     RefreshCw,
+    File,
+    Link2,
+    Database,
+    Workflow,
+    Bot,
+    ChevronDown,
 } from "lucide-react";
+import { useStore } from "@/lib/store";
 import {
     PROJECTS,
-    type Chat,
     type ConversationMessage,
+    type KnowledgeItem,
     type Project,
+    type Resource,
 } from "./projects-data";
 import { Composer } from "./composer";
-import { ArtifactsPanel } from "./artifacts-panel";
+import {
+    ResourceSidebar,
+    ResourceItem,
+    type ResourceSection,
+} from "./resource-sidebar";
 import {
     Dialog,
     DialogContent,
@@ -35,101 +45,163 @@ import { Label } from "@/components/shadcn/label";
 interface ProjectViewProps {
     projectId: string;
     onBack: () => void;
+    initialChatId?: string | null;
+    isNew?: boolean;
 }
 
-export function ProjectView({ projectId, onBack }: ProjectViewProps) {
-    const project: Project =
-        PROJECTS.find((p) => p.id === projectId) ?? PROJECTS[0];
+const NEW_PROJECT: Project = {
+    id: "__new__",
+    name: "New project",
+    description:
+        "Describe what you're building. Add chats, workflows and docs as you go.",
+    resources: [],
+    documents: [],
+    knowledge: [],
+    chats: [],
+};
 
-    const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
+export function ProjectView({
+    projectId,
+    onBack,
+    initialChatId = null,
+    isNew = false,
+}: ProjectViewProps) {
+    const project: Project = isNew
+        ? NEW_PROJECT
+        : PROJECTS.find((p) => p.id === projectId) ?? PROJECTS[0];
+
+    const firstThreadChatId = isNew
+        ? null
+        : project.chats.find((c) => c.thread)?.id ?? null;
+    const [selectedChatId] = useState<string | null>(
+        initialChatId ?? firstThreadChatId,
+    );
     const [composerValue, setComposerValue] = useState("");
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const openWorkflow = useStore((s) => s.openWorkflow);
 
-    const chatsByGroup: Record<Chat["group"], Chat[]> = {
-        today: project.chats.filter((c) => c.group === "today"),
-        yesterday: project.chats.filter((c) => c.group === "yesterday"),
-        previous: project.chats.filter((c) => c.group === "previous"),
-    };
+    const sidebarSections: ResourceSection[] = [
+        {
+            key: "artifacts",
+            label: "Artifacts",
+            onAdd: () => console.debug("project: add artifact"),
+            items: project.resources.map((r) => (
+                <ResourceItem
+                    key={r.id}
+                    icon={resourceIcon(r)}
+                    name={r.name}
+                    onClick={() =>
+                        r.type === "workflow"
+                            ? openWorkflow(r.name)
+                            : console.debug("open resource", r)
+                    }
+                />
+            )),
+        },
+        {
+            key: "tasks",
+            label: "Tasks",
+            onAdd: () => console.debug("project: add task"),
+            items: [],
+        },
+        {
+            key: "documents",
+            label: "Documents",
+            onAdd: () => console.debug("project: add document"),
+            items: project.documents.map((d) => (
+                <ResourceItem
+                    key={d.id}
+                    icon={<File />}
+                    name={d.name}
+                    onClick={() => console.debug("open document", d)}
+                />
+            )),
+        },
+        {
+            key: "knowledge",
+            label: "Knowledge",
+            onAdd: () => console.debug("project: add knowledge"),
+            items: project.knowledge.map((k) => (
+                <ResourceItem
+                    key={k.id}
+                    icon={knowledgeIcon(k)}
+                    name={k.name}
+                    onClick={() => console.debug("open knowledge", k)}
+                />
+            )),
+        },
+    ];
 
-    const groupLabels: Record<Chat["group"], string> = {
-        today: "Today",
-        yesterday: "Yesterday",
-        previous: "Previous",
-    };
+    const sidebarFooter = (
+        <button
+            type="button"
+            className="settings-row"
+            onClick={() => setSettingsOpen(true)}
+        >
+            <span className="settings-label">Settings</span>
+            <span className="settings-chevron">
+                <ChevronDown />
+            </span>
+            <style jsx>{`
+                .settings-row {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                    min-height: 32px;
+                    padding: 4px;
+                    border: 0;
+                    background: transparent;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color var(--duration--snappy)
+                        var(--easing--ease-out);
+                }
+                .settings-row:hover {
+                    background-color: var(--color--neutral-100);
+                }
+                .settings-label {
+                    flex: 1;
+                    text-align: left;
+                    font-size: 14px;
+                    line-height: 20px;
+                    color: var(--color--neutral-800);
+                }
+                .settings-chevron {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 24px;
+                    height: 24px;
+                    color: var(--color--neutral-500);
+                }
+                .settings-chevron :global(svg) {
+                    width: 16px;
+                    height: 16px;
+                }
+            `}</style>
+        </button>
+    );
 
     const selectedChat = project.chats.find((c) => c.id === selectedChatId) ?? null;
-    const headerTitle = selectedChat?.title ?? project.name;
 
     return (
         <div className="project-view">
-            <aside className="sub-sidebar">
-                <div className="back-row">
-                    <button className="back-btn" onClick={onBack}>
-                        <ArrowLeft />
-                        <span>Back</span>
-                    </button>
-                </div>
-
-                <div className="project-header">
-                    <span className="project-avatar">
-                        <Folder />
-                    </span>
-                    <span className="project-name">{project.name}</span>
-                </div>
-
-                <div className="new-chat-wrap">
-                    <button
-                        className="new-chat-btn"
-                        onClick={() => setSelectedChatId(null)}
-                    >
-                        <span className="new-chat-icon">
-                            <Plus />
-                        </span>
-                        <span>New chat</span>
-                    </button>
-                </div>
-
-                <div className="chat-list n8n-scrollbar">
-                    {(["today", "yesterday", "previous"] as const).map((group) =>
-                        chatsByGroup[group].length === 0 ? null : (
-                            <div className="chat-group" key={group}>
-                                <div className="group-label">
-                                    {groupLabels[group]}
-                                </div>
-                                {chatsByGroup[group].map((chat) => (
-                                    <button
-                                        key={chat.id}
-                                        className="chat-item"
-                                        data-active={
-                                            chat.id === selectedChatId
-                                                ? "true"
-                                                : undefined
-                                        }
-                                        onClick={() => setSelectedChatId(chat.id)}
-                                    >
-                                        <span className="chat-title">
-                                            {chat.title}
-                                        </span>
-                                        <span
-                                            className="chat-menu"
-                                            onClick={(e) => e.stopPropagation()}
-                                        >
-                                            <MoreHorizontal />
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        ),
-                    )}
-                    {project.chats.length === 0 && (
-                        <p className="empty">No chats yet</p>
-                    )}
-                </div>
-            </aside>
-
             <div className="main">
                 <div className="top-bar">
-                    <span className="header-title">{headerTitle}</span>
+                    <span className="top-project">
+                        <span className="top-project-icon">
+                            <Layers />
+                        </span>
+                        <span className="top-project-name">{project.name}</span>
+                    </span>
+                    {selectedChat && (
+                        <>
+                            <span className="top-sep">/</span>
+                            <span className="top-chat">{selectedChat.title}</span>
+                        </>
+                    )}
                 </div>
 
                 <div className="content">
@@ -167,9 +239,12 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                 </div>
             </div>
 
-            <ArtifactsPanel
-                project={project}
-                onOpenSettings={() => setSettingsOpen(true)}
+            <ResourceSidebar
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+                onMoreClick={() => console.debug("project: more")}
+                sections={sidebarSections}
+                footer={sidebarFooter}
             />
 
             <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
@@ -215,190 +290,6 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                     background-color: var(--color--background-base);
                 }
 
-                /* SUB-SIDEBAR */
-                .sub-sidebar {
-                    width: 240px;
-                    flex-shrink: 0;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    border-right: 1px solid
-                        var(--border-color--light, var(--color--neutral-150));
-                    background-color: var(
-                        --menu--color--background,
-                        var(--color--neutral-50)
-                    );
-                }
-                .back-row {
-                    padding: var(--spacing--2xs) var(--spacing--3xs);
-                }
-                .back-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing--3xs);
-                    padding: var(--spacing--4xs) var(--spacing--2xs);
-                    border: 0;
-                    background: transparent;
-                    border-radius: var(--radius--3xs);
-                    color: var(--color--neutral-500);
-                    cursor: pointer;
-                    font-size: var(--font-size--xs);
-                    transition: background-color var(--duration--snappy)
-                        var(--easing--ease-out);
-                }
-                .back-btn:hover {
-                    background-color: var(--color--neutral-100);
-                    color: var(--color--neutral-700);
-                }
-                .back-btn :global(svg) {
-                    width: 14px;
-                    height: 14px;
-                }
-
-                .project-header {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing--3xs);
-                    padding: var(--spacing--3xs) var(--spacing--2xs);
-                    margin: 0 var(--spacing--3xs);
-                    border-radius: var(--radius--3xs);
-                }
-                .project-avatar {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 22px;
-                    height: 22px;
-                    border-radius: 4px;
-                    background-color: var(--color--orange-200);
-                    color: var(--color--neutral-800);
-                    flex-shrink: 0;
-                }
-                .project-avatar :global(svg) {
-                    width: 14px;
-                    height: 14px;
-                }
-                .project-name {
-                    flex: 1;
-                    font-size: var(--font-size--xs);
-                    font-weight: var(--font-weight--medium);
-                    color: var(--color--neutral-800);
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-
-                .new-chat-wrap {
-                    padding: var(--spacing--3xs) var(--spacing--2xs)
-                        var(--spacing--2xs);
-                }
-                .new-chat-btn {
-                    width: 100%;
-                    display: flex;
-                    align-items: center;
-                    gap: var(--spacing--3xs);
-                    padding: var(--spacing--3xs) var(--spacing--2xs);
-                    border: 0;
-                    background: transparent;
-                    border-radius: var(--radius--3xs);
-                    color: var(--color--neutral-700);
-                    cursor: pointer;
-                    font-size: var(--font-size--xs);
-                    font-weight: var(--font-weight--medium);
-                    transition: background-color var(--duration--snappy)
-                        var(--easing--ease-out);
-                }
-                .new-chat-btn:hover {
-                    background-color: var(--color--neutral-100);
-                }
-                .new-chat-icon {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 24px;
-                    height: 24px;
-                    border-radius: var(--radius--full);
-                    background-color: var(--color--primary);
-                    color: white;
-                }
-                .new-chat-icon :global(svg) {
-                    width: 14px;
-                    height: 14px;
-                }
-
-                .chat-list {
-                    flex: 1;
-                    min-height: 0;
-                    overflow-y: auto;
-                    padding-bottom: var(--spacing--md);
-                }
-                .chat-group {
-                    padding: 0 var(--spacing--3xs);
-                    margin-top: var(--spacing--xs);
-                }
-                .group-label {
-                    padding: var(--spacing--3xs) var(--spacing--2xs);
-                    font-size: var(--font-size--3xs);
-                    font-weight: var(--font-weight--bold);
-                    color: var(--color--neutral-400);
-                    text-transform: uppercase;
-                    letter-spacing: 0.04em;
-                }
-                .chat-item {
-                    width: 100%;
-                    display: flex;
-                    align-items: center;
-                    padding: var(--spacing--4xs) var(--spacing--2xs);
-                    border: 0;
-                    background: transparent;
-                    border-radius: var(--radius--3xs);
-                    text-align: left;
-                    color: var(--color--neutral-700);
-                    cursor: pointer;
-                    transition: background-color var(--duration--snappy)
-                        var(--easing--ease-out);
-                }
-                .chat-item:hover {
-                    background-color: var(--color--neutral-100);
-                }
-                .chat-item:hover .chat-menu {
-                    opacity: 1;
-                }
-                .chat-item[data-active="true"] {
-                    background-color: var(--color--neutral-100);
-                    color: var(--color--neutral-800);
-                    font-weight: var(--font-weight--medium);
-                }
-                .chat-title {
-                    flex: 1;
-                    font-size: var(--font-size--xs);
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    line-height: var(--font-line-height--loose);
-                }
-                .chat-menu {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 20px;
-                    height: 20px;
-                    color: var(--color--neutral-500);
-                    opacity: 0;
-                    transition: opacity var(--duration--snappy)
-                        var(--easing--ease-out);
-                }
-                .chat-menu :global(svg) {
-                    width: 14px;
-                    height: 14px;
-                }
-                .empty {
-                    padding: var(--spacing--md) var(--spacing--xs);
-                    color: var(--color--neutral-400);
-                    font-size: var(--font-size--xs);
-                    text-align: center;
-                }
-
                 /* MAIN */
                 .main {
                     flex: 1;
@@ -410,16 +301,47 @@ export function ProjectView({ projectId, onBack }: ProjectViewProps) {
                 .top-bar {
                     display: flex;
                     align-items: center;
+                    gap: var(--spacing--3xs);
                     height: 48px;
-                    padding: 0 var(--spacing--xs);
-                    border-bottom: 1px solid
-                        var(--border-color--light, var(--color--neutral-150));
+                    padding: 0 var(--spacing--sm);
                     flex-shrink: 0;
                 }
-                .header-title {
-                    font-size: var(--font-size--xs);
+                .top-project {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: var(--spacing--3xs);
+                }
+                .top-project-icon {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 4px;
+                    background-color: var(--color--blue-50);
+                    color: var(--color--blue-600);
+                    flex-shrink: 0;
+                }
+                .top-project-icon :global(svg) {
+                    width: 14px;
+                    height: 14px;
+                }
+                .top-project-name {
+                    font-size: var(--font-size--sm);
+                    font-weight: var(--font-weight--semibold);
+                    color: var(--color--neutral-800);
+                }
+                .top-sep {
+                    color: var(--color--neutral-400);
+                    font-size: var(--font-size--sm);
+                }
+                .top-chat {
+                    font-size: var(--font-size--sm);
                     color: var(--color--neutral-700);
-                    padding-left: var(--spacing--2xs);
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    min-width: 0;
                 }
 
                 .content {
@@ -702,4 +624,14 @@ function ConversationThread({ messages }: ConversationThreadProps) {
             `}</style>
         </div>
     );
+}
+
+function resourceIcon(resource: Resource) {
+    return resource.type === "agent" ? <Bot /> : <Workflow />;
+}
+
+function knowledgeIcon(item: KnowledgeItem) {
+    if (item.kind === "link") return <Link2 />;
+    if (item.kind === "integration") return <Database />;
+    return <File />;
 }

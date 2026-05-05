@@ -209,7 +209,9 @@ pnpm dev
 ```
 
 ### Step 2: Open the page in the browser and take a screenshot
-Use whichever browser tool is available — Playwright MCP, Chrome DevTools MCP, or Claude-in-Chrome:
+Use whichever browser tool is available — Playwright MCP, Chrome DevTools MCP, or Claude-in-Chrome.
+
+**Where screenshots go:** if a tool needs an explicit `filePath` / `path` / `save_to_disk` argument, save into `./screenshots/` (gitignored) — **never to the repo root**. Use a descriptive filename, e.g. `./screenshots/n8n-vision-empty-state.png`. Folder is auto-created if missing (`mkdir -p screenshots`).
 
 **Chrome DevTools MCP:**
 ```
